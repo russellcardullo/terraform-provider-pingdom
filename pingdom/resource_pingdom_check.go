@@ -33,20 +33,116 @@ func resourcePingdomCheck() *schema.Resource {
 				Required: true,
 				ForceNew: false,
 			},
+
+			"resolution": &schema.Schema{
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"sendtoemail": &schema.Schema{
+				Type:     schema.TypeBool,
+				Required: false,
+				ForceNew: false,
+			},
+
+			"sendtosms": &schema.Schema{
+				Type:     schema.TypeBool,
+				Required: false,
+				ForceNew: false,
+			},
+
+			"sendtotwitter": &schema.Schema{
+				Type:     schema.TypeBool,
+				Required: false,
+				ForceNew: false,
+			},
+
+			"sendtoiphone": &schema.Schema{
+				Type:     schema.TypeBool,
+				Required: false,
+				ForceNew: false,
+			},
+
+			"sendtoandroid": &schema.Schema{
+				Type:     schema.TypeBool,
+				Required: false,
+				ForceNew: false,
+			},
+
+			"sendnotificationwhendown": &schema.Schema{
+				Type:     schema.TypeInt,
+				Required: false,
+				ForceNew: false,
+			},
+
+			"notifyagainevery": &schema.Schema{
+				Type:     schema.TypeInt,
+				Required: false,
+				ForceNew: false,
+			},
+
+			"notifywhenbackup": &schema.Schema{
+				Type:     schema.TypeBool,
+				Required: false,
+				ForceNew: false,
+			},
 		},
 	}
+}
+
+func checkForResource(d *schema.ResourceData) *pingdom.Check {
+	check := &pingdom.Check{}
+	// required
+	if v, ok := d.GetOk("name"); ok {
+		check.Name = v.(string)
+	}
+	if v, ok := d.GetOk("host"); ok {
+		check.Hostname = v.(string)
+	}
+
+	if v, ok := d.GetOk("resolution"); ok {
+		check.Resolution = v.(int)
+	}
+
+	// optional
+	if v, ok := d.GetOk("sendtoemail"); ok {
+		check.SendToEmail = v.(bool)
+	}
+
+	if v, ok := d.GetOk("sendtosms"); ok {
+		check.SendToSms = v.(bool)
+	}
+
+	if v, ok := d.GetOk("sendtoiphone"); ok {
+		check.SendToIPhone = v.(bool)
+	}
+
+	if v, ok := d.GetOk("sendtoandroid"); ok {
+		check.SendToAndroid = v.(bool)
+	}
+
+	if v, ok := d.GetOk("sendnotificationwhendown"); ok {
+		check.SendNotificationWhenDown = v.(int)
+	}
+
+	if v, ok := d.GetOk("notifyagainevery"); ok {
+		check.NotifyAgainEvery = v.(int)
+	}
+
+	if v, ok := d.GetOk("notifywhenbackup"); ok {
+		check.NotifyWhenBackup = v.(bool)
+	}
+	return check
 }
 
 func resourcePingdomCheckCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pingdom.Client)
 
-	name := d.Get("name").(string)
-	host := d.Get("host").(string)
-	check := pingdom.HttpCheck{Name: name, Host: host}
+	check := checkForResource(d)
+	log.Printf("[DEBUG] Check create configuration: %#v, %#v", check.Name, check.Hostname)
 
-	log.Printf("[DEBUG] Check create configuration: %#v, %#v", name, host)
-
-	ck, err := client.CreateCheck(check)
+	ck, err := client.Checks.Create(check)
 	if err != nil {
 		return err
 	}
@@ -65,13 +161,14 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
-	ck, err := client.ReadCheck(id)
+	ck, err := client.Checks.Read(id)
 	if err != nil {
 		return fmt.Errorf("Error retrieving check: %s", err)
 	}
 
 	d.Set("hostname", ck.Hostname)
 	d.Set("name", ck.Name)
+	d.Set("resolution", ck.Resolution)
 
 	return nil
 }
@@ -84,13 +181,10 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
-	name := d.Get("name").(string)
-	host := d.Get("host").(string)
-	check := pingdom.HttpCheck{Name: name, Host: host}
+	check := checkForResource(d)
+	log.Printf("[DEBUG] Check update configuration: %#v, %#v", check.Name, check.Hostname)
 
-	log.Printf("[DEBUG] Check update configuration: %#v, %#v", name, host)
-
-	_, err = client.UpdateCheck(id, check)
+	_, err = client.Checks.Update(id, check)
 	if err != nil {
 		return fmt.Errorf("Error updating check: %s", err)
 	}
@@ -108,7 +202,7 @@ func resourcePingdomCheckDelete(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[INFO] Deleting Check: %v", id)
 
-	_, err = client.DeleteCheck(id)
+	_, err = client.Checks.Delete(id)
 	if err != nil {
 		return fmt.Errorf("Error deleting check: %s", err)
 	}
