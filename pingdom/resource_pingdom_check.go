@@ -86,10 +86,11 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	name := d.Get("name").(string)
 	host := d.Get("host").(string)
+	check := pingdom.HttpCheck{Name: name, Host: host}
 
 	log.Printf("[DEBUG] Check update configuration: %#v, %#v", name, host)
 
-	_, err = client.UpdateCheck(id, name, host)
+	_, err = client.UpdateCheck(id, check)
 	if err != nil {
 		return fmt.Errorf("Error updating check: %s", err)
 	}
