@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/russellcardullo/pingdom"
+	"github.com/russellcardullo/go-pingdom"
 )
 
 func resourcePingdomCheck() *schema.Resource {
@@ -42,49 +42,49 @@ func resourcePingdomCheck() *schema.Resource {
 
 			"sendtoemail": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"sendtosms": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"sendtotwitter": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"sendtoiphone": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"sendtoandroid": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"sendnotificationwhendown": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"notifyagainevery": &schema.Schema{
 				Type:     schema.TypeInt,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
 			},
 
 			"notifywhenbackup": &schema.Schema{
 				Type:     schema.TypeBool,
-				Required: false,
+				Optional: true,
 				ForceNew: false,
 			},
 		},
