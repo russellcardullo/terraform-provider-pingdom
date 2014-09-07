@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/russellcardullo/go-pingdom"
+	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
 func resourcePingdomCheck() *schema.Resource {
