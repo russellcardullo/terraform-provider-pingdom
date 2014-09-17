@@ -211,8 +211,6 @@ func resourcePingdomCheckCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.SetId(strconv.Itoa(ck.ID))
-	d.Set("hostname", ck.Hostname)
-	d.Set("name", ck.Name)
 
 	return nil
 }
