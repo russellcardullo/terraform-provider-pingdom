@@ -2,7 +2,7 @@
 
 This project is a [terraform](http://www.terraform.io/) provider for [pingdom](https://www.pingdom.com/).
 
-This currently only supports working with basic HTTP checks.
+This currently only supports working with basic HTTP and ping checks.
 
 ## Build and install ##
 
@@ -45,9 +45,17 @@ provider "pingdom" {
 }
 
 resource "pingdom_check" "example" {
-    name = "my check"
+    type = "http"
+    name = "my http check"
     host = "example.com"
     resolution = 5
+}
+
+resource "pingdom_ping_check" "ping_example" {
+    type = "ping"
+    name = "my ping check"
+    host = "example.com"
+    resolution = 1
 }
 ```
 
@@ -102,6 +110,8 @@ The following attributes can be set:
 **host** - (Required) The hostname to check.  Should be in the format `example.com`.
 
 **resolution** - (Required) The check resolution.  Allowed values: (1,5,15,30,60).
+
+**type** - (Required) The check type.  Allowed values: (http, ping).
 
 **sendtoemail** - Send alerts as email.  Allowed values: (true,false).
 

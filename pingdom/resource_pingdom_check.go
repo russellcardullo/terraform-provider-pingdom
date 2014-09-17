@@ -1,6 +1,7 @@
 package pingdom
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -32,6 +33,12 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
+			},
+
+			"type": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"resolution": &schema.Schema{
@@ -91,56 +98,112 @@ func resourcePingdomCheck() *schema.Resource {
 	}
 }
 
-func checkForResource(d *schema.ResourceData) *pingdom.Check {
-	check := &pingdom.Check{}
+type commonCheckParams struct {
+	Name                     string
+	Hostname                 string
+	Resolution               int
+	Paused                   bool
+	SendToAndroid            bool
+	SendToEmail              bool
+	SendToIPhone             bool
+	SendToSms                bool
+	SendToTwitter            bool
+	SendNotificationWhenDown int
+	NotifyAgainEvery         int
+	NotifyWhenBackup         bool
+}
+
+func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
+	checkParams := commonCheckParams{}
+
 	// required
 	if v, ok := d.GetOk("name"); ok {
-		check.Name = v.(string)
+		checkParams.Name = v.(string)
 	}
 	if v, ok := d.GetOk("host"); ok {
-		check.Hostname = v.(string)
+		checkParams.Hostname = v.(string)
 	}
 
 	if v, ok := d.GetOk("resolution"); ok {
-		check.Resolution = v.(int)
+		checkParams.Resolution = v.(int)
 	}
 
 	// optional
 	if v, ok := d.GetOk("sendtoemail"); ok {
-		check.SendToEmail = v.(bool)
+		checkParams.SendToEmail = v.(bool)
 	}
 
 	if v, ok := d.GetOk("sendtosms"); ok {
-		check.SendToSms = v.(bool)
+		checkParams.SendToSms = v.(bool)
 	}
 
 	if v, ok := d.GetOk("sendtoiphone"); ok {
-		check.SendToIPhone = v.(bool)
+		checkParams.SendToIPhone = v.(bool)
 	}
 
 	if v, ok := d.GetOk("sendtoandroid"); ok {
-		check.SendToAndroid = v.(bool)
+		checkParams.SendToAndroid = v.(bool)
 	}
 
 	if v, ok := d.GetOk("sendnotificationwhendown"); ok {
-		check.SendNotificationWhenDown = v.(int)
+		checkParams.SendNotificationWhenDown = v.(int)
 	}
 
 	if v, ok := d.GetOk("notifyagainevery"); ok {
-		check.NotifyAgainEvery = v.(int)
+		checkParams.NotifyAgainEvery = v.(int)
 	}
 
 	if v, ok := d.GetOk("notifywhenbackup"); ok {
-		check.NotifyWhenBackup = v.(bool)
+		checkParams.NotifyWhenBackup = v.(bool)
 	}
-	return check
+
+	checkType := d.Get("type")
+	switch checkType {
+	case "http":
+		return &pingdom.HttpCheck{
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
+			SendToAndroid:            checkParams.SendToAndroid,
+			SendToEmail:              checkParams.SendToEmail,
+			SendToIPhone:             checkParams.SendToIPhone,
+			SendToSms:                checkParams.SendToSms,
+			SendToTwitter:            checkParams.SendToTwitter,
+			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
+			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
+			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
+		}, nil
+	case "ping":
+		return &pingdom.PingCheck{
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
+			SendToAndroid:            checkParams.SendToAndroid,
+			SendToEmail:              checkParams.SendToEmail,
+			SendToIPhone:             checkParams.SendToIPhone,
+			SendToSms:                checkParams.SendToSms,
+			SendToTwitter:            checkParams.SendToTwitter,
+			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
+			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
+			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
+		}, nil
+	default:
+		errString := fmt.Sprintf("unknown type for check '%v'", checkType)
+		return nil, errors.New(errString)
+	}
 }
 
 func resourcePingdomCheckCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pingdom.Client)
 
-	check := checkForResource(d)
-	log.Printf("[DEBUG] Check create configuration: %#v, %#v", check.Name, check.Hostname)
+	check, err := checkForResource(d)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Check create configuration: %#v, %#v", d.Get("name"), d.Get("hostname"))
 
 	ck, err := client.Checks.Create(check)
 	if err != nil {
@@ -181,8 +244,12 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
-	check := checkForResource(d)
-	log.Printf("[DEBUG] Check update configuration: %#v, %#v", check.Name, check.Hostname)
+	check, err := checkForResource(d)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] Check update configuration: %#v, %#v", d.Get("name"), d.Get("hostname"))
 
 	_, err = client.Checks.Update(id, check)
 	if err != nil {
