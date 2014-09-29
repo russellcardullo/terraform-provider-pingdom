@@ -51,7 +51,7 @@ resource "pingdom_check" "example" {
     resolution = 5
 }
 
-resource "pingdom_ping_check" "ping_example" {
+resource "pingdom_check" "ping_example" {
     type = "ping"
     name = "my ping check"
     host = "example.com"
