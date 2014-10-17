@@ -6,5 +6,7 @@ import (
 )
 
 func main() {
-	plugin.Serve(pingdom.Provider())
+	plugin.Serve(&plugin.ServeOpts{
+		ProviderFunc: pingdom.Provider,
+	})
 }
