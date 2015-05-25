@@ -94,6 +94,12 @@ func resourcePingdomCheck() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+
+			"uselegacynotifications": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+			},
 		},
 	}
 }
@@ -111,6 +117,7 @@ type commonCheckParams struct {
 	SendNotificationWhenDown int
 	NotifyAgainEvery         int
 	NotifyWhenBackup         bool
+	UseLegacyNotifications   bool
 }
 
 func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
@@ -157,6 +164,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.NotifyWhenBackup = v.(bool)
 	}
 
+	if v, ok := d.GetOk("uselegacynotifications"); ok {
+		checkParams.UseLegacyNotifications = v.(bool)
+	}
+
 	checkType := d.Get("type")
 	switch checkType {
 	case "http":
@@ -173,6 +184,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
+			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
 		}, nil
 	case "ping":
 		return &pingdom.PingCheck{
@@ -188,6 +200,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
+			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
 		}, nil
 	default:
 		errString := fmt.Sprintf("unknown type for check '%v'", checkType)

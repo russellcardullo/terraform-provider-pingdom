@@ -129,6 +129,8 @@ The following attributes can be set:
 
 **notifywhenbackup** - Notify when backup.
 
+**uselegacynotifications** - Use legacy (UP/DOWN) notifications if true.
+
 The following attributes are exported:
 
 **id** The ID of the Pingdom check
