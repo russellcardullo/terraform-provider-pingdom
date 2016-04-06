@@ -30,6 +30,7 @@ func TestProviderConfigure(t *testing.T) {
 	var expectedUser string
 	var expectedPassword string
 	var expectedKey string
+	var expectedAccountEmail string
 
 	if v := os.Getenv("PINGDOM_USER"); v != "" {
 		expectedUser = v
@@ -49,10 +50,17 @@ func TestProviderConfigure(t *testing.T) {
 		expectedKey = "foo"
 	}
 
+	if v := os.Getenv("PINGDOM_ACCOUNT_EMAIL"); v != "" {
+		expectedAccountEmail = v
+	} else {
+		expectedAccountEmail = "foo"
+	}
+
 	raw := map[string]interface{}{
 		"user":     expectedUser,
 		"password": expectedPassword,
 		"api_key":  expectedKey,
+		"account_email":  expectedAccountEmail,
 	}
 
 	rawConfig, err := config.NewRawConfig(raw)

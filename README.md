@@ -37,11 +37,13 @@ providers {
 variable "pingdom_user" {}
 variable "pingdom_password" {}
 variable "pingdom_api_key" {}
+variable "pingdom_account_email" {} # Optional: only required for multi-user accounts
 
 provider "pingdom" {
     user = "${var.pingdom_user}"
     password = "${var.pingdom_password}"
     api_key = "${var.pingdom_api_key}"
+    account_email = "${var.pingdom_account_email}" # Optional: only required for multi-user accounts
 }
 
 resource "pingdom_check" "example" {
