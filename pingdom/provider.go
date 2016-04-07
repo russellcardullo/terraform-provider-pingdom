@@ -27,6 +27,7 @@ func Provider() terraform.ResourceProvider {
 			},
 			"account_email": &schema.Schema{
 				Type:     schema.TypeString,
+				Default: "",
 				Optional: true,
 			},
 		},
