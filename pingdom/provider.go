@@ -25,6 +25,11 @@ func Provider() terraform.ResourceProvider {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"account_email": &schema.Schema{
+				Type:     schema.TypeString,
+				Default: "",
+				Optional: true,
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"pingdom_check": resourcePingdomCheck(),
