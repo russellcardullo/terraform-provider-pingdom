@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/russellcardullo/go-pingdom/pingdom"
@@ -81,6 +82,7 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"notifyagainevery": &schema.Schema{
@@ -93,6 +95,7 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"uselegacynotifications": &schema.Schema{
@@ -117,6 +120,7 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
 
 			"username": &schema.Schema{
@@ -369,6 +373,34 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("hostname", ck.Hostname)
 	d.Set("name", ck.Name)
 	d.Set("resolution", ck.Resolution)
+	d.Set("sendtoandroid", ck.SendToAndroid)
+	d.Set("sendtoemail", ck.SendToEmail)
+	d.Set("sendtoiphone", ck.SendToIPhone)
+	d.Set("sendtosms", ck.SendToSms)
+	d.Set("sendtotwitter", ck.SendToTwitter)
+	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
+	d.Set("notifyagainevery", ck.NotifyAgainEvery)
+	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
+	d.Set("hostname", ck.Hostname)
+
+	if ck.Type.HTTP == nil {
+		ck.Type.HTTP = &pingdom.CheckResponseHTTPDetails{}
+	}
+	d.Set("url", ck.Type.HTTP.Url)
+	d.Set("encryption", ck.Type.HTTP.Encryption)
+	d.Set("port", ck.Type.HTTP.Port)
+	d.Set("username", ck.Type.HTTP.Username)
+	d.Set("password", ck.Type.HTTP.Password)
+	d.Set("shouldcontain", ck.Type.HTTP.ShouldContain)
+	d.Set("shouldnotcontain", ck.Type.HTTP.ShouldNotContain)
+	d.Set("postdata", ck.Type.HTTP.PostData)
+
+	if v, ok := ck.Type.HTTP.RequestHeaders["User-Agent"]; ok {
+		if strings.HasPrefix(v, "Pingdom.com_bot_version_") {
+			delete(ck.Type.HTTP.RequestHeaders, "User-Agent")
+		}
+	}
+	d.Set("requestheaders", ck.Type.HTTP.RequestHeaders)
 
 	return nil
 }
