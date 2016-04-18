@@ -100,6 +100,60 @@ func resourcePingdomCheck() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+
+			"encryption": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"url": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"port": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"username": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"password": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"shouldcontain": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"shouldnotcontain": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"postdata": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"requestheaders": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: false,
+			},
 		},
 	}
 }
@@ -118,6 +172,15 @@ type commonCheckParams struct {
 	NotifyAgainEvery         int
 	NotifyWhenBackup         bool
 	UseLegacyNotifications   bool
+	Url                      string
+	Encryption               bool
+	Port                     int
+	Username                 string
+	Password                 string
+	ShouldContain            string
+	ShouldNotContain         string
+	PostData                 string
+	RequestHeaders           map[string]string
 }
 
 func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
@@ -168,6 +231,45 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.UseLegacyNotifications = v.(bool)
 	}
 
+	if v, ok := d.GetOk("url"); ok {
+		checkParams.Url = v.(string)
+	}
+
+	if v, ok := d.GetOk("encryption"); ok {
+		checkParams.Encryption = v.(bool)
+	}
+
+	if v, ok := d.GetOk("port"); ok {
+		checkParams.Port = v.(int)
+	}
+
+	if v, ok := d.GetOk("username"); ok {
+		checkParams.Username = v.(string)
+	}
+
+	if v, ok := d.GetOk("password"); ok {
+		checkParams.Password = v.(string)
+	}
+
+	if v, ok := d.GetOk("shouldcontain"); ok {
+		checkParams.ShouldContain = v.(string)
+	}
+
+	if v, ok := d.GetOk("shouldnotcontain"); ok {
+		checkParams.ShouldNotContain = v.(string)
+	}
+
+	if v, ok := d.GetOk("postdata"); ok {
+		checkParams.PostData = v.(string)
+	}
+
+	if m, ok := d.GetOk("requestheaders"); ok {
+		checkParams.RequestHeaders = make(map[string]string)
+		for k, v := range m.(map[string]interface{}) {
+			checkParams.RequestHeaders[k] = v.(string)
+		}
+	}
+
 	checkType := d.Get("type")
 	switch checkType {
 	case "http":
@@ -185,6 +287,15 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
 			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
+			Encryption:               checkParams.Encryption,
+			Url:                      checkParams.Url,
+			Port:                     checkParams.Port,
+			Username:                 checkParams.Username,
+			Password:                 checkParams.Password,
+			ShouldContain:            checkParams.ShouldContain,
+			ShouldNotContain:         checkParams.ShouldNotContain,
+			PostData:                 checkParams.PostData,
+			RequestHeaders:           checkParams.RequestHeaders,
 		}, nil
 	case "ping":
 		return &pingdom.PingCheck{
