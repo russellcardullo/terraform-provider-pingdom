@@ -346,6 +346,21 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
+	cl, err := client.Checks.List()
+	if err != nil {
+		return fmt.Errorf("Error retrieving list of checks: %s", err)
+	}
+	exists := false
+	for _, ckid := range cl {
+		if ckid.ID == id {
+			exists = true
+			break
+		}
+	}
+	if !exists {
+		d.SetId("")
+		return nil
+	}
 	ck, err := client.Checks.Read(id)
 	if err != nil {
 		return fmt.Errorf("Error retrieving check: %s", err)
