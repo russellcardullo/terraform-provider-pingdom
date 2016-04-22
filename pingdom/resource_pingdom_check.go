@@ -1,7 +1,6 @@
 package pingdom
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -318,8 +317,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
 		}, nil
 	default:
-		errString := fmt.Sprintf("unknown type for check '%v'", checkType)
-		return nil, errors.New(errString)
+		return nil, fmt.Errorf("unknown type for check '%v'", checkType)
 	}
 }
 
@@ -381,7 +379,6 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
 	d.Set("notifyagainevery", ck.NotifyAgainEvery)
 	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
-	d.Set("hostname", ck.Hostname)
 
 	if ck.Type.HTTP == nil {
 		ck.Type.HTTP = &pingdom.CheckResponseHTTPDetails{}
