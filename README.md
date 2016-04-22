@@ -105,7 +105,9 @@ resource "pingdom_check" "example" {
 
 ### Pingdom Check ###
 
-The following attributes can be set:
+#### Common Attibutes ####
+
+The following common attributes for all check types can be set:
 
 **name** - (Required) The name of the check
 
@@ -132,6 +134,28 @@ The following attributes can be set:
 **notifywhenbackup** - Notify when backup.
 
 **uselegacynotifications** - Use legacy (UP/DOWN) notifications if true.
+
+#### HTTP specific attibutes ####
+
+For the HTTP checks, you can set these attributes:
+
+**url** - Target path on server.
+
+**encryption** - Enable encryption in the HTTP check (aka HTTPS).
+
+**port** - Target port for HTTP checks.
+
+**username** - Username for target HTTP authentication.
+
+**password** - Password for target HTTP authentication.
+
+**shouldcontain** - Target site should contain this string.
+
+**shouldnotcontain** - Target site should NOT contain this string. Not allowed defined together with `shouldcontain`.
+
+**postdata** - Data that should be posted to the web page, for example submission data for a sign-up or login form. The data needs to be formatted in the same way as a web browser would send it to the web server.
+
+**requestheaders** - Custom HTTP headers. It should be a hash with pairs, like `{ "header_name" = "header_content" }`
 
 The following attributes are exported:
 
