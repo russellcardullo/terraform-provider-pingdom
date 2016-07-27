@@ -102,6 +102,12 @@ func resourcePingdomCheck() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+			"contactids": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
+			},
 
 			"encryption": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -175,6 +181,7 @@ type commonCheckParams struct {
 	NotifyAgainEvery         int
 	NotifyWhenBackup         bool
 	UseLegacyNotifications   bool
+	ContactIds               []int
 	Url                      string
 	Encryption               bool
 	Port                     int
@@ -234,6 +241,15 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.UseLegacyNotifications = v.(bool)
 	}
 
+	if v, ok := d.GetOk("contactids"); ok {
+		interfaceSlice := v.(*schema.Set).List()
+		var intSlice []int
+		for i := range interfaceSlice {
+			intSlice = append(intSlice, interfaceSlice[i].(int))
+		}
+		checkParams.ContactIds = intSlice
+	}
+
 	if v, ok := d.GetOk("url"); ok {
 		checkParams.Url = v.(string)
 	}
@@ -290,6 +306,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
 			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
+			ContactIds:               checkParams.ContactIds,
 			Encryption:               checkParams.Encryption,
 			Url:                      checkParams.Url,
 			Port:                     checkParams.Port,
@@ -315,6 +332,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
 			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
+			ContactIds:               checkParams.ContactIds,
 		}, nil
 	default:
 		return nil, fmt.Errorf("unknown type for check '%v'", checkType)
@@ -379,6 +397,14 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
 	d.Set("notifyagainevery", ck.NotifyAgainEvery)
 	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
+	cids := schema.NewSet(
+		func(contactId interface{}) int { return contactId.(int) },
+		[]interface{}{},
+	)
+	for _, contactId := range ck.ContactIds {
+		cids.Add(contactId)
+	}
+	d.Set("contactids", cids)
 
 	if ck.Type.HTTP == nil {
 		ck.Type.HTTP = &pingdom.CheckResponseHTTPDetails{}
