@@ -53,6 +53,19 @@ resource "pingdom_check" "example" {
     resolution = 5
 }
 
+resource "pingdom_check" "example_with_alert" {
+    type = "http"
+    name = "my http check"
+    host = "example.com"
+    resolution = 5
+    uselegacynotifications = true
+    sendtoemail = true
+    sendnotificationwhendown = 2
+    contactids = [
+      12345678
+    ]
+}
+
 resource "pingdom_check" "ping_example" {
     type = "ping"
     name = "my ping check"
@@ -134,6 +147,8 @@ The following common attributes for all check types can be set:
 **notifywhenbackup** - Notify when backup.
 
 **uselegacynotifications** - Use legacy (UP/DOWN) notifications if true.
+
+**contactids** - List of integer contact IDs that will receive the alerts. The ID can be extracted from the contact page URL on the pingdom website.
 
 #### HTTP specific attibutes ####
 
