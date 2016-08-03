@@ -119,6 +119,7 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				Default:  "/",
 			},
 
 			"port": &schema.Schema{
