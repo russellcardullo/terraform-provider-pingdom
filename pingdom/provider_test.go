@@ -57,10 +57,10 @@ func TestProviderConfigure(t *testing.T) {
 	}
 
 	raw := map[string]interface{}{
-		"user":     expectedUser,
-		"password": expectedPassword,
-		"api_key":  expectedKey,
-		"account_email":  expectedAccountEmail,
+		"user":          expectedUser,
+		"password":      expectedPassword,
+		"api_key":       expectedKey,
+		"account_email": expectedAccountEmail,
 	}
 
 	rawConfig, err := config.NewRawConfig(raw)
