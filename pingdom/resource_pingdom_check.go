@@ -390,7 +390,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error retrieving check: %s", err)
 	}
 
-	d.Set("hostname", ck.Hostname)
+	d.Set("host", ck.Hostname)
 	d.Set("name", ck.Name)
 	d.Set("resolution", ck.Resolution)
 	d.Set("sendtoandroid", ck.SendToAndroid)
