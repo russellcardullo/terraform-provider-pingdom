@@ -172,6 +172,8 @@ For the HTTP checks, you can set these attributes:
 
 **requestheaders** - Custom HTTP headers. It should be a hash with pairs, like `{ "header_name" = "header_content" }`
 
+**tags** - List of tags the check should contain. Should be in the format "tagA,tagB"
+
 The following attributes are exported:
 
 **id** The ID of the Pingdom check

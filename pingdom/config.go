@@ -36,7 +36,6 @@ func (c *Config) Client() (*pingdom.Client, error) {
 		client = pingdom.NewMultiUserClient(c.User, c.Password, c.APIKey, c.AccountEmail)
 	}
 
-
 	log.Printf("[INFO] Pingdom Client configured for user: %s", c.User)
 
 	return client, nil
