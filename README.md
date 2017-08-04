@@ -126,7 +126,7 @@ The following common attributes for all check types can be set:
 
 **host** - (Required) The hostname to check.  Should be in the format `example.com`.
 
-**resolution** - (Required) The check resolution.  Allowed values: (1,5,15,30,60).
+**resolution** - (Required) The time in minutes between each check.  Allowed values: (1,5,15,30,60).
 
 **type** - (Required) The check type.  Allowed values: (http, ping).
 
@@ -140,7 +140,7 @@ The following common attributes for all check types can be set:
 
 **sendtoandroid** - Send alerts to Android.  Allowed values: (true,false).
 
-**sendnotificationwhendown** - Send notification when down n times.
+**sendnotificationwhendown** - The number of consecutive failed checks required to trigger an alert.
 
 **notifyagainevery** - Notify again after n results.  A value of 0 means no additional notifications will be sent.
 
