@@ -21,11 +21,6 @@ func resourcePingdomCheck() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -485,11 +480,11 @@ func resourcePingdomCheckDelete(d *schema.ResourceData, meta interface{}) error 
 
 func resourcePingdomCheckImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	id, err := strconv.Atoi(d.Id())
-	
+
 	if err != nil {
 		return nil, fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
-	
+
 	log.Printf("[INFO] Importing key using ADDR ID %s", id)
 
 	return []*schema.ResourceData{d}, nil
