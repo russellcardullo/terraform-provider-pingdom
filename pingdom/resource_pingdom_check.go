@@ -167,6 +167,12 @@ func resourcePingdomCheck() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+
+			"probefilters": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
 		},
 	}
 }
@@ -196,6 +202,7 @@ type commonCheckParams struct {
 	PostData                 string
 	RequestHeaders           map[string]string
 	Tags                     string
+	ProbeFilters             string
 }
 
 func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
@@ -297,6 +304,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.Tags = v.(string)
 	}
 
+	if v, ok := d.GetOk("probefilters"); ok {
+		checkParams.ProbeFilters = v.(string)
+	}
+
 	checkType := d.Get("type")
 	switch checkType {
 	case "http":
@@ -325,6 +336,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			PostData:                 checkParams.PostData,
 			RequestHeaders:           checkParams.RequestHeaders,
 			Tags:                     checkParams.Tags,
+			ProbeFilters:             checkParams.ProbeFilters,
 		}, nil
 	case "ping":
 		return &pingdom.PingCheck{

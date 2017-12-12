@@ -174,6 +174,8 @@ For the HTTP checks, you can set these attributes:
 
 **tags** - List of tags the check should contain. Should be in the format "tagA,tagB"
 
+**probefilters** - Region from which the check should originate. One of NA, EU, APAC, or LATAM. Should be in the format "region:NA"
+
 The following attributes are exported:
 
 **id** The ID of the Pingdom check
