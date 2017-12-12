@@ -107,6 +107,13 @@ func resourcePingdomCheck() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 
+			"integrationids": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
+			},
+
 			"encryption": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -192,6 +199,7 @@ type commonCheckParams struct {
 	NotifyWhenBackup         bool
 	UseLegacyNotifications   bool
 	ContactIds               []int
+	IntegrationIds           []int
 	Url                      string
 	Encryption               bool
 	Port                     int
@@ -262,6 +270,15 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.ContactIds = intSlice
 	}
 
+	if v, ok := d.GetOk("integrationids"); ok {
+		interfaceSlice := v.(*schema.Set).List()
+		var intSlice []int
+		for i := range interfaceSlice {
+			intSlice = append(intSlice, interfaceSlice[i].(int))
+		}
+		checkParams.IntegrationIds = intSlice
+	}
+
 	if v, ok := d.GetOk("url"); ok {
 		checkParams.Url = v.(string)
 	}
@@ -326,6 +343,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
 			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
 			ContactIds:               checkParams.ContactIds,
+			IntegrationIds:           checkParams.IntegrationIds,
 			Encryption:               checkParams.Encryption,
 			Url:                      checkParams.Url,
 			Port:                     checkParams.Port,
@@ -354,6 +372,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
 			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
 			ContactIds:               checkParams.ContactIds,
+			IntegrationIds:           checkParams.IntegrationIds,
 		}, nil
 	default:
 		return nil, fmt.Errorf("unknown type for check '%v'", checkType)
@@ -426,6 +445,15 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 		cids.Add(contactId)
 	}
 	d.Set("contactids", cids)
+
+	integids := schema.NewSet(
+		func(integrationId interface{}) int { return integrationId.(int) },
+		[]interface{}{},
+	)
+	for _, integrationId := range ck.IntegrationIds {
+		integids.Add(integrationId)
+	}
+	d.Set("integrationids", integids)
 
 	if ck.Type.HTTP == nil {
 		ck.Type.HTTP = &pingdom.CheckResponseHTTPDetails{}

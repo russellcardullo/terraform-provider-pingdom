@@ -64,6 +64,10 @@ resource "pingdom_check" "example_with_alert" {
     contactids = [
       12345678
     ]
+    integrationids = [
+      12345678
+      23456789
+    ]
 }
 
 resource "pingdom_check" "ping_example" {
@@ -149,6 +153,8 @@ The following common attributes for all check types can be set:
 **uselegacynotifications** - Use legacy (UP/DOWN) notifications if true.
 
 **contactids** - List of integer contact IDs that will receive the alerts. The ID can be extracted from the contact page URL on the pingdom website.
+
+**integrationids** - List of integer integration IDs (defined by webhook URL) that will be triggered by the alerts. The ID can be extracted from the integrations page URL on the pingdom website.
 
 #### HTTP specific attibutes ####
 
