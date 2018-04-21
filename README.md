@@ -10,10 +10,7 @@ This currently only supports working with basic HTTP and ping checks.
 
 You should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
 
-This relies on the [go-pingdom](https://github.com/russellcardullo/go-pingdom) library. To
-get that: `go get github.com/russellcardullo/go-pingdom/pingdom`.
-
-You'll also need the libraries from terraform.  Check out those docs under [plugin basics](http://www.terraform.io/docs/plugins/basics.html).
+This use [dep](https://github.com/golang/dep) for dependency management.  To fetch all dependencies run `dep ensure`.
 
 ### Build ###
 
