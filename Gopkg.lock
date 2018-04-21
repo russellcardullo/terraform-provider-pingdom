@@ -319,7 +319,7 @@
   branch = "master"
   name = "github.com/russellcardullo/go-pingdom"
   packages = ["pingdom"]
-  revision = "9c0b70494a5d08bf77e97e34b2929cb7a1d58f78"
+  revision = "1fa7564b16852285b2b20b31a964c011c26000bc"
 
 [[projects]]
   name = "github.com/ulikunitz/xz"

@@ -138,6 +138,20 @@ func resourcePingdomCheck() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+
+			"userids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
+			},
+
+			"teamids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
+			},
 		},
 	}
 }
@@ -151,6 +165,8 @@ type commonCheckParams struct {
 	NotifyAgainEvery         int
 	NotifyWhenBackup         bool
 	IntegrationIds           []int
+	UserIds                  []int
+	TeamIds                  []int
 	Url                      string
 	Encryption               bool
 	Port                     int
@@ -198,6 +214,24 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			intSlice = append(intSlice, interfaceSlice[i].(int))
 		}
 		checkParams.IntegrationIds = intSlice
+	}
+
+	if v, ok := d.GetOk("userids"); ok {
+		interfaceSlice := v.(*schema.Set).List()
+		var intSlice []int
+		for i := range interfaceSlice {
+			intSlice = append(intSlice, interfaceSlice[i].(int))
+		}
+		checkParams.UserIds = intSlice
+	}
+
+	if v, ok := d.GetOk("teamids"); ok {
+		interfaceSlice := v.(*schema.Set).List()
+		var intSlice []int
+		for i := range interfaceSlice {
+			intSlice = append(intSlice, interfaceSlice[i].(int))
+		}
+		checkParams.TeamIds = intSlice
 	}
 
 	if v, ok := d.GetOk("url"); ok {
@@ -269,6 +303,8 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			RequestHeaders:           checkParams.RequestHeaders,
 			Tags:                     checkParams.Tags,
 			ProbeFilters:             checkParams.ProbeFilters,
+			UserIds:                  checkParams.UserIds,
+			TeamIds:                  checkParams.TeamIds,
 		}, nil
 	case "ping":
 		return &pingdom.PingCheck{
@@ -280,6 +316,8 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
 			IntegrationIds:           checkParams.IntegrationIds,
+			UserIds:                  checkParams.UserIds,
+			TeamIds:                  checkParams.TeamIds,
 		}, nil
 	default:
 		return nil, fmt.Errorf("unknown type for check '%v'", checkType)
@@ -348,6 +386,24 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 		integids.Add(integrationId)
 	}
 	d.Set("integrationids", integids)
+
+	userids := schema.NewSet(
+		func(userId interface{}) int { return userId.(int) },
+		[]interface{}{},
+	)
+	for _, userId := range ck.UserIds {
+		userids.Add(userId)
+	}
+	d.Set("userids", userids)
+
+	teamids := schema.NewSet(
+		func(userId interface{}) int { return userId.(int) },
+		[]interface{}{},
+	)
+	for _, userId := range ck.TeamIds {
+		teamids.Add(userId)
+	}
+	d.Set("teamids", teamids)
 
 	if ck.Type.HTTP == nil {
 		ck.Type.HTTP = &pingdom.CheckResponseHTTPDetails{}

@@ -57,7 +57,7 @@ resource "pingdom_check" "example_with_alert" {
     resolution = 5
     sendnotificationwhendown = 2
     integrationids = [
-      12345678
+      12345678,
       23456789
     ]
 }
@@ -126,13 +126,17 @@ The following common attributes for all check types can be set:
 
 **type** - (Required) The check type.  Allowed values: (http, ping).
 
-**sendnotificationwhendown** - The number of consecutive failed checks required to trigger an alert.
+**sendnotificationwhendown** - The number of consecutive failed checks required to trigger an alert. Values of 0 are ignored.
 
 **notifyagainevery** - Notify again after n results.  A value of 0 means no additional notifications will be sent.
 
 **notifywhenbackup** - Notify when backup.
 
 **integrationids** - List of integer integration IDs (defined by webhook URL) that will be triggered by the alerts. The ID can be extracted from the integrations page URL on the pingdom website.
+
+**userids** - List of integer user IDs that will be notified when the check is down.
+
+**teamids** - List of integer team IDs that will be notified when the check is down.
 
 #### HTTP specific attibutes ####
 
