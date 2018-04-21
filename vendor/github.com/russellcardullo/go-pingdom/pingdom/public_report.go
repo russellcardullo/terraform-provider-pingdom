@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// PublicReportService provides an interface to Pingdom reports
+// PublicReportService provides an interface to Pingdom reports.
 type PublicReportService struct {
 	client *Client
 }
@@ -31,13 +31,13 @@ func (cs *PublicReportService) List() ([]PublicReportResponse, error) {
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
 	bodyString := string(bodyBytes)
 
-	t := &listPublicReportsJsonResponse{}
+	t := &listPublicReportsJSONResponse{}
 	err = json.Unmarshal([]byte(bodyString), &t)
 
 	return t.Checks, err
 }
 
-// Publish is used to activate a check on the public report
+// PublishCheck is used to activate a check on the public report.
 func (cs *PublicReportService) PublishCheck(id int) (*PingdomResponse, error) {
 	req, err := cs.client.NewRequest("PUT", "/reports.public/"+strconv.Itoa(id), nil)
 	if err != nil {
@@ -52,7 +52,7 @@ func (cs *PublicReportService) PublishCheck(id int) (*PingdomResponse, error) {
 	return t, err
 }
 
-// Withdrawl is used to deactivate a check on the public report
+// WithdrawlCheck is used to deactivate a check on the public report.
 func (cs *PublicReportService) WithdrawlCheck(id int) (*PingdomResponse, error) {
 	req, err := cs.client.NewRequest("DELETE", "/reports.public/"+strconv.Itoa(id), nil)
 	if err != nil {

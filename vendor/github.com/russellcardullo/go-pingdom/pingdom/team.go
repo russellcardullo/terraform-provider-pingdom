@@ -6,11 +6,12 @@ import (
 	"strconv"
 )
 
-// TeamService provides an interface to Pingdom teams
+// TeamService provides an interface to Pingdom teams.
 type TeamService struct {
 	client *Client
 }
 
+// Team is an interface representing a Pingdom team.
 type Team interface {
 	PutParams() map[string]string
 	PostParams() map[string]string
@@ -37,20 +38,20 @@ func (cs *TeamService) List() ([]TeamResponse, error) {
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
 	bodyString := string(bodyBytes)
 
-	t := &listTeamsJsonResponse{}
+	t := &listTeamsJSONResponse{}
 	err = json.Unmarshal([]byte(bodyString), &t)
 
 	return t.Teams, err
 }
 
-// Read return a team object from Pingdom
+// Read return a team object from Pingdom.
 func (cs *TeamService) Read(id int) (*TeamResponse, error) {
 	req, err := cs.client.NewRequest("GET", "/teams/"+strconv.Itoa(id), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	t := &teamDetailsJsonResponse{}
+	t := &teamDetailsJSONResponse{}
 	_, err = cs.client.Do(req, t)
 	if err != nil {
 		return nil, err
@@ -59,7 +60,7 @@ func (cs *TeamService) Read(id int) (*TeamResponse, error) {
 	return t.Team, err
 }
 
-// Create is used to create a new team
+// Create is used to create a new team.
 func (cs *TeamService) Create(team Team) (*TeamResponse, error) {
 	if err := team.Valid(); err != nil {
 		return nil, err

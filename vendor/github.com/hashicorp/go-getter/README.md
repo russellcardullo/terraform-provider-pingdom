@@ -71,6 +71,7 @@ can be augmented at runtime by implementing the `Getter` interface.
   * Mercurial
   * HTTP
   * Amazon S3
+  * Google GCP
 
 In addition to the above protocols, go-getter has what are called "detectors."
 These take a URL and attempt to automatically choose the best protocol for
@@ -275,6 +276,9 @@ None
     from a private key file on disk, you would run `base64 -w0 <file>`.
 
     **Note**: Git 2.3+ is required to use this feature.
+  
+  * `depth` - The Git clone depth. The provided number specifies the last `n`
+    revisions to clone from the repository.
 
 ### Mercurial (`hg`)
 
@@ -331,3 +335,14 @@ Some examples for these addressing schemes:
 - bucket.s3-eu-west-1.amazonaws.com/foo/bar
 - "s3::http://127.0.0.1:9000/test-bucket/hello.txt?aws_access_key_id=KEYID&aws_access_key_secret=SECRETKEY&region=us-east-2"
 
+### GCS (`gcs`)
+
+#### GCS Authentication
+
+In order to access to GCS, authentication credentials should be provided. More information can be found [here](https://cloud.google.com/docs/authentication/getting-started)
+
+#### GCS Bucket Examples
+
+- gcs::https://www.googleapis.com/storage/v1/bucket
+- gcs::https://www.googleapis.com/storage/v1/bucket/foo.zip
+- www.googleapis.com/storage/v1/bucket/foo

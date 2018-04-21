@@ -5,19 +5,19 @@ import (
 	"fmt"
 )
 
-// PingdomResponse represents a general response from the Pingdom API
+// PingdomResponse represents a general response from the Pingdom API.
 type PingdomResponse struct {
 	Message string `json:"message"`
 }
 
-// PingdomError represents an error response from the Pingdom API
+// PingdomError represents an error response from the Pingdom API.
 type PingdomError struct {
 	StatusCode int    `json:"statuscode"`
 	StatusDesc string `json:"statusdesc"`
 	Message    string `json:"errormessage"`
 }
 
-// CheckResponse represents the json response for a check from the Pingdom API
+// CheckResponse represents the JSON response for a check from the Pingdom API.
 type CheckResponse struct {
 	ID                       int                 `json:"id"`
 	Name                     string              `json:"name"`
@@ -45,25 +45,27 @@ type CheckResponse struct {
 }
 
 // CheckTeamResponse is a Team returned inside of a Check instance. (We can't
-// use TeamResponse because the ID returned here is an int, not a string)
+// use TeamResponse because the ID returned here is an int, not a string).
 type CheckTeamResponse struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
+// CheckResponseType is the type of the Pingdom check.
 type CheckResponseType struct {
 	Name string                    `json:"-"`
 	HTTP *CheckResponseHTTPDetails `json:"http,omitempty"`
 	TCP  *CheckResponseTCPDetails  `json:"tcp,omitempty"`
 }
 
+// CheckResponseTag is an optional tag that can be added to checks.
 type CheckResponseTag struct {
 	Name  string      `json:"name"`
 	Type  string      `json:"type"`
 	Count interface{} `json:"count"`
 }
 
-// MaintenanceResponse represents the json response for a maintenance from the Pingdom API
+// MaintenanceResponse represents the JSON response for a maintenance from the Pingdom API.
 type MaintenanceResponse struct {
 	ID             int                      `json:"id"`
 	Description    string                   `json:"description"`
@@ -75,13 +77,13 @@ type MaintenanceResponse struct {
 	Checks         MaintenanceCheckResponse `json:"checks"`
 }
 
-// MaintenanceCheckResponse represents Check reply in json MaintenanceResponse
+// MaintenanceCheckResponse represents Check reply in json MaintenanceResponse.
 type MaintenanceCheckResponse struct {
 	Uptime []int `json:"uptime"`
 	Tms    []int `json:"tms"`
 }
 
-// ProbeResponse represents the json response for probes from the Pingdom API
+// ProbeResponse represents the JSON response for probes from the Pingdom API.
 type ProbeResponse struct {
 	ID         int    `json:"id"`
 	Country    string `json:"country"`
@@ -95,41 +97,45 @@ type ProbeResponse struct {
 	Region     string `json:"region"`
 }
 
-// TeamResponse represents the json response for teams from the Pingdom API
+// TeamResponse represents the JSON response for teams from the Pingdom API.
 type TeamResponse struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
 	Users []TeamUserResponse
 }
 
-// TeamUserResponse represents the json response for users in teams from the Pingdom API
+// TeamUserResponse represents the JSON response for users in teams from the Pingdom API.
 type TeamUserResponse struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
 	Name  string `json:"name"`
 }
 
-// TeamDeleteResponse represents the json response for delete team from the Pingdom API
+// TeamDeleteResponse represents the JSON response for delete team from the Pingdom API.
 type TeamDeleteResponse struct {
 	Success bool `json:"success"`
 }
 
+// PublicReportResponse represents the JSON response for a public report from the Pingdom API.
 type PublicReportResponse struct {
 	ID        int    `json:"checkid"`
 	Name      string `json:"checkname"`
 	ReportURL string `json:"reporturl"`
 }
 
+// SummaryPerformanceResponse represents the JSON response for a summary performance from the Pingdom API.
 type SummaryPerformanceResponse struct {
 	Summary SummaryPerformanceMap `json:"summary"`
 }
 
+// SummaryPerformanceMap is the performance broken down over different time intervals.
 type SummaryPerformanceMap struct {
 	Hours []SummaryPerformanceSummary `json:"hours,omitempty"`
 	Days  []SummaryPerformanceSummary `json:"days,omitempty"`
 	Weeks []SummaryPerformanceSummary `json:"weeks,omitempty"`
 }
 
+// SummaryPerformanceSummary is the metrics for a performance summary.
 type SummaryPerformanceSummary struct {
 	AvgResponse int `json:"avgresponse"`
 	Downtime    int `json:"downtime"`
@@ -138,6 +144,7 @@ type SummaryPerformanceSummary struct {
 	Uptime      int `json:"uptime"`
 }
 
+// UserSmsResponse represents the JSON response for a user SMS contact.
 type UserSmsResponse struct {
 	Id          int    `json:"id"`
 	Severity    string `json:"severity"`
@@ -146,17 +153,19 @@ type UserSmsResponse struct {
 	Provider    string `json:"provider"`
 }
 
+// UserEmailResponse represents the JSON response for a user email contact.
 type UserEmailResponse struct {
 	Id       int    `json:"id"`
 	Severity string `json:"severity"`
 	Address  string `json:"address"`
 }
 
+// CreateUserContactResponse represents the JSON response for a user contact.
 type CreateUserContactResponse struct {
 	Id int `json:"id"`
 }
 
-// MaintenanceWindow represents a Pingdom Maintenance Window.
+// UsersResponse represents the JSON response for a Pingom User.
 type UsersResponse struct {
 	Id       int                 `json:"id"`
 	Paused   string              `json:"paused,omitempty"`
@@ -165,6 +174,7 @@ type UsersResponse struct {
 	Email    []UserEmailResponse `json:"email,omitempty"`
 }
 
+// UnmarshalJSON converts a byte array into a CheckResponseType.
 func (c *CheckResponseType) UnmarshalJSON(b []byte) error {
 	var raw interface{}
 
@@ -219,57 +229,57 @@ type CheckResponseTCPDetails struct {
 	StringToExpect string `json:"stringtoexpect,omitempty"`
 }
 
-// Return string representation of the PingdomError
+// Return string representation of the PingdomError.
 func (r *PingdomError) Error() string {
 	return fmt.Sprintf("%d %v: %v", r.StatusCode, r.StatusDesc, r.Message)
 }
 
-// private types used to unmarshall json responses from pingdom
+// private types used to unmarshall JSON responses from Pingdom.
 
-type listChecksJsonResponse struct {
+type listChecksJSONResponse struct {
 	Checks []CheckResponse `json:"checks"`
 }
 
-type listMaintenanceJsonResponse struct {
+type listMaintenanceJSONResponse struct {
 	Maintenances []MaintenanceResponse `json:"maintenance"`
 }
 
-type listProbesJsonResponse struct {
+type listProbesJSONResponse struct {
 	Probes []ProbeResponse `json:"probes"`
 }
 
-type listTeamsJsonResponse struct {
+type listTeamsJSONResponse struct {
 	Teams []TeamResponse `json:"teams"`
 }
 
-type listPublicReportsJsonResponse struct {
+type listPublicReportsJSONResponse struct {
 	Checks []PublicReportResponse `json:"public"`
 }
 
-type checkDetailsJsonResponse struct {
+type checkDetailsJSONResponse struct {
 	Check *CheckResponse `json:"check"`
 }
 
-type maintenanceDetailsJsonResponse struct {
+type maintenanceDetailsJSONResponse struct {
 	Maintenance *MaintenanceResponse `json:"maintenance"`
 }
 
-type teamDetailsJsonResponse struct {
+type teamDetailsJSONResponse struct {
 	Team *TeamResponse `json:"team"`
 }
 
-type createUserContactJsonResponse struct {
+type createUserContactJSONResponse struct {
 	Contact *CreateUserContactResponse `json:"contact_target"`
 }
 
-type createUserJsonResponse struct {
+type createUserJSONResponse struct {
 	User *UsersResponse `json:"user"`
 }
 
-type listUsersJsonResponse struct {
+type listUsersJSONResponse struct {
 	Users []UsersResponse `json:"users"`
 }
 
-type errorJsonResponse struct {
+type errorJSONResponse struct {
 	Error *PingdomError `json:"error"`
 }

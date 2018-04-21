@@ -17,12 +17,12 @@ type MaintenanceWindow struct {
 	TmsIDs         string `json:"tmsids,omitempty"`
 }
 
-// MaintenanceWindowDelete represents delete request parameters
+// MaintenanceWindowDelete represents delete request parameters.
 type MaintenanceWindowDelete struct {
 	MaintenanceIDs string `json:"maintenanceids"`
 }
 
-// PutParams returns a map of parameters for an MaintenanceWindow that can be sent along
+// PutParams returns a map of parameters for an MaintenanceWindow that can be sent along.
 func (ck *MaintenanceWindow) PutParams() map[string]string {
 	m := map[string]string{
 		"description": ck.Description,
@@ -69,8 +69,8 @@ func (ck *MaintenanceWindow) PostParams() map[string]string {
 	return params
 }
 
-// Valid Determine whether the MaintenanceWindow contains valid fields.  This can be
-// used to guard against sending illegal values to the Pingdom API
+// Valid determines whether the MaintenanceWindow contains valid fields.  This can be
+// used to guard against sending illegal values to the Pingdom API.
 func (ck *MaintenanceWindow) Valid() error {
 	if ck.Description == "" {
 		return fmt.Errorf("Invalid value for `Description`.  Must contain non-empty string")
@@ -87,7 +87,7 @@ func (ck *MaintenanceWindow) Valid() error {
 	return nil
 }
 
-// DeleteParams returns a map of parameters for an MaintenanceWindow that can be sent along
+// DeleteParams returns a map of parameters for an MaintenanceWindow that can be sent along.
 func (ck *MaintenanceWindowDelete) DeleteParams() map[string]string {
 	m := map[string]string{
 		"maintenanceids": ck.MaintenanceIDs,
@@ -96,6 +96,7 @@ func (ck *MaintenanceWindowDelete) DeleteParams() map[string]string {
 	return m
 }
 
+// ValidDelete determines whether a delete request contains valid parameters.
 func (ck *MaintenanceWindowDelete) ValidDelete() error {
 	if ck.MaintenanceIDs == "" {
 		return fmt.Errorf("Invalid value for `IDs`.  Must contain non-empty string")

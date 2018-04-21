@@ -10,7 +10,7 @@ type TeamData struct {
 	UserIds string `json:"userids,omitempty"`
 }
 
-// PutParams returns a map of parameters for an Team that can be sent along
+// PutParams returns a map of parameters for an Team that can be sent along.
 func (ck *TeamData) PutParams() map[string]string {
 	t := map[string]string{
 		"name": ck.Name,
@@ -40,7 +40,7 @@ func (ck *TeamData) PostParams() map[string]string {
 }
 
 // Valid Determine whether the Team contains valid fields.  This can be
-// used to guard against sending illegal values to the Pingdom API
+// used to guard against sending illegal values to the Pingdom API.
 func (ck *TeamData) Valid() error {
 	if ck.Name == "" {
 		return fmt.Errorf("Invalid value for `Name`.  Must contain non-empty string")
