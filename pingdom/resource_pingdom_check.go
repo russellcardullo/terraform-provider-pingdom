@@ -21,161 +21,119 @@ func resourcePingdomCheck() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
 
-			"host": &schema.Schema{
+			"host": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
 
-			"type": &schema.Schema{
+			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"resolution": &schema.Schema{
+			"resolution": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: false,
 			},
 
-			"sendtoemail": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-			},
-
-			"sendtosms": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-			},
-
-			"sendtotwitter": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-			},
-
-			"sendtoiphone": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-			},
-
-			"sendtoandroid": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-			},
-
-			"sendnotificationwhendown": &schema.Schema{
+			"sendnotificationwhendown": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
 
-			"notifyagainevery": &schema.Schema{
+			"notifyagainevery": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 			},
 
-			"notifywhenbackup": &schema.Schema{
+			"notifywhenbackup": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
 
-			"uselegacynotifications": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-			},
-			"contactids": &schema.Schema{
+			"integrationids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 
-			"integrationids": &schema.Schema{
-				Type:     schema.TypeSet,
-				Optional: true,
-				ForceNew: false,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
-			},
-
-			"encryption": &schema.Schema{
+			"encryption": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 			},
 
-			"url": &schema.Schema{
+			"url": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 				Default:  "/",
 			},
 
-			"port": &schema.Schema{
+			"port": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
 
-			"username": &schema.Schema{
+			"username": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
 
-			"password": &schema.Schema{
+			"password": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
 
-			"shouldcontain": &schema.Schema{
+			"shouldcontain": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
 
-			"shouldnotcontain": &schema.Schema{
+			"shouldnotcontain": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
 
-			"postdata": &schema.Schema{
+			"postdata": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
 
-			"requestheaders": &schema.Schema{
+			"requestheaders": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: false,
 			},
-			"tags": &schema.Schema{
+			"tags": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
 
-			"probefilters": &schema.Schema{
+			"probefilters": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
@@ -189,16 +147,9 @@ type commonCheckParams struct {
 	Hostname                 string
 	Resolution               int
 	Paused                   bool
-	SendToAndroid            bool
-	SendToEmail              bool
-	SendToIPhone             bool
-	SendToSms                bool
-	SendToTwitter            bool
 	SendNotificationWhenDown int
 	NotifyAgainEvery         int
 	NotifyWhenBackup         bool
-	UseLegacyNotifications   bool
-	ContactIds               []int
 	IntegrationIds           []int
 	Url                      string
 	Encryption               bool
@@ -228,23 +179,6 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.Resolution = v.(int)
 	}
 
-	// optional
-	if v, ok := d.GetOk("sendtoemail"); ok {
-		checkParams.SendToEmail = v.(bool)
-	}
-
-	if v, ok := d.GetOk("sendtosms"); ok {
-		checkParams.SendToSms = v.(bool)
-	}
-
-	if v, ok := d.GetOk("sendtoiphone"); ok {
-		checkParams.SendToIPhone = v.(bool)
-	}
-
-	if v, ok := d.GetOk("sendtoandroid"); ok {
-		checkParams.SendToAndroid = v.(bool)
-	}
-
 	if v, ok := d.GetOk("sendnotificationwhendown"); ok {
 		checkParams.SendNotificationWhenDown = v.(int)
 	}
@@ -255,19 +189,6 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 
 	if v, ok := d.GetOk("notifywhenbackup"); ok {
 		checkParams.NotifyWhenBackup = v.(bool)
-	}
-
-	if v, ok := d.GetOk("uselegacynotifications"); ok {
-		checkParams.UseLegacyNotifications = v.(bool)
-	}
-
-	if v, ok := d.GetOk("contactids"); ok {
-		interfaceSlice := v.(*schema.Set).List()
-		var intSlice []int
-		for i := range interfaceSlice {
-			intSlice = append(intSlice, interfaceSlice[i].(int))
-		}
-		checkParams.ContactIds = intSlice
 	}
 
 	if v, ok := d.GetOk("integrationids"); ok {
@@ -329,20 +250,13 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 	switch checkType {
 	case "http":
 		return &pingdom.HttpCheck{
-			Name:                     checkParams.Name,
-			Hostname:                 checkParams.Hostname,
-			Resolution:               checkParams.Resolution,
-			Paused:                   checkParams.Paused,
-			SendToAndroid:            checkParams.SendToAndroid,
-			SendToEmail:              checkParams.SendToEmail,
-			SendToIPhone:             checkParams.SendToIPhone,
-			SendToSms:                checkParams.SendToSms,
-			SendToTwitter:            checkParams.SendToTwitter,
+			Name:       checkParams.Name,
+			Hostname:   checkParams.Hostname,
+			Resolution: checkParams.Resolution,
+			Paused:     checkParams.Paused,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
-			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
-			ContactIds:               checkParams.ContactIds,
 			IntegrationIds:           checkParams.IntegrationIds,
 			Encryption:               checkParams.Encryption,
 			Url:                      checkParams.Url,
@@ -358,20 +272,13 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}, nil
 	case "ping":
 		return &pingdom.PingCheck{
-			Name:                     checkParams.Name,
-			Hostname:                 checkParams.Hostname,
-			Resolution:               checkParams.Resolution,
-			Paused:                   checkParams.Paused,
-			SendToAndroid:            checkParams.SendToAndroid,
-			SendToEmail:              checkParams.SendToEmail,
-			SendToIPhone:             checkParams.SendToIPhone,
-			SendToSms:                checkParams.SendToSms,
-			SendToTwitter:            checkParams.SendToTwitter,
+			Name:       checkParams.Name,
+			Hostname:   checkParams.Hostname,
+			Resolution: checkParams.Resolution,
+			Paused:     checkParams.Paused,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
-			UseLegacyNotifications:   checkParams.UseLegacyNotifications,
-			ContactIds:               checkParams.ContactIds,
 			IntegrationIds:           checkParams.IntegrationIds,
 		}, nil
 	default:
@@ -429,22 +336,9 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("host", ck.Hostname)
 	d.Set("name", ck.Name)
 	d.Set("resolution", ck.Resolution)
-	d.Set("sendtoandroid", ck.SendToAndroid)
-	d.Set("sendtoemail", ck.SendToEmail)
-	d.Set("sendtoiphone", ck.SendToIPhone)
-	d.Set("sendtosms", ck.SendToSms)
-	d.Set("sendtotwitter", ck.SendToTwitter)
 	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
 	d.Set("notifyagainevery", ck.NotifyAgainEvery)
 	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
-	cids := schema.NewSet(
-		func(contactId interface{}) int { return contactId.(int) },
-		[]interface{}{},
-	)
-	for _, contactId := range ck.ContactIds {
-		cids.Add(contactId)
-	}
-	d.Set("contactids", cids)
 
 	integids := schema.NewSet(
 		func(integrationId interface{}) int { return integrationId.(int) },
@@ -525,7 +419,7 @@ func resourcePingdomCheckImporter(d *schema.ResourceData, meta interface{}) ([]*
 		return nil, fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
-	log.Printf("[INFO] Importing key using ADDR ID %s", id)
+	log.Printf("[INFO] Importing key using ADDR ID %d", id)
 
 	return []*schema.ResourceData{d}, nil
 }
