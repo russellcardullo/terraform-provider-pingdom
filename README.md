@@ -15,7 +15,7 @@ This use [dep](https://github.com/golang/dep) for dependency management.  To fet
 ### Build ###
 
 ```
-go get github.com/russellcardullo/terraform-provider-pingdom
+go get github.com/aylien/terraform-provider-pingdom
 ```
 
 The binary will then be available at `~/go/bin/terraform-provider-pingdom`, unless you've set `$GOPATH`, in which case you'll find it at `$GOPATH/bin`
@@ -28,7 +28,7 @@ You will need to install the binary as a [terraform third party plugin](https://
 ln -s ~/go/bin/terraform-provider-pingdom ~/.terraform.d/plugins/$(uname | tr '[:upper:]' '[:lower:]')_amd64/terraform-provider-pingdom_v$(date +%Y.%m.%d)
 ```
 
-Updates can now be applied by re-running `go get github.com/russellcardullo/terraform-provider-pingdom`.
+Updates can now be applied by re-running `go get github.com/aylien/terraform-provider-pingdom`.
 
 ## Usage ##
 
