@@ -168,7 +168,7 @@ type commonCheckParams struct {
 	Hostname                 string
 	Resolution               int
 	Paused                   bool
-	ResponseimeThreshold     int
+	ResponseTimeThreshold    int
 	SendNotificationWhenDown int
 	NotifyAgainEvery         int
 	NotifyWhenBackup         bool
@@ -204,7 +204,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 	}
 
 	if v, ok := d.GetOk("responsetime_threshold"); ok {
-		checkParams.ResponseimeThreshold = v.(int)
+		checkParams.ResponseTimeThreshold = v.(int)
 	}
 
 	if v, ok := d.GetOk("sendnotificationwhendown"); ok {
@@ -300,7 +300,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			Hostname:   checkParams.Hostname,
 			Resolution: checkParams.Resolution,
 			Paused:     checkParams.Paused,
-			ResponseimeThreshold:     checkParams.ResponseimeThreshold,
+			ResponseTimeThreshold:    checkParams.ResponseTimeThreshold,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
@@ -325,7 +325,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			Hostname:   checkParams.Hostname,
 			Resolution: checkParams.Resolution,
 			Paused:     checkParams.Paused,
-			ResponseimeThreshold:     checkParams.ResponseimeThreshold,
+			ResponseTimeThreshold:    checkParams.ResponseTimeThreshold,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
