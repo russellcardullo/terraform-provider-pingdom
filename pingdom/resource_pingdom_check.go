@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/russellcardullo/go-pingdom/pingdom"
+	"github.com/aylien/go-pingdom/pingdom"
 )
 
 func resourcePingdomCheck() *schema.Resource {
@@ -43,6 +43,13 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: false,
+			},
+
+			"responsetime_threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				Computed: true,
 			},
 
 			"sendnotificationwhendown": {
@@ -161,6 +168,7 @@ type commonCheckParams struct {
 	Hostname                 string
 	Resolution               int
 	Paused                   bool
+	ResponseTimeThreshold    int
 	SendNotificationWhenDown int
 	NotifyAgainEvery         int
 	NotifyWhenBackup         bool
@@ -193,6 +201,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 
 	if v, ok := d.GetOk("resolution"); ok {
 		checkParams.Resolution = v.(int)
+	}
+
+	if v, ok := d.GetOk("responsetime_threshold"); ok {
+		checkParams.ResponseTimeThreshold = v.(int)
 	}
 
 	if v, ok := d.GetOk("sendnotificationwhendown"); ok {
@@ -288,6 +300,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			Hostname:   checkParams.Hostname,
 			Resolution: checkParams.Resolution,
 			Paused:     checkParams.Paused,
+			ResponseTimeThreshold:    checkParams.ResponseTimeThreshold,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
@@ -312,6 +325,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			Hostname:   checkParams.Hostname,
 			Resolution: checkParams.Resolution,
 			Paused:     checkParams.Paused,
+			ResponseTimeThreshold:    checkParams.ResponseTimeThreshold,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
@@ -374,6 +388,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("host", ck.Hostname)
 	d.Set("name", ck.Name)
 	d.Set("resolution", ck.Resolution)
+	d.Set("responsetime_threshold", ck.ResponseTimeThreshold)
 	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
 	d.Set("notifyagainevery", ck.NotifyAgainEvery)
 	d.Set("notifywhenbackup", ck.NotifyWhenBackup)

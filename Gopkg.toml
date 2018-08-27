@@ -35,7 +35,7 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/russellcardullo/go-pingdom"
+  name = "github.com/aylien/go-pingdom"
 
 [prune]
   go-tests = true
