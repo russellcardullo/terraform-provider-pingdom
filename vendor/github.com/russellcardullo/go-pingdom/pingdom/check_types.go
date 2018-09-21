@@ -46,6 +46,24 @@ type PingCheck struct {
 	TeamIds                  []int  `json:"teamids,omitempty"`
 }
 
+// TCPCheck represents a Pingdom TCP check
+type TCPCheck struct {
+	Name                     string `json:"name"`
+	Hostname                 string `json:"hostname,omitempty"`
+	Resolution               int    `json:"resolution,omitempty"`
+	Paused                   bool   `json:"paused,omitempty"`
+	SendNotificationWhenDown int    `json:"sendnotificationwhendown,omitempty"`
+	NotifyAgainEvery         int    `json:"notifyagainevery,omitempty"`
+	NotifyWhenBackup         bool   `json:"notifywhenbackup,omitempty"`
+	IntegrationIds           []int  `json:"integrationids,omitempty"`
+	ProbeFilters             string `json:"probe_filters,omitempty"`
+	UserIds                  []int  `json:"userids,omitempty"`
+	TeamIds                  []int  `json:"teamids,omitempty"`
+	Port                     int    `json:"port"`
+	StringToSend             string `json:"stringtosend,omitempty"`
+	StringToExpect           string `json:"stringtoexpect,omitempty"`
+}
+
 // Params returns a map of parameters for an HttpCheck that can be sent along
 // with an HTTP PUT request
 func (ck *HttpCheck) PutParams() map[string]string {
@@ -143,19 +161,24 @@ func (ck *HttpCheck) Valid() error {
 // Params returns a map of parameters for a PingCheck that can be sent along
 // with an HTTP PUT request
 func (ck *PingCheck) PutParams() map[string]string {
-	return map[string]string{
-		"name":                     ck.Name,
-		"host":                     ck.Hostname,
-		"resolution":               strconv.Itoa(ck.Resolution),
-		"paused":                   strconv.FormatBool(ck.Paused),
-		"sendnotificationwhendown": strconv.Itoa(ck.SendNotificationWhenDown),
-		"notifyagainevery":         strconv.Itoa(ck.NotifyAgainEvery),
-		"notifywhenbackup":         strconv.FormatBool(ck.NotifyWhenBackup),
-		"integrationids":           intListToCDString(ck.IntegrationIds),
-		"probe_filters":            ck.ProbeFilters,
-		"userids":                  intListToCDString(ck.UserIds),
-		"teamids":                  intListToCDString(ck.TeamIds),
+	m := map[string]string{
+		"name":             ck.Name,
+		"host":             ck.Hostname,
+		"resolution":       strconv.Itoa(ck.Resolution),
+		"paused":           strconv.FormatBool(ck.Paused),
+		"notifyagainevery": strconv.Itoa(ck.NotifyAgainEvery),
+		"notifywhenbackup": strconv.FormatBool(ck.NotifyWhenBackup),
+		"integrationids":   intListToCDString(ck.IntegrationIds),
+		"probe_filters":    ck.ProbeFilters,
+		"userids":          intListToCDString(ck.UserIds),
+		"teamids":          intListToCDString(ck.TeamIds),
 	}
+
+	if ck.SendNotificationWhenDown != 0 {
+		m["sendnotificationwhendown"] = strconv.Itoa(ck.SendNotificationWhenDown)
+	}
+
+	return m
 }
 
 // Params returns a map of parameters for a PingCheck that can be sent along
@@ -181,6 +204,69 @@ func (ck *PingCheck) Valid() error {
 		ck.Resolution != 30 && ck.Resolution != 60 {
 		return fmt.Errorf("Invalid value %v for `Resolution`.  Allowed values are [1,5,15,30,60].", ck.Resolution)
 	}
+	return nil
+}
+
+// Params returns a map of parameters for a TCPCheck that can be sent along
+// with an HTTP PUT request
+func (ck *TCPCheck) PutParams() map[string]string {
+	m := map[string]string{
+		"name":             ck.Name,
+		"host":             ck.Hostname,
+		"resolution":       strconv.Itoa(ck.Resolution),
+		"paused":           strconv.FormatBool(ck.Paused),
+		"notifyagainevery": strconv.Itoa(ck.NotifyAgainEvery),
+		"notifywhenbackup": strconv.FormatBool(ck.NotifyWhenBackup),
+		"integrationids":   intListToCDString(ck.IntegrationIds),
+		"probe_filters":    ck.ProbeFilters,
+		"userids":          intListToCDString(ck.UserIds),
+		"teamids":          intListToCDString(ck.TeamIds),
+		"port":             strconv.Itoa(ck.Port),
+	}
+
+	if ck.SendNotificationWhenDown != 0 {
+		m["sendnotificationwhendown"] = strconv.Itoa(ck.SendNotificationWhenDown)
+	}
+
+	if ck.StringToSend != "" {
+		m["stringtosend"] = ck.StringToSend
+	}
+
+	if ck.StringToExpect != "" {
+		m["stringtoexpect"] = ck.StringToExpect
+	}
+
+	return m
+}
+
+// Params returns a map of parameters for a TCPCheck that can be sent along
+// with an HTTP POST request. Same as PUT.
+func (ck *TCPCheck) PostParams() map[string]string {
+	params := ck.PutParams()
+	params["type"] = "tcp"
+	return params
+}
+
+// Determine whether the TCPCheck contains valid fields.  This can be
+// used to guard against sending illegal values to the Pingdom API
+func (ck *TCPCheck) Valid() error {
+	if ck.Name == "" {
+		return fmt.Errorf("Invalid value for `Name`.  Must contain non-empty string")
+	}
+
+	if ck.Hostname == "" {
+		return fmt.Errorf("Invalid value for `Hostname`.  Must contain non-empty string")
+	}
+
+	if ck.Resolution != 1 && ck.Resolution != 5 && ck.Resolution != 15 &&
+		ck.Resolution != 30 && ck.Resolution != 60 {
+		return fmt.Errorf("Invalid value %v for `Resolution`.  Allowed values are [1,5,15,30,60].", ck.Resolution)
+	}
+
+	if ck.Port < 1 {
+		return fmt.Errorf("Invalid value for `Port`.  Must contain an integer >= 1")
+	}
+
 	return nil
 }
 
