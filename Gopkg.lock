@@ -60,8 +60,8 @@
     "service/s3",
     "service/sts"
   ]
-  revision = "a93d31c26045c00c52f58dda4dcad02a3e622534"
-  version = "v1.15.39"
+  revision = "d8ab6d22cfd270ded73e7d59feba528ffd963edd"
+  version = "v1.15.40"
 
 [[projects]]
   branch = "master"
@@ -320,10 +320,11 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "master"
+  branch = "feature-integration-testing"
   name = "github.com/russellcardullo/go-pingdom"
   packages = ["pingdom"]
-  revision = "3448ee0e92d39f82d5cb830d36ca2febf54672e2"
+  revision = "949a69550af5f310e39bbbdb9993c1be21676ba0"
+  source = "github.com/kamermans/go-pingdom"
 
 [[projects]]
   name = "github.com/ulikunitz/xz"
@@ -453,6 +454,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "74b3ee3405cdeebabc7226e7df67cd3c98b21544b1e3e4e4df00a7315fc44e03"
+  inputs-digest = "7ab9c754802801714af0b1750d64d61e762ed2ecf2d6d798173e3e3d09271830"
   solver-name = "gps-cdcl"
   solver-version = 1

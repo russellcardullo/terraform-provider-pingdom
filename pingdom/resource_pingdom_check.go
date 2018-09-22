@@ -344,6 +344,8 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
 			IntegrationIds:           checkParams.IntegrationIds,
+			Tags:                     checkParams.Tags,
+			ProbeFilters:             checkParams.ProbeFilters,
 			UserIds:                  checkParams.UserIds,
 			TeamIds:                  checkParams.TeamIds,
 		}, nil
@@ -357,8 +359,11 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
 			IntegrationIds:           checkParams.IntegrationIds,
+			Tags:                     checkParams.Tags,
+			ProbeFilters:             checkParams.ProbeFilters,
 			UserIds:                  checkParams.UserIds,
 			TeamIds:                  checkParams.TeamIds,
+			Port:                     checkParams.Port,
 			StringToSend:             checkParams.StringToSend,
 			StringToExpect:           checkParams.StringToExpect,
 		}, nil
@@ -385,7 +390,7 @@ func resourcePingdomCheckCreate(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(strconv.Itoa(ck.ID))
 
 	if v, ok := d.GetOk("publicreport"); ok && v.(bool) {
-		_, _ := client.PublicReport.PublishCheck(ck.ID)
+		client.PublicReport.PublishCheck(ck.ID)
 	}
 
 	return nil
@@ -437,6 +442,12 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
 	d.Set("publicreport", inPublicReport)
 
+	tags := []string{}
+	for _, tag := range ck.Tags {
+		tags = append(tags, tag.Name)
+	}
+	d.Set("tags", strings.Join(tags, ","))
+
 	integids := schema.NewSet(
 		func(integrationId interface{}) int { return integrationId.(int) },
 		[]interface{}{},
@@ -464,31 +475,29 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("teamids", teamids)
 
-	if ck.Type.HTTP == nil {
-		ck.Type.HTTP = &pingdom.CheckResponseHTTPDetails{}
-	}
-	d.Set("url", ck.Type.HTTP.Url)
-	d.Set("encryption", ck.Type.HTTP.Encryption)
-	d.Set("port", ck.Type.HTTP.Port)
-	d.Set("username", ck.Type.HTTP.Username)
-	d.Set("password", ck.Type.HTTP.Password)
-	d.Set("shouldcontain", ck.Type.HTTP.ShouldContain)
-	d.Set("shouldnotcontain", ck.Type.HTTP.ShouldNotContain)
-	d.Set("postdata", ck.Type.HTTP.PostData)
+	if ck.Type.HTTP != nil {
+		d.Set("url", ck.Type.HTTP.Url)
+		d.Set("encryption", ck.Type.HTTP.Encryption)
+		d.Set("port", ck.Type.HTTP.Port)
+		d.Set("username", ck.Type.HTTP.Username)
+		d.Set("password", ck.Type.HTTP.Password)
+		d.Set("shouldcontain", ck.Type.HTTP.ShouldContain)
+		d.Set("shouldnotcontain", ck.Type.HTTP.ShouldNotContain)
+		d.Set("postdata", ck.Type.HTTP.PostData)
 
-	if v, ok := ck.Type.HTTP.RequestHeaders["User-Agent"]; ok {
-		if strings.HasPrefix(v, "Pingdom.com_bot_version_") {
-			delete(ck.Type.HTTP.RequestHeaders, "User-Agent")
+		if v, ok := ck.Type.HTTP.RequestHeaders["User-Agent"]; ok {
+			if strings.HasPrefix(v, "Pingdom.com_bot_version_") {
+				delete(ck.Type.HTTP.RequestHeaders, "User-Agent")
+			}
 		}
+		d.Set("requestheaders", ck.Type.HTTP.RequestHeaders)
 	}
-	d.Set("requestheaders", ck.Type.HTTP.RequestHeaders)
 
-	if ck.Type.TCP == nil {
-		ck.Type.TCP = &pingdom.CheckResponseTCPDetails{}
+	if ck.Type.TCP != nil {
+		d.Set("port", ck.Type.TCP.Port)
+		d.Set("stringtosend", ck.Type.TCP.StringToSend)
+		d.Set("stringtoexpect", ck.Type.TCP.StringToExpect)
 	}
-	d.Set("port", ck.Type.TCP.Port)
-	d.Set("stringtosend", ck.Type.TCP.StringToSend)
-	d.Set("stringtoexpect", ck.Type.TCP.StringToExpect)
 
 	return nil
 }
@@ -514,9 +523,9 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if v, ok := d.GetOk("publicreport"); ok && v.(bool) {
-		_, _ := client.PublicReport.PublishCheck(id)
+		client.PublicReport.PublishCheck(id)
 	} else {
-		_, _ := client.PublicReport.WithdrawlCheck(id)
+		client.PublicReport.WithdrawlCheck(id)
 	}
 
 	return nil
