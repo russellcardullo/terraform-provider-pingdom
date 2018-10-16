@@ -33,14 +33,9 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
 
-# [[constraint]]
-#   branch = "master"
-#   name = "github.com/russellcardullo/go-pingdom"
-
 [[constraint]]
-  branch = "feature-integration-testing"
+  branch = "master"
   name = "github.com/russellcardullo/go-pingdom"
-  source = "github.com/kamermans/go-pingdom"
 
 [prune]
   go-tests = true
