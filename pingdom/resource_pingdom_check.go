@@ -383,11 +383,14 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("host", ck.Hostname)
 	d.Set("name", ck.Name)
-	d.Set("paused", ck.Paused)
 	d.Set("resolution", ck.Resolution)
 	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
 	d.Set("notifyagainevery", ck.NotifyAgainEvery)
 	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
+
+  if ck.Status == "paused" {
+		d.Set("paused", true)
+	}
 
 	integids := schema.NewSet(
 		func(integrationId interface{}) int { return integrationId.(int) },
