@@ -39,6 +39,12 @@ func resourcePingdomCheck() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"paused": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+			},
+
 			"resolution": {
 				Type:     schema.TypeInt,
 				Required: true,
@@ -189,6 +195,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 	}
 	if v, ok := d.GetOk("host"); ok {
 		checkParams.Hostname = v.(string)
+	}
+
+	if v, ok := d.GetOk("paused"); ok {
+		checkParams.Paused = v.(bool)
 	}
 
 	if v, ok := d.GetOk("resolution"); ok {
@@ -373,6 +383,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("host", ck.Hostname)
 	d.Set("name", ck.Name)
+	d.Set("paused", ck.Paused)
 	d.Set("resolution", ck.Resolution)
 	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
 	d.Set("notifyagainevery", ck.NotifyAgainEvery)
