@@ -27,12 +27,13 @@ func Provider() terraform.ResourceProvider {
 			},
 			"account_email": &schema.Schema{
 				Type:     schema.TypeString,
-				Default: "",
+				Default:  "",
 				Optional: true,
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"pingdom_check": resourcePingdomCheck(),
+			"pingdom_user":  resourcePingdomUser(),
 		},
 
 		ConfigureFunc: providerConfigure,
