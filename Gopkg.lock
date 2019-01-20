@@ -8,22 +8,22 @@
   version = "v1.2.1"
 
 [[projects]]
-  branch = "master"
   name = "github.com/apparentlymart/go-cidr"
   packages = ["cidr"]
-  revision = "2bd8b58cf4275aeb086ade613de226773e29e853"
+  revision = "b1115bf8e14a60131a196f908223e4506b0ddc35"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/apparentlymart/go-textseg"
   packages = ["textseg"]
-  revision = "b836f5c4d331d1945a2fead7188db25432d73b69"
+  revision = "fb01f485ebef760e5ee06d55e1b07534dda2d295"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/armon/go-radix"
   packages = ["."]
-  revision = "1fca145dffbcaa8fe914309b1ec0cfc67500fe61"
+  revision = "1a2de0c21c94309923825da3df33a4381872c795"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -38,6 +38,7 @@
     "aws/credentials/ec2rolecreds",
     "aws/credentials/endpointcreds",
     "aws/credentials/stscreds",
+    "aws/csm",
     "aws/defaults",
     "aws/ec2metadata",
     "aws/endpoints",
@@ -46,8 +47,11 @@
     "aws/signer/v4",
     "internal/sdkio",
     "internal/sdkrand",
+    "internal/sdkuri",
     "internal/shareddefaults",
     "private/protocol",
+    "private/protocol/eventstream",
+    "private/protocol/eventstream/eventstreamapi",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
@@ -56,8 +60,8 @@
     "service/s3",
     "service/sts"
   ]
-  revision = "3e7014382cdc91695381614d0110a3cff997ba72"
-  version = "v1.13.34"
+  revision = "d8ab6d22cfd270ded73e7d59feba528ffd963edd"
+  version = "v1.15.40"
 
 [[projects]]
   branch = "master"
@@ -80,14 +84,14 @@
 [[projects]]
   name = "github.com/fatih/color"
   packages = ["."]
-  revision = "507f6050b8568533fb3f5504de8e5205fa62a114"
-  version = "v1.6.0"
+  revision = "5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4"
+  version = "v1.7.0"
 
 [[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "6529cf7c58879c08d927016dde4477f18a0634cb"
-  version = "v1.36.0"
+  revision = "5cf292cae48347c2490ac1a58fe36735fb78df7e"
+  version = "v1.38.2"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -98,20 +102,20 @@
     "ptypes/duration",
     "ptypes/timestamp"
   ]
-  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
+
+[[projects]]
+  name = "github.com/hashicorp/errwrap"
+  packages = ["."]
+  revision = "8a6fb523712970c966eefc6b39ed2c5e74880354"
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/hashicorp/errwrap"
-  packages = ["."]
-  revision = "7554cd9344cec97297fa6649b055a8c98c2a1e55"
-
-[[projects]]
-  branch = "master"
   name = "github.com/hashicorp/go-cleanhttp"
   packages = ["."]
-  revision = "d5fe4b57a186c716b0e00b8c301cbd9b4182694d"
+  revision = "e8ab9daed8d1ddd2d3c4efba338fe2eeae2e4f18"
+  version = "v0.5.0"
 
 [[projects]]
   branch = "master"
@@ -120,46 +124,45 @@
     ".",
     "helper/url"
   ]
-  revision = "b345bfcec894fb7ff3fdf9b21baf2f56ea423d98"
+  revision = "4bda8fa99001c61db3cad96b421d4c12a81f256d"
 
 [[projects]]
   branch = "master"
   name = "github.com/hashicorp/go-hclog"
   packages = ["."]
-  revision = "69ff559dc25f3b435631604f573a5fa1efdb6433"
+  revision = "e45cbeb79f0411b1cfedd3f226ff69d5d433c762"
 
 [[projects]]
-  branch = "master"
   name = "github.com/hashicorp/go-multierror"
   packages = ["."]
-  revision = "b7773ae218740a7be65057fc60b366a49b538a44"
+  revision = "886a7fbe3eb1c874d46f623bfa70af45f425b3d1"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/hashicorp/go-plugin"
   packages = ["."]
-  revision = "e8d22c780116115ae5624720c9af0c97afe4f551"
+  revision = "a4620f9913d19f03a6bf19b2f304daaaf83ea130"
 
 [[projects]]
-  branch = "master"
   name = "github.com/hashicorp/go-safetemp"
   packages = ["."]
-  revision = "b1a1dbde6fdc11e3ae79efd9039009e22d4ae240"
+  revision = "c9a55de4fe06c920a71964b53cfe3dd293a3c743"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/hashicorp/go-uuid"
   packages = ["."]
-  revision = "27454136f0364f2d44b1276c552d69105cf8c498"
+  revision = "de160f5c59f693fed329e73e291bb751fe4ea4dc"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/hashicorp/go-version"
   packages = ["."]
-  revision = "23480c0665776210b5fbbac6eaaee40e3e6a96b7"
+  revision = "b5a281d3160aa11950a6182bd9a9dc2cb1e02d50"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [
     ".",
@@ -172,7 +175,8 @@
     "json/scanner",
     "json/token"
   ]
-  revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
+  revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -185,7 +189,7 @@
     "hcldec",
     "hclparse"
   ]
-  revision = "9db880accff19d9bd953958df738ef0c02b4a311"
+  revision = "ffb8e97eb71bbcee2ea32048b0a7e451d37bdb27"
 
 [[projects]]
   branch = "master"
@@ -224,14 +228,14 @@
     "tfdiags",
     "version"
   ]
-  revision = "41e50bd32a8825a84535e353c3674af8ce799161"
-  version = "v0.11.7"
+  revision = "6dfc4d748de9cda23835bc5704307ed45e839622"
+  version = "v0.11.8"
 
 [[projects]]
   branch = "master"
   name = "github.com/hashicorp/yamux"
   packages = ["."]
-  revision = "2658be15c5f05e76244154714161f17e3e77de2e"
+  revision = "7221087c3d281fda5f794e28c2ea4c6e4d5c4558"
 
 [[projects]]
   name = "github.com/jmespath/go-jmespath"
@@ -247,56 +251,56 @@
 [[projects]]
   name = "github.com/mattn/go-isatty"
   packages = ["."]
-  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
-  version = "v0.0.3"
+  revision = "6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c"
+  version = "v0.0.4"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mitchellh/cli"
   packages = ["."]
-  revision = "c48282d14eba4b0817ddef3f832ff8d13851aefd"
+  revision = "3d22a244be8aa6fb16ac24af0e195c08b7d973aa"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mitchellh/copystructure"
   packages = ["."]
-  revision = "d23ffcb85de31694d6ccaa23ccb4a03e55c1303f"
+  revision = "9a1b6f44e8da0e0e374624fb0a825a231b00c537"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
-  revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
+  revision = "ae18d6b8b3205b561c79e8e5f69bff09736185f4"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mitchellh/go-testing-interface"
   packages = ["."]
-  revision = "a61a99592b77c9ba629d254a693acffaeb4b7e28"
+  revision = "6d0b8010fcc857872e42fc6c931227569016843c"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mitchellh/go-wordwrap"
   packages = ["."]
-  revision = "ad45545899c7b13c020ea92b2072220eefad42b8"
+  revision = "9e67c67572bc5dd02aef930e2b0ae3c02a4b5a5c"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mitchellh/hashstructure"
   packages = ["."]
-  revision = "2bca23e0e452137f789efbc8610126fd8b94f73b"
+  revision = "a38c50148365edc8df43c1580c48fb2b3a1e9cd7"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
+  revision = "fa473d140ef3c6adf42d6b391fe76707f1f243c8"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mitchellh/reflectwalk"
   packages = ["."]
-  revision = "63d60e9d0dbc60cf9164e6510889b0db6683d98c"
+  revision = "eecee6c969c02c8cc2ae48e1e269843ae8590796"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/oklog/run"
@@ -312,14 +316,15 @@
     "cmd/install",
     "match"
   ]
-  revision = "98eb9847f27ba2008d380a32c98be474dea55bdf"
-  version = "v1.1.1"
+  revision = "dcda3199365ca2a5f24aea4c42aa56f6a197d117"
+  version = "v1.1.2"
 
 [[projects]]
-  branch = "master"
+  branch = "feature-integration-testing"
   name = "github.com/russellcardullo/go-pingdom"
   packages = ["pingdom"]
-  revision = "1fa7564b16852285b2b20b31a964c011c26000bc"
+  revision = "949a69550af5f310e39bbbdb9993c1be21676ba0"
+  source = "github.com/kamermans/go-pingdom"
 
 [[projects]]
   name = "github.com/ulikunitz/xz"
@@ -344,7 +349,7 @@
     "cty/json",
     "cty/set"
   ]
-  revision = "d006e4534bc4fbc512383aa98d04d641ea951ba5"
+  revision = "cc054f996f8b732f7205fd6f1ef84c39f2720461"
 
 [[projects]]
   branch = "master"
@@ -360,7 +365,7 @@
     "openpgp/packet",
     "openpgp/s2k"
   ]
-  revision = "e73bf333ef8920dbb52ad18d4bd38ad9d9bc76d7"
+  revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
 
 [[projects]]
   branch = "master"
@@ -374,16 +379,15 @@
     "http2/hpack",
     "idna",
     "internal/timeseries",
-    "lex/httplex",
     "trace"
   ]
-  revision = "5f9ae10d9af5b1c89ae6904293b14b064d4ada23"
+  revision = "2f5d2388922f370f4355f327fcf4cfe9f5583908"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "79b0c6888797020a994db17c8510466c72fe75d9"
+  revision = "d47a0f3392421c5624713c9a19fe781f651f8a50"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -410,7 +414,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "7fd901a49ba6a7f87732eb344f6e3c5b19d1b200"
+  revision = "c3f76f3b92d1ffa4c58a9ff842a58b8877655e0f"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -424,11 +428,15 @@
     "credentials",
     "encoding",
     "encoding/proto",
-    "grpclb/grpc_lb_v1/messages",
     "grpclog",
     "health",
     "health/grpc_health_v1",
     "internal",
+    "internal/backoff",
+    "internal/channelz",
+    "internal/envconfig",
+    "internal/grpcrand",
+    "internal/transport",
     "keepalive",
     "metadata",
     "naming",
@@ -438,15 +446,14 @@
     "resolver/passthrough",
     "stats",
     "status",
-    "tap",
-    "transport"
+    "tap"
   ]
-  revision = "d11072e7ca9811b1100b80ca0269ac831f06d024"
-  version = "v1.11.3"
+  revision = "8dea3dc473e90c8179e519d91302d0597c0ca1d1"
+  version = "v1.15.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "74b3ee3405cdeebabc7226e7df67cd3c98b21544b1e3e4e4df00a7315fc44e03"
+  inputs-digest = "7ab9c754802801714af0b1750d64d61e762ed2ecf2d6d798173e3e3d09271830"
   solver-name = "gps-cdcl"
   solver-version = 1
