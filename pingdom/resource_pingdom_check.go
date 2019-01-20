@@ -39,6 +39,12 @@ func resourcePingdomCheck() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"publicreport": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+			},
+
 			"resolution": {
 				Type:     schema.TypeInt,
 				Required: true,
@@ -152,6 +158,18 @@ func resourcePingdomCheck() *schema.Resource {
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
+
+			"stringtosend": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"stringtoexpect": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
 		},
 	}
 }
@@ -178,6 +196,8 @@ type commonCheckParams struct {
 	RequestHeaders           map[string]string
 	Tags                     string
 	ProbeFilters             string
+	StringToSend             string
+	StringToExpect           string
 }
 
 func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
@@ -280,6 +300,14 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.ProbeFilters = v.(string)
 	}
 
+	if v, ok := d.GetOk("stringtosend"); ok {
+		checkParams.StringToSend = v.(string)
+	}
+
+	if v, ok := d.GetOk("stringtoexpect"); ok {
+		checkParams.StringToExpect = v.(string)
+	}
+
 	checkType := d.Get("type")
 	switch checkType {
 	case "http":
@@ -316,8 +344,28 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
 			IntegrationIds:           checkParams.IntegrationIds,
+			Tags:                     checkParams.Tags,
+			ProbeFilters:             checkParams.ProbeFilters,
 			UserIds:                  checkParams.UserIds,
 			TeamIds:                  checkParams.TeamIds,
+		}, nil
+	case "tcp":
+		return &pingdom.TCPCheck{
+			Name:       checkParams.Name,
+			Hostname:   checkParams.Hostname,
+			Resolution: checkParams.Resolution,
+			Paused:     checkParams.Paused,
+			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
+			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
+			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
+			IntegrationIds:           checkParams.IntegrationIds,
+			Tags:                     checkParams.Tags,
+			ProbeFilters:             checkParams.ProbeFilters,
+			UserIds:                  checkParams.UserIds,
+			TeamIds:                  checkParams.TeamIds,
+			Port:                     checkParams.Port,
+			StringToSend:             checkParams.StringToSend,
+			StringToExpect:           checkParams.StringToExpect,
 		}, nil
 	default:
 		return nil, fmt.Errorf("unknown type for check '%v'", checkType)
@@ -340,6 +388,10 @@ func resourcePingdomCheckCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.SetId(strconv.Itoa(ck.ID))
+
+	if v, ok := d.GetOk("publicreport"); ok && v.(bool) {
+		client.PublicReport.PublishCheck(ck.ID)
+	}
 
 	return nil
 }
@@ -370,6 +422,17 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving check: %s", err)
 	}
+	rl, err := client.PublicReport.List()
+	if err != nil {
+		return fmt.Errorf("Error retrieving list of public report checks: %s", err)
+	}
+	inPublicReport := false
+	for _, ckid := range rl {
+		if ckid.ID == id {
+			inPublicReport = true
+			break
+		}
+	}
 
 	d.Set("host", ck.Hostname)
 	d.Set("name", ck.Name)
@@ -377,6 +440,13 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
 	d.Set("notifyagainevery", ck.NotifyAgainEvery)
 	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
+	d.Set("publicreport", inPublicReport)
+
+	tags := []string{}
+	for _, tag := range ck.Tags {
+		tags = append(tags, tag.Name)
+	}
+	d.Set("tags", strings.Join(tags, ","))
 
 	integids := schema.NewSet(
 		func(integrationId interface{}) int { return integrationId.(int) },
@@ -405,24 +475,29 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("teamids", teamids)
 
-	if ck.Type.HTTP == nil {
-		ck.Type.HTTP = &pingdom.CheckResponseHTTPDetails{}
-	}
-	d.Set("url", ck.Type.HTTP.Url)
-	d.Set("encryption", ck.Type.HTTP.Encryption)
-	d.Set("port", ck.Type.HTTP.Port)
-	d.Set("username", ck.Type.HTTP.Username)
-	d.Set("password", ck.Type.HTTP.Password)
-	d.Set("shouldcontain", ck.Type.HTTP.ShouldContain)
-	d.Set("shouldnotcontain", ck.Type.HTTP.ShouldNotContain)
-	d.Set("postdata", ck.Type.HTTP.PostData)
+	if ck.Type.HTTP != nil {
+		d.Set("url", ck.Type.HTTP.Url)
+		d.Set("encryption", ck.Type.HTTP.Encryption)
+		d.Set("port", ck.Type.HTTP.Port)
+		d.Set("username", ck.Type.HTTP.Username)
+		d.Set("password", ck.Type.HTTP.Password)
+		d.Set("shouldcontain", ck.Type.HTTP.ShouldContain)
+		d.Set("shouldnotcontain", ck.Type.HTTP.ShouldNotContain)
+		d.Set("postdata", ck.Type.HTTP.PostData)
 
-	if v, ok := ck.Type.HTTP.RequestHeaders["User-Agent"]; ok {
-		if strings.HasPrefix(v, "Pingdom.com_bot_version_") {
-			delete(ck.Type.HTTP.RequestHeaders, "User-Agent")
+		if v, ok := ck.Type.HTTP.RequestHeaders["User-Agent"]; ok {
+			if strings.HasPrefix(v, "Pingdom.com_bot_version_") {
+				delete(ck.Type.HTTP.RequestHeaders, "User-Agent")
+			}
 		}
+		d.Set("requestheaders", ck.Type.HTTP.RequestHeaders)
 	}
-	d.Set("requestheaders", ck.Type.HTTP.RequestHeaders)
+
+	if ck.Type.TCP != nil {
+		d.Set("port", ck.Type.TCP.Port)
+		d.Set("stringtosend", ck.Type.TCP.StringToSend)
+		d.Set("stringtoexpect", ck.Type.TCP.StringToExpect)
+	}
 
 	return nil
 }
@@ -445,6 +520,12 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 	_, err = client.Checks.Update(id, check)
 	if err != nil {
 		return fmt.Errorf("Error updating check: %s", err)
+	}
+
+	if v, ok := d.GetOk("publicreport"); ok && v.(bool) {
+		client.PublicReport.PublishCheck(id)
+	} else {
+		client.PublicReport.WithdrawlCheck(id)
 	}
 
 	return nil
