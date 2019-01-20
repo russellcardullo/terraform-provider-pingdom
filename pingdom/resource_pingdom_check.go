@@ -39,6 +39,12 @@ func resourcePingdomCheck() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"paused": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+			},
+
 			"publicreport": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -209,6 +215,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 	}
 	if v, ok := d.GetOk("host"); ok {
 		checkParams.Hostname = v.(string)
+	}
+
+	if v, ok := d.GetOk("paused"); ok {
+		checkParams.Paused = v.(bool)
 	}
 
 	if v, ok := d.GetOk("resolution"); ok {
@@ -447,6 +457,10 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 		tags = append(tags, tag.Name)
 	}
 	d.Set("tags", strings.Join(tags, ","))
+
+  if ck.Status == "paused" {
+		d.Set("paused", true)
+	}
 
 	integids := schema.NewSet(
 		func(integrationId interface{}) int { return integrationId.(int) },
