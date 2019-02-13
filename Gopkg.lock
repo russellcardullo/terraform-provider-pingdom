@@ -409,11 +409,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c9b57ef29534bbadd34f4bd30e005d6de0dbd6cba3823d15b6ecf8f3f1ef85b8"
+  digest = "1:b31877b4429ba22ce944d75f76588e54d474df5cfba9e86d891ad0b8951a36e4"
   name = "github.com/russellcardullo/go-pingdom"
   packages = ["pingdom"]
   pruneopts = "UT"
-  revision = "c133ad715b052af44e474516fe837e5fc51761f8"
+  revision = "c0cd353f706f3e31914a293d5a1fe7b07481af66"
 
 [[projects]]
   digest = "1:db345c377984d0907323c09a9b17f11d995a59649fd38f909727df358b5f9020"

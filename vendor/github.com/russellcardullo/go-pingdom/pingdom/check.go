@@ -77,7 +77,7 @@ func (cs *CheckService) Create(check Check) (*CheckResponse, error) {
 // This returns type CheckResponse rather than Check since the
 // pingdom API does not return a complete representation of a check.
 func (cs *CheckService) Read(id int) (*CheckResponse, error) {
-	req, err := cs.client.NewRequest("GET", "/checks/"+strconv.Itoa(id), nil)
+	req, err := cs.client.NewRequest("GET", "/checks/"+strconv.Itoa(id)+"?include_teams=true", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -86,6 +86,10 @@ func (cs *CheckService) Read(id int) (*CheckResponse, error) {
 	_, err = cs.client.Do(req, m)
 	if err != nil {
 		return nil, err
+	}
+	m.Check.TeamIds = make([]int, len(m.Check.Teams))
+	for i := range m.Check.Teams {
+		m.Check.TeamIds[i] = m.Check.Teams[i].ID
 	}
 
 	return m.Check, err
@@ -127,7 +131,7 @@ func (cs *CheckService) Delete(id int) (*PingdomResponse, error) {
 	return m, err
 }
 
-func (cs *CheckService) SummaryPerformance(request SummaryPerformanceRequest) (*SummaryPerformanceResponse, error){
+func (cs *CheckService) SummaryPerformance(request SummaryPerformanceRequest) (*SummaryPerformanceResponse, error) {
 	if err := request.Valid(); err != nil {
 		return nil, err
 	}

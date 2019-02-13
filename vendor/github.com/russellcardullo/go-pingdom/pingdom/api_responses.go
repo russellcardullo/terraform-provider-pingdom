@@ -19,25 +19,36 @@ type PingdomError struct {
 
 // CheckResponse represents the json response for a check from the Pingdom API
 type CheckResponse struct {
-	ID                       int                `json:"id"`
-	Name                     string             `json:"name"`
-	Resolution               int                `json:"resolution,omitempty"`
-	SendNotificationWhenDown int                `json:"sendnotificationwhendown,omitempty"`
-	NotifyAgainEvery         int                `json:"notifyagainevery,omitempty"`
-	NotifyWhenBackup         bool               `json:"notifywhenbackup,omitempty"`
-	Created                  int64              `json:"created,omitempty"`
-	Hostname                 string             `json:"hostname,omitempty"`
-	Status                   string             `json:"status,omitempty"`
-	LastErrorTime            int64              `json:"lasterrortime,omitempty"`
-	LastTestTime             int64              `json:"lasttesttime,omitempty"`
-	LastResponseTime         int64              `json:"lastresponsetime,omitempty"`
-	Paused                   bool               `json:"paused,omitempty"`
-	IntegrationIds           []int              `json:"integrationids,omitempty"`
-	Type                     CheckResponseType  `json:"type,omitempty"`
-	Tags                     []CheckResponseTag `json:"tags,omitempty"`
-	UserIds                  []int              `json:"userids,omitempty"`
-	TeamIds                  []int              `json:"teamids,omitempty"`
-	ResponseTimeThreshold    int                `json:"responsetime_threshold,omitempty"`
+	ID                       int                 `json:"id"`
+	Name                     string              `json:"name"`
+	Resolution               int                 `json:"resolution,omitempty"`
+	SendNotificationWhenDown int                 `json:"sendnotificationwhendown,omitempty"`
+	NotifyAgainEvery         int                 `json:"notifyagainevery,omitempty"`
+	NotifyWhenBackup         bool                `json:"notifywhenbackup,omitempty"`
+	Created                  int64               `json:"created,omitempty"`
+	Hostname                 string              `json:"hostname,omitempty"`
+	Status                   string              `json:"status,omitempty"`
+	LastErrorTime            int64               `json:"lasterrortime,omitempty"`
+	LastTestTime             int64               `json:"lasttesttime,omitempty"`
+	LastResponseTime         int64               `json:"lastresponsetime,omitempty"`
+	Paused                   bool                `json:"paused,omitempty"`
+	IntegrationIds           []int               `json:"integrationids,omitempty"`
+	Type                     CheckResponseType   `json:"type,omitempty"`
+	Tags                     []CheckResponseTag  `json:"tags,omitempty"`
+	UserIds                  []int               `json:"userids,omitempty"`
+	Teams                    []CheckTeamResponse `json:"teams,omitempty"`
+	ResponseTimeThreshold    int                 `json:"responsetime_threshold,omitempty"`
+
+	// Legacy; this is not returned by the API, we backfill the value from the
+	// Teams field.
+	TeamIds []int
+}
+
+// CheckTeamResponse is a Team returned inside of a Check instance. (We can't
+// use TeamResponse because the ID returned here is an int, not a string)
+type CheckTeamResponse struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type CheckResponseType struct {
@@ -70,7 +81,7 @@ type MaintenanceCheckResponse struct {
 	Tms    []int `json:"tms"`
 }
 
-// ProbeResponse represents the json response for probes from the PIngdom API
+// ProbeResponse represents the json response for probes from the Pingdom API
 type ProbeResponse struct {
 	ID         int    `json:"id"`
 	Country    string `json:"country"`
@@ -84,21 +95,21 @@ type ProbeResponse struct {
 	Region     string `json:"region"`
 }
 
-// TeamResponse represents the json response for teams from the PIngdom API
+// TeamResponse represents the json response for teams from the Pingdom API
 type TeamResponse struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
 	Users []TeamUserResponse
 }
 
-// TeamUserResponse represents the json response for users in teams from the PIngdom API
+// TeamUserResponse represents the json response for users in teams from the Pingdom API
 type TeamUserResponse struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
 	Name  string `json:"name"`
 }
 
-// TeamDeleteResponse represents the json response for delete team from the PIngdom API
+// TeamDeleteResponse represents the json response for delete team from the Pingdom API
 type TeamDeleteResponse struct {
 	Success bool `json:"success"`
 }
@@ -115,30 +126,30 @@ type SummaryPerformanceResponse struct {
 
 type SummaryPerformanceMap struct {
 	Hours []SummaryPerformanceSummary `json:"hours,omitempty"`
-	Days []SummaryPerformanceSummary `json:"days,omitempty"`
+	Days  []SummaryPerformanceSummary `json:"days,omitempty"`
 	Weeks []SummaryPerformanceSummary `json:"weeks,omitempty"`
 }
 
 type SummaryPerformanceSummary struct {
 	AvgResponse int `json:"avgresponse"`
-	Downtime int `json:"downtime"`
-	StartTime int `json:"starttime"`
+	Downtime    int `json:"downtime"`
+	StartTime   int `json:"starttime"`
 	Unmonitored int `json:"unmonitored"`
-	Uptime int `json:"uptime"`
+	Uptime      int `json:"uptime"`
 }
 
 type UserSmsResponse struct {
-	Id int `json:"id"`
-	Severity string `json:"severity"`
+	Id          int    `json:"id"`
+	Severity    string `json:"severity"`
 	CountryCode string `json:"country_code"`
-	Number string `json:"number"`
-	Provider string `json:"provider"`
+	Number      string `json:"number"`
+	Provider    string `json:"provider"`
 }
 
 type UserEmailResponse struct {
-	Id int `json:"id"`
+	Id       int    `json:"id"`
 	Severity string `json:"severity"`
-	Address string `json:"address"`
+	Address  string `json:"address"`
 }
 
 type CreateUserContactResponse struct {
@@ -147,11 +158,11 @@ type CreateUserContactResponse struct {
 
 // MaintenanceWindow represents a Pingdom Maintenance Window.
 type UsersResponse struct {
-	Id    		   int  `json:"id"`
-	Paused         string  `json:"paused,omitempty"`
-	Username       string `json:"name,omitempty"`
-	Sms			   []UserSmsResponse `json:"sms,omitempty"`
-	Email 		   []UserEmailResponse `json:"email,omitempty"`
+	Id       int                 `json:"id"`
+	Paused   string              `json:"paused,omitempty"`
+	Username string              `json:"name,omitempty"`
+	Sms      []UserSmsResponse   `json:"sms,omitempty"`
+	Email    []UserEmailResponse `json:"email,omitempty"`
 }
 
 func (c *CheckResponseType) UnmarshalJSON(b []byte) error {
