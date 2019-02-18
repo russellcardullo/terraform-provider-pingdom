@@ -7,35 +7,35 @@ import (
 // User email represents the sms contact object in a user in
 // GET /users
 type UserSms struct {
-	Severity string `json:"severity"`
+	Severity    string `json:"severity"`
 	CountryCode string `json:"country_code"`
-	Number string `json:"number"`
-	Provider string `json:"provider"`
+	Number      string `json:"number"`
+	Provider    string `json:"provider"`
 }
 
 // User email represents the email contact object in a user in
 // GET /users
 type UserEmail struct {
 	Severity string `json:"severity"`
-	Address string `json:"address"`
+	Address  string `json:"address"`
 }
 
 // Contact represents a Pingdom contact target
 type Contact struct {
-	Severity string `json:"severitylevel"`
+	Severity    string `json:"severitylevel"`
 	CountryCode string `json:"countrycode"`
-	Number string `json:"number"`
-	Provider string `json:"provider"`
-	Email string `json:"email"`
+	Number      string `json:"number"`
+	Provider    string `json:"provider"`
+	Email       string `json:"email"`
 }
 
 // User represents a Pingdom User or Contact.
 type User struct {
-	Paused         string  `json:"paused,omitempty"`
-	Username       string `json:"name,omitempty"`
-	Primary		   string `json:"primary,omitempty"`
-	Sms			   []UserSmsResponse `json:"sms,omitempty"`
-	Email 		   []UserEmailResponse `json:"email,omitempty"`
+	Paused   string              `json:"paused,omitempty"`
+	Username string              `json:"name,omitempty"`
+	Primary  string              `json:"primary,omitempty"`
+	Sms      []UserSmsResponse   `json:"sms,omitempty"`
+	Email    []UserEmailResponse `json:"email,omitempty"`
 }
 
 func (u *User) ValidUser() error {
@@ -51,13 +51,13 @@ func (u *User) ValidUser() error {
 func (c *Contact) ValidContact() error {
 	if c.Email == "" && c.Number == "" {
 		return fmt.Errorf("you must provide either an Email or a Phone Number to create a contact target")
-}
+	}
 
 	if c.Number != "" && c.CountryCode == "" {
 		return fmt.Errorf("you must provide a Country Code if providing a phone number")
 	}
 
-	if c.Provider != "" && ( c.Number == "" || c.CountryCode == "" ){
+	if c.Provider != "" && (c.Number == "" || c.CountryCode == "") {
 		return fmt.Errorf("you must provide CountryCode and Number if Provider is provided")
 	}
 
@@ -101,7 +101,7 @@ func (c *Contact) PostContactParams() map[string]string {
 
 func (u *User) PutParams() map[string]string {
 	m := map[string]string{
-		"name" : u.Username,
+		"name": u.Username,
 	}
 
 	if u.Primary != "" {
@@ -119,4 +119,3 @@ func (u *User) PutParams() map[string]string {
 func (c *Contact) PutContactParams() map[string]string {
 	return c.PostContactParams()
 }
-

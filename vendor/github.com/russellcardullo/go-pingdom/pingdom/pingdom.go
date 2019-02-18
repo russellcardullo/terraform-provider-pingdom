@@ -27,7 +27,7 @@ type Client struct {
 	Probes       *ProbeService
 	Teams        *TeamService
 	PublicReport *PublicReportService
-	Users		     *UserService
+	Users        *UserService
 }
 
 // NewClient returns a Pingdom client with a default base URL and HTTP client

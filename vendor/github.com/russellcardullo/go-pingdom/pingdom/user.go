@@ -1,10 +1,10 @@
 package pingdom
 
 import (
-	"io/ioutil"
 	"encoding/json"
-	"strconv"
 	"fmt"
+	"io/ioutil"
+	"strconv"
 )
 
 type UserService struct {
@@ -90,7 +90,7 @@ func (cs *UserService) CreateContact(userId int, contact Contact) (*CreateUserCo
 		return nil, err
 	}
 
-	req, err := cs.client.NewRequest("POST", "/users/"+ strconv.Itoa(userId), contact.PostContactParams())
+	req, err := cs.client.NewRequest("POST", "/users/"+strconv.Itoa(userId), contact.PostContactParams())
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +121,7 @@ func (cs *UserService) Update(id int, user UserApi) (*PingdomResponse, error) {
 	}
 	return m, err
 }
+
 // Update a contact by id, will change an email to sms or sms to email
 // if you provide an id for the other
 func (cs *UserService) UpdateContact(userId int, contactId int, contact Contact) (*PingdomResponse, error) {
@@ -128,7 +129,7 @@ func (cs *UserService) UpdateContact(userId int, contactId int, contact Contact)
 		return nil, err
 	}
 
-	req, err := cs.client.NewRequest("PUT",  "/users/"+strconv.Itoa(userId)+"/"+strconv.Itoa(contactId), contact.PutContactParams())
+	req, err := cs.client.NewRequest("PUT", "/users/"+strconv.Itoa(userId)+"/"+strconv.Itoa(contactId), contact.PutContactParams())
 	if err != nil {
 		return nil, err
 	}
