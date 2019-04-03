@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/aylien/go-pingdom/pingdom"
+	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
 func resourcePingdomCheck() *schema.Resource {
@@ -334,10 +334,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 	switch checkType {
 	case "http":
 		return &pingdom.HttpCheck{
-			Name:       checkParams.Name,
-			Hostname:   checkParams.Hostname,
-			Resolution: checkParams.Resolution,
-			Paused:     checkParams.Paused,
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
 			ResponseTimeThreshold:    checkParams.ResponseTimeThreshold,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
@@ -359,10 +359,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}, nil
 	case "ping":
 		return &pingdom.PingCheck{
-			Name:       checkParams.Name,
-			Hostname:   checkParams.Hostname,
-			Resolution: checkParams.Resolution,
-			Paused:     checkParams.Paused,
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
 			ResponseTimeThreshold:    checkParams.ResponseTimeThreshold,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
@@ -473,7 +473,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("tags", strings.Join(tags, ","))
 
-  if ck.Status == "paused" {
+	if ck.Status == "paused" {
 		d.Set("paused", true)
 	}
 

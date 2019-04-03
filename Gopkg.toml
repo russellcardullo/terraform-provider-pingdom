@@ -8,7 +8,7 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/aylien/go-pingdom"
+  name = "github.com/russellcardullo/go-pingdom"
 
 [prune]
   go-tests = true
