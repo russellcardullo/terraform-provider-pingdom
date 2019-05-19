@@ -322,10 +322,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 	switch checkType {
 	case "http":
 		return &pingdom.HttpCheck{
-			Name:       checkParams.Name,
-			Hostname:   checkParams.Hostname,
-			Resolution: checkParams.Resolution,
-			Paused:     checkParams.Paused,
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
@@ -346,10 +346,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}, nil
 	case "ping":
 		return &pingdom.PingCheck{
-			Name:       checkParams.Name,
-			Hostname:   checkParams.Hostname,
-			Resolution: checkParams.Resolution,
-			Paused:     checkParams.Paused,
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
@@ -361,10 +361,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}, nil
 	case "tcp":
 		return &pingdom.TCPCheck{
-			Name:       checkParams.Name,
-			Hostname:   checkParams.Hostname,
-			Resolution: checkParams.Resolution,
-			Paused:     checkParams.Paused,
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
@@ -458,7 +458,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("tags", strings.Join(tags, ","))
 
-  if ck.Status == "paused" {
+	if ck.Status == "paused" {
 		d.Set("paused", true)
 	}
 
