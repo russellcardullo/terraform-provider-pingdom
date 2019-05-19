@@ -10,7 +10,7 @@ This currently only supports working with basic HTTP and ping checks.
 
 You should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
 
-This use [dep](https://github.com/golang/dep) for dependency management.  To fetch all dependencies run `dep ensure`.
+This use [golang modules](https://github.com/golang/go/wiki/Modules) for dependency management.
 
 ### Build ###
 
@@ -114,6 +114,56 @@ resource "pingdom_check" "example" {
     resolution = 5
 }
 ```
+
+**Teams**
+
+```
+resource "pingdom_team" "test" {
+  name = "The Test team"
+}
+```
+
+**Users**
+
+```
+resource "pingdom_user" "first_user" {
+  username = "johndoe"
+}
+
+resource "pingdom_user" "second_user" {
+  username = "janedoe"
+}
+```
+
+**Contacts**
+
+```
+
+resource "pingdom_contact" "first_user_contact_email_2" {
+  user_id        = "${pingdom_user.first_user.id}"
+  email          = "john.doe@doe.com"
+  severity_level = "LOW"
+}
+
+resource "pingdom_contact" "first_user_contact_sms_1" {
+  user_id        = "${pingdom_user.first_user.id}"
+  number         = "700000000"
+  country_code   = "33"
+  phone_provider = "nexmo"
+  severity_level = "HIGH"
+}
+
+resource "pingdom_user" "second_user" {
+  username = "janedoe"
+}
+
+resource "pingdom_contact" "second_user_contact_email_1" {
+  user_id        = "${pingdom_user.second_user.id}"
+  email          = "jane@doe.com"
+  severity_level = "high"
+}
+```
+
 ## Resources ##
 
 ### Pingdom Check ###
@@ -176,7 +226,7 @@ For the TCP checks, you can set these attributes:
 
 **port** - Target port for TCP checks.
 
-**stringtosend** - (optional) This string will be sent to the port  
+**stringtosend** - (optional) This string will be sent to the port
 
 **stringtoexpect** - (optional) This string must be returned by the remote host for the check to pass
 
