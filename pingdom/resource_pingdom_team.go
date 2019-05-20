@@ -16,7 +16,7 @@ func resourcePingdomTeam() *schema.Resource {
 		Update: resourcePingdomTeamUpdate,
 		Delete: resourcePingdomTeamDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourcePingdomTeamImporter,
+			State: schema.ImportStatePassthrough,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -127,16 +127,4 @@ func resourcePingdomTeamDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
-}
-
-func resourcePingdomTeamImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	id, err := strconv.Atoi(d.Id())
-
-	if err != nil {
-		return nil, fmt.Errorf("Error retrieving id for resource: %s", err)
-	}
-
-	log.Printf("[INFO] Importing key using ADDR ID %d", id)
-
-	return []*schema.ResourceData{d}, nil
 }

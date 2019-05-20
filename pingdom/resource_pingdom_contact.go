@@ -16,9 +16,9 @@ func resourcePingdomContact() *schema.Resource {
 		Read:   resourcePingdomContactRead,
 		Update: resourcePingdomContactUpdate,
 		Delete: resourcePingdomContactDelete,
-		// Importer: &schema.ResourceImporter{
-		// 	State: resourcePingdomContactImporter,
-		// },
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 		Schema: map[string]*schema.Schema{
 			"user_id": {
 				Type:     schema.TypeString,

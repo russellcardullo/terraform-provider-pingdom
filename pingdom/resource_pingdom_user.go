@@ -16,7 +16,7 @@ func resourcePingdomUser() *schema.Resource {
 		Update: resourcePingdomUserUpdate,
 		Delete: resourcePingdomUserDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourcePingdomUserImporter,
+			State: schema.ImportStatePassthrough,
 		},
 		Schema: map[string]*schema.Schema{
 			"username": {
@@ -110,16 +110,4 @@ func resourcePingdomUserDelete(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error deleting user: %s", err)
 	}
 	return nil
-}
-
-func resourcePingdomUserImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	id, err := strconv.Atoi(d.Id())
-
-	if err != nil {
-		return nil, fmt.Errorf("Error retrieving id for resource: %s", err)
-	}
-
-	log.Printf("[INFO] Importing key using ADDR ID %d", id)
-
-	return []*schema.ResourceData{d}, nil
 }
