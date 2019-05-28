@@ -1,1 +1,1 @@
-# Opsgenie Example
+# Pingdom Example
