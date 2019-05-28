@@ -252,7 +252,7 @@ The following attributes are exported:
 **username** - (Required) The name of the user
 
 
-### Pingdom Contact ###
+### Pingdom Contact ###
 
 **user_id**: (Required) ID of the user linked to this contact
 
