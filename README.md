@@ -64,6 +64,10 @@ resource "pingdom_check" "example_with_alert" {
       12345678,
       23456789
     ]
+    userids = [
+      24680,
+      13579
+    ]
 }
 
 resource "pingdom_check" "ping_example" {
@@ -71,6 +75,9 @@ resource "pingdom_check" "ping_example" {
     name = "my ping check"
     host = "example.com"
     resolution = 1
+    userids = [
+      24680
+    ]
 }
 ```
 
@@ -233,3 +240,28 @@ For the TCP checks, you can set these attributes:
 The following attributes are exported:
 
 **id** The ID of the Pingdom check
+
+
+### Pingdom Team ###
+
+**name** - (Required) The name of the team
+
+
+### Pingdom User ###
+
+**username** - (Required) The name of the user
+
+
+### Pingdom Contact ###
+
+**user_id**: (Required) ID of the user linked to this contact
+
+**severity_level**: (Required) Severity level for target
+
+**email**: Email
+
+**number**: Cellphone number, without the country code part. (Requires countrycode)
+
+**country_code**: Cellphone country code (Requires number)
+
+**phone_provider**: SMS provider (Requires number and countrycode)
