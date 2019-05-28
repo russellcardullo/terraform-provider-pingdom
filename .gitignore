@@ -1,0 +1,11 @@
+/terraform-provider-pingdom
+/.terraform
+
+*.tfstate*
+
+*.tf
+*.tfvars
+
+*.log
+
+c.out
