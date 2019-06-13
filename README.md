@@ -1,5 +1,7 @@
 # terraform-provider-pingdom #
 
+Forked from https://github.com/russellcardullo/terraform-provider-pingdom
+
 This project is a [terraform](http://www.terraform.io/) provider for [pingdom](https://www.pingdom.com/).
 
 This currently only supports working with basic HTTP and ping checks.
