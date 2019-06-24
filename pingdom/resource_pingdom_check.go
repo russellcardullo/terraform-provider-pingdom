@@ -17,7 +17,7 @@ func resourcePingdomCheck() *schema.Resource {
 		Update: resourcePingdomCheckUpdate,
 		Delete: resourcePingdomCheckDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourcePingdomCheckImporter,
+			State: schema.ImportStatePassthrough,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -490,6 +490,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("teamids", teamids)
 
 	if ck.Type.HTTP != nil {
+		d.Set("type", "http")
 		d.Set("url", ck.Type.HTTP.Url)
 		d.Set("encryption", ck.Type.HTTP.Encryption)
 		d.Set("port", ck.Type.HTTP.Port)
@@ -505,12 +506,13 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 		d.Set("requestheaders", ck.Type.HTTP.RequestHeaders)
-	}
-
-	if ck.Type.TCP != nil {
+	} else if ck.Type.TCP != nil {
+		d.Set("type", "tcp")
 		d.Set("port", ck.Type.TCP.Port)
 		d.Set("stringtosend", ck.Type.TCP.StringToSend)
 		d.Set("stringtoexpect", ck.Type.TCP.StringToExpect)
+	} else {
+		d.Set("type", "ping")
 	}
 
 	return nil
@@ -561,16 +563,4 @@ func resourcePingdomCheckDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
-}
-
-func resourcePingdomCheckImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	id, err := strconv.Atoi(d.Id())
-
-	if err != nil {
-		return nil, fmt.Errorf("Error retrieving id for resource: %s", err)
-	}
-
-	log.Printf("[INFO] Importing key using ADDR ID %d", id)
-
-	return []*schema.ResourceData{d}, nil
 }
