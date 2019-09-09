@@ -1,0 +1,36 @@
+language: go
+go:
+  - '1.11'
+  - '1.12'
+  - master
+matrix:
+  allow_failures:
+    - go: master
+install:
+  - export TF_LOG=INFO
+  - go get
+script:
+  - go build -v
+  - ls
+  - TF_ACC=1 go test -v -cover ./...
+before_deploy:
+  - export GO111MODULE=on
+  - go get github.com/mitchellh/gox
+  - export TARGET_OS="freebsd darwin linux windows"
+  - export TARGET_ARCH="386 amd64"
+  # rename to match terraform provider conventions:
+  #  https://www.terraform.io/docs/configuration/providers.html#third-party-plugins
+  - export FILE_NAME="terraform-provider-pingdom_${TRAVIS_TAG}_{{.OS}}_{{.Arch}}"
+  - gox -os "$TARGET_OS" -arch "$TARGET_ARCH" -output="$FILE_NAME"
+  - CGO_ENABLED=0 gox -os "$TARGET_OS" -arch "$TARGET_ARCH" -output="${FILE_NAME}_static"
+deploy:
+  provider: releases
+  api_key:
+    secure: fill-me-in
+  file: terraform-provider-pingdom*
+  skip_cleanup: true
+  file_glob: true
+  on:
+    tags: true
+    branch: master
+    go: '1.12'
