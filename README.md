@@ -10,11 +10,7 @@ This currently only supports working with basic HTTP and ping checks.
 
 You should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
 
-<<<<<<< HEAD
-This use [golang modules](https://github.com/golang/go/wiki/Modules) for dependency management.
-=======
 This project uses [Go Modules](https://github.com/golang/go/wiki/Modules) for dependency management.  To fetch all dependencies run `go get` inside this repository.
->>>>>>> upstream/master
 
 ### Build ###
 
