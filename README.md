@@ -179,9 +179,9 @@ The following common attributes for all check types can be set:
   * **resolution** - (Required) The time in minutes between each check.  Allowed values: (1,5,15,30,60).
 
   * **type** - (Required) The check type.  Allowed values: (http, ping).
-  
+
   * **paused** - Whether the check is active or not (defaults to `false`, if not provided). Allowed values (bool): `true`, `false`
-  
+
   * **responsetime_threshold** = How long (int: milliseconds) pingdom should wait before marking a probe as failed (defaults to 30000 ms)
 
   * **sendnotificationwhendown** - The consecutive failed checks required to trigger an alert. Values of 1 imply notification instantly. Values of 2 mean pingdom will wait for a second check to fail, i.e. `resolution` minutes, to trigger an alert. For example `sendnotificationwhendown: 2` and `resolution: 1`, will trigger an alert after 1 minute. Further, values of N will trigger an alert after `(N - 1) * resolution` minutes, e.g. `sendnotificationwhendown: 6` and `resolution: 1` will trigger an alert after 5 minutes. Values of 0 are ignored. See note about interaction with `integrationids` below.
@@ -223,8 +223,6 @@ For the HTTP checks, you can set these attributes:
   * **tags** - List of tags the check should contain. Should be in the format "tagA,tagB"
 
   * **probefilters** - Region from which the check should originate. One of NA, EU, APAC, or LATAM. Should be in the format "region:NA"
-
-  * **publicreport** - If `true`, this check will be included in the public report (default: `false`)
 
 #### TCP specific attributes ####
 
