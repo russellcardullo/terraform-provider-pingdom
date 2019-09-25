@@ -26,40 +26,16 @@ func TestProvider(t *testing.T) {
 }
 
 func TestProviderConfigure(t *testing.T) {
-	var expectedUser string
-	var expectedPassword string
-	var expectedKey string
-	var expectedAccountEmail string
+	var expectedToken string
 
-	if v := os.Getenv("PINGDOM_USER"); v != "" {
-		expectedUser = v
+	if v := os.Getenv("PINGDOM_API_TOKEN"); v != "" {
+		expectedToken = v
 	} else {
-		expectedUser = "foo"
-	}
-
-	if v := os.Getenv("PINGDOM_PASSWORD"); v != "" {
-		expectedPassword = v
-	} else {
-		expectedPassword = "foo"
-	}
-
-	if v := os.Getenv("PINGDOM_API_KEY"); v != "" {
-		expectedKey = v
-	} else {
-		expectedKey = "foo"
-	}
-
-	if v := os.Getenv("PINGDOM_ACCOUNT_EMAIL"); v != "" {
-		expectedAccountEmail = v
-	} else {
-		expectedAccountEmail = "foo"
+		expectedToken = "foo"
 	}
 
 	raw := map[string]interface{}{
-		"user":          expectedUser,
-		"password":      expectedPassword,
-		"api_key":       expectedKey,
-		"account_email": expectedAccountEmail,
+		"api_token": expectedToken,
 	}
 
 	rp := Provider().(*schema.Provider)
@@ -69,15 +45,8 @@ func TestProviderConfigure(t *testing.T) {
 	}
 
 	config := rp.Meta().(*pingdom.Client)
-	if config.User != expectedUser {
-		t.Fatalf("bad: %#v", config)
-	}
 
-	if config.Password != expectedPassword {
-		t.Fatalf("bad: %#v", config)
-	}
-
-	if config.APIKey != expectedKey {
+	if config.APIToken != expectedToken {
 		t.Fatalf("bad: %#v", config)
 	}
 }
