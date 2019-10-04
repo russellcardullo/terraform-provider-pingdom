@@ -34,3 +34,4 @@ deploy:
     tags: true
     branch: master
     go: '1.12'
+    repo: russellcardullo/terraform-provider-pingdom
