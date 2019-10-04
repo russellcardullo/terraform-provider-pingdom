@@ -26,7 +26,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: fill-me-in
+    secure: "TV2bTe8iDwSAcHE4sN8xLZs9AUAFXKwKK3NzLHOrl6aJCbdozm6zP5Lr2/H6+2GjaUNMbZBchuCvMDjksV+oM185LPk7wYQPWy4ZStBienKxFVM+NMFueCID48fR/l0Z08QzfepszKH6IEt9RJlhJTvUeDgiRxSv6qHOb+8zFfA="
   file: terraform-provider-pingdom*
   skip_cleanup: true
   file_glob: true
