@@ -19,14 +19,14 @@ before_deploy:
   - export TARGET_OS="freebsd darwin linux windows"
   - export TARGET_ARCH="386 amd64"
   # rename to match terraform provider conventions:
-  #  https://www.terraform.io/docs/configuration/providers.html#third-party-plugins
+  # https://www.terraform.io/docs/configuration/providers.html#third-party-plugins
   - export FILE_NAME="terraform-provider-pingdom_${TRAVIS_TAG}_{{.OS}}_{{.Arch}}"
   - gox -os "$TARGET_OS" -arch "$TARGET_ARCH" -output="$FILE_NAME"
   - CGO_ENABLED=0 gox -os "$TARGET_OS" -arch "$TARGET_ARCH" -output="${FILE_NAME}_static"
 deploy:
   provider: releases
   api_key:
-    secure: "TV2bTe8iDwSAcHE4sN8xLZs9AUAFXKwKK3NzLHOrl6aJCbdozm6zP5Lr2/H6+2GjaUNMbZBchuCvMDjksV+oM185LPk7wYQPWy4ZStBienKxFVM+NMFueCID48fR/l0Z08QzfepszKH6IEt9RJlhJTvUeDgiRxSv6qHOb+8zFfA="
+    secure: DAyi03tk9UxBFZUh9x5W5mtlHJWVi62fY4bpMugcQvF7rvwMYBHH5SHEpjswnZEO6G/dWZrHI4taZryBroXzASKl9GEMrzUylyrn4sFztdIHI3rZwON4OpwPsQ4uSuC3hcGkM+J2syb3gaEWUwUb9OHwv8GNaC2PkyHLAfBqJZs=
   file: terraform-provider-pingdom*
   skip_cleanup: true
   file_glob: true
