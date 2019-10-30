@@ -64,6 +64,10 @@ resource "pingdom_check" "example_with_alert" {
       12345678,
       23456789
     ]
+    userids = [
+      24680,
+      13579
+    ]
 }
 
 resource "pingdom_check" "ping_example" {
@@ -71,6 +75,9 @@ resource "pingdom_check" "ping_example" {
     name = "my ping check"
     host = "example.com"
     resolution = 1
+    userids = [
+      24680
+    ]
 }
 ```
 
@@ -114,6 +121,56 @@ resource "pingdom_check" "example" {
     resolution = 5
 }
 ```
+
+**Teams**
+
+```
+resource "pingdom_team" "test" {
+  name = "The Test team"
+}
+```
+
+**Users**
+
+```
+resource "pingdom_user" "first_user" {
+  username = "johndoe"
+}
+
+resource "pingdom_user" "second_user" {
+  username = "janedoe"
+}
+```
+
+**Contacts**
+
+```
+
+resource "pingdom_contact" "first_user_contact_email_2" {
+  user_id        = "${pingdom_user.first_user.id}"
+  email          = "john.doe@doe.com"
+  severity_level = "LOW"
+}
+
+resource "pingdom_contact" "first_user_contact_sms_1" {
+  user_id        = "${pingdom_user.first_user.id}"
+  number         = "700000000"
+  country_code   = "33"
+  phone_provider = "nexmo"
+  severity_level = "HIGH"
+}
+
+resource "pingdom_user" "second_user" {
+  username = "janedoe"
+}
+
+resource "pingdom_contact" "second_user_contact_email_1" {
+  user_id        = "${pingdom_user.second_user.id}"
+  email          = "jane@doe.com"
+  severity_level = "high"
+}
+```
+
 ## Resources ##
 
 ### Pingdom Check ###
@@ -176,10 +233,35 @@ For the TCP checks, you can set these attributes:
 
 **port** - Target port for TCP checks.
 
-**stringtosend** - (optional) This string will be sent to the port  
+**stringtosend** - (optional) This string will be sent to the port
 
 **stringtoexpect** - (optional) This string must be returned by the remote host for the check to pass
 
 The following attributes are exported:
 
 **id** The ID of the Pingdom check
+
+
+### Pingdom Team ###
+
+**name** - (Required) The name of the team
+
+
+### Pingdom User ###
+
+**username** - (Required) The name of the user
+
+
+### Pingdom Contact ###
+
+**user_id**: (Required) ID of the user linked to this contact
+
+**severity_level**: (Required) Severity level for target
+
+**email**: Email
+
+**number**: Cellphone number, without the country code part. (Requires countrycode)
+
+**country_code**: Cellphone country code (Requires number)
+
+**phone_provider**: SMS provider (Requires number and countrycode)

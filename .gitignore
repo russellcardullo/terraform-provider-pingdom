@@ -1,0 +1,6 @@
+/terraform-provider-pingdom
+/.terraform
+
+examples/*.tfstate*
+examples/*.tfstate.backup
+examples/*.tfvars

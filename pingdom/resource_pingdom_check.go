@@ -45,6 +45,13 @@ func resourcePingdomCheck() *schema.Resource {
 				ForceNew: false,
 			},
 
+			"responsetime_threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				Computed: true,
+			},
+
 			"publicreport": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -185,6 +192,7 @@ type commonCheckParams struct {
 	Hostname                 string
 	Resolution               int
 	Paused                   bool
+	ResponseTimeThreshold    int
 	SendNotificationWhenDown int
 	NotifyAgainEvery         int
 	NotifyWhenBackup         bool
@@ -223,6 +231,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 
 	if v, ok := d.GetOk("resolution"); ok {
 		checkParams.Resolution = v.(int)
+	}
+
+	if v, ok := d.GetOk("responsetime_threshold"); ok {
+		checkParams.ResponseTimeThreshold = v.(int)
 	}
 
 	if v, ok := d.GetOk("sendnotificationwhendown"); ok {
@@ -322,10 +334,11 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 	switch checkType {
 	case "http":
 		return &pingdom.HttpCheck{
-			Name:       checkParams.Name,
-			Hostname:   checkParams.Hostname,
-			Resolution: checkParams.Resolution,
-			Paused:     checkParams.Paused,
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
+			ResponseTimeThreshold:    checkParams.ResponseTimeThreshold,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
@@ -346,10 +359,11 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}, nil
 	case "ping":
 		return &pingdom.PingCheck{
-			Name:       checkParams.Name,
-			Hostname:   checkParams.Hostname,
-			Resolution: checkParams.Resolution,
-			Paused:     checkParams.Paused,
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
+			ResponseTimeThreshold:    checkParams.ResponseTimeThreshold,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
@@ -361,10 +375,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}, nil
 	case "tcp":
 		return &pingdom.TCPCheck{
-			Name:       checkParams.Name,
-			Hostname:   checkParams.Hostname,
-			Resolution: checkParams.Resolution,
-			Paused:     checkParams.Paused,
+			Name:                     checkParams.Name,
+			Hostname:                 checkParams.Hostname,
+			Resolution:               checkParams.Resolution,
+			Paused:                   checkParams.Paused,
 			SendNotificationWhenDown: checkParams.SendNotificationWhenDown,
 			NotifyAgainEvery:         checkParams.NotifyAgainEvery,
 			NotifyWhenBackup:         checkParams.NotifyWhenBackup,
@@ -447,6 +461,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("host", ck.Hostname)
 	d.Set("name", ck.Name)
 	d.Set("resolution", ck.Resolution)
+	d.Set("responsetime_threshold", ck.ResponseTimeThreshold)
 	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
 	d.Set("notifyagainevery", ck.NotifyAgainEvery)
 	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
@@ -458,7 +473,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("tags", strings.Join(tags, ","))
 
-  if ck.Status == "paused" {
+	if ck.Status == "paused" {
 		d.Set("paused", true)
 	}
 
@@ -491,6 +506,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 
 	if ck.Type.HTTP != nil {
 		d.Set("type", "http")
+		d.Set("responsetime_threshold", ck.ResponseTimeThreshold)
 		d.Set("url", ck.Type.HTTP.Url)
 		d.Set("encryption", ck.Type.HTTP.Encryption)
 		d.Set("port", ck.Type.HTTP.Port)
