@@ -179,89 +179,89 @@ resource "pingdom_contact" "second_user_contact_email_1" {
 
 The following common attributes for all check types can be set:
 
-**name** - (Required) The name of the check
+  * **name** - (Required) The name of the check
 
-**host** - (Required) The hostname to check.  Should be in the format `example.com`.
+  * **host** - (Required) The hostname to check.  Should be in the format `example.com`.
 
-**resolution** - (Required) The time in minutes between each check.  Allowed values: (1,5,15,30,60).
+  * **resolution** - (Required) The time in minutes between each check.  Allowed values: (1,5,15,30,60).
 
-**type** - (Required) The check type.  Allowed values: (http, ping).
+  * **type** - (Required) The check type.  Allowed values: (http, ping).
 
-**sendnotificationwhendown** - The number of consecutive failed checks required to trigger an alert. Values of 0 are ignored.
+  * **sendnotificationwhendown** - The number of consecutive failed checks required to trigger an alert. Values of 0 are ignored.
 
-**notifyagainevery** - Notify again after n results.  A value of 0 means no additional notifications will be sent.
+  * **notifyagainevery** - Notify again after n results.  A value of 0 means no additional notifications will be sent.
 
-**notifywhenbackup** - Notify when backup.
+  * **notifywhenbackup** - Notify when backup.
 
-**integrationids** - List of integer integration IDs (defined by webhook URL) that will be triggered by the alerts. The ID can be extracted from the integrations page URL on the pingdom website.
+  * **integrationids** - List of integer integration IDs (defined by webhook URL) that will be triggered by the alerts. The ID can be extracted from the integrations page URL on the pingdom website.
 
-**userids** - List of integer user IDs that will be notified when the check is down.
+  * **userids** - List of integer user IDs that will be notified when the check is down.
 
-**teamids** - List of integer team IDs that will be notified when the check is down.
+  * **teamids** - List of integer team IDs that will be notified when the check is down.
 
 #### HTTP specific attibutes ####
 
 For the HTTP checks, you can set these attributes:
 
-**url** - Target path on server.
+  * **url** - Target path on server.
 
-**encryption** - Enable encryption in the HTTP check (aka HTTPS).
+  * **encryption** - Enable encryption in the HTTP check (aka HTTPS).
 
-**port** - Target port for HTTP checks.
+  * **port** - Target port for HTTP checks.
 
-**username** - Username for target HTTP authentication.
+  * **username** - Username for target HTTP authentication.
 
-**password** - Password for target HTTP authentication.
+  * **password** - Password for target HTTP authentication.
 
-**shouldcontain** - Target site should contain this string.
+  * **shouldcontain** - Target site should contain this string.
 
-**shouldnotcontain** - Target site should NOT contain this string. Not allowed defined together with `shouldcontain`.
+  * **shouldnotcontain** - Target site should NOT contain this string. Not allowed defined together with `shouldcontain`.
 
-**postdata** - Data that should be posted to the web page, for example submission data for a sign-up or login form. The data needs to be formatted in the same way as a web browser would send it to the web server.
+  * **postdata** - Data that should be posted to the web page, for example submission data for a sign-up or login form. The data needs to be formatted in the same way as a web browser would send it to the web server.
 
-**requestheaders** - Custom HTTP headers. It should be a hash with pairs, like `{ "header_name" = "header_content" }`
+  * **requestheaders** - Custom HTTP headers. It should be a hash with pairs, like `{ "header_name" = "header_content" }`
 
-**tags** - List of tags the check should contain. Should be in the format "tagA,tagB"
+  * **tags** - List of tags the check should contain. Should be in the format "tagA,tagB"
 
-**probefilters** - Region from which the check should originate. One of NA, EU, APAC, or LATAM. Should be in the format "region:NA"
+  * **probefilters** - Region from which the check should originate. One of NA, EU, APAC, or LATAM. Should be in the format "region:NA"
 
-**publicreport** - If `true`, this check will be included in the public report (default: `false`)
+  * **publicreport** - If `true`, this check will be included in the public report (default: `false`)
 
 #### TCP specific attibutes ####
 
 For the TCP checks, you can set these attributes:
 
-**port** - Target port for TCP checks.
+  * **port** - Target port for TCP checks.
 
-**stringtosend** - (optional) This string will be sent to the port
+  * **stringtosend** - (optional) This string will be sent to the port
 
-**stringtoexpect** - (optional) This string must be returned by the remote host for the check to pass
+  * **stringtoexpect** - (optional) This string must be returned by the remote host for the check to pass
 
 The following attributes are exported:
 
-**id** The ID of the Pingdom check
+  * **id** The ID of the Pingdom check
 
 
 ### Pingdom Team ###
 
-**name** - (Required) The name of the team
+  * **name** - (Required) The name of the team
 
 
 ### Pingdom User ###
 
-**username** - (Required) The name of the user
+  * **username** - (Required) The name of the user
 
 
 ### Pingdom Contact ###
 
-**user_id**: (Required) ID of the user linked to this contact
+  * **user_id**: (Required) ID of the user linked to this contact
 
-**severity_level**: (Required) Severity level for target
+  * **severity_level**: (Required) Severity level for target
 
-**email**: Email
+  * **email**: Email
 
-**number**: Cellphone number, without the country code part. (Requires countrycode)
+  * **number**: Cellphone number, without the country code part. (Requires countrycode)
 
-**country_code**: Cellphone country code (Requires number)
+  * **country_code**: Cellphone country code (Requires number)
 
-**phone_provider**: SMS provider (Requires number and countrycode)
+  * **phone_provider**: SMS provider (Requires number and countrycode)
