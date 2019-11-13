@@ -504,6 +504,11 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("teamids", teamids)
 
+	if probefilters := ck.ProbeFilters; len(probefilters) > 0 {
+		// normalise: "region: NA" -> "region:NA"
+		d.Set("probefilters", strings.Replace(probefilters[0], ": ", ":", 1))
+	}
+
 	if ck.Type.HTTP != nil {
 		d.Set("type", "http")
 		d.Set("responsetime_threshold", ck.ResponseTimeThreshold)
