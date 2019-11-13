@@ -2,6 +2,7 @@ package pingdom
 
 import (
 	"fmt"
+	"hash/fnv"
 	"log"
 	"strconv"
 	"strings"
@@ -146,10 +147,12 @@ func resourcePingdomCheck() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
+
 			"tags": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"probefilters": {
@@ -182,6 +185,15 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+			},
+		},
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Version: 0,
+				Type:    resourcePingdomCheckResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourcePingdomCheckStateUpgradeV0,
 			},
 		},
 	}
@@ -315,7 +327,12 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}
 	}
 	if v, ok := d.GetOk("tags"); ok {
-		checkParams.Tags = v.(string)
+		interfaceSlice := v.(*schema.Set).List()
+		tags := make([]string, len(interfaceSlice))
+		for i := range interfaceSlice {
+			tags[i] = interfaceSlice[i].(string)
+		}
+		checkParams.Tags = strings.Join(tags, ",")
 	}
 
 	if v, ok := d.GetOk("probefilters"); ok {
@@ -467,11 +484,18 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
 	d.Set("publicreport", inPublicReport)
 
-	tags := []string{}
+	tags := schema.NewSet(
+		func(tagName interface{}) int {
+			h := fnv.New32a()
+			h.Write([]byte(tagName.(string)))
+			return int(h.Sum32())
+		},
+		[]interface{}{},
+	)
 	for _, tag := range ck.Tags {
-		tags = append(tags, tag.Name)
+		tags.Add(tag.Name)
 	}
-	d.Set("tags", strings.Join(tags, ","))
+	d.Set("tags", tags)
 
 	if ck.Status == "paused" {
 		d.Set("paused", true)
@@ -579,4 +603,188 @@ func resourcePingdomCheckDelete(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	return nil
+}
+
+func resourcePingdomCheckResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"host": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
+			"paused": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"responsetime_threshold": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				Computed: true,
+			},
+
+			"publicreport": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"resolution": {
+				Type:     schema.TypeInt,
+				Required: true,
+				ForceNew: false,
+			},
+
+			"sendnotificationwhendown": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				Computed: true,
+			},
+
+			"notifyagainevery": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"notifywhenbackup": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+				Computed: true,
+			},
+
+			"integrationids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
+			},
+
+			"encryption": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"url": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+				Default:  "/",
+			},
+
+			"port": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				Computed: true,
+			},
+
+			"username": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"password": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"shouldcontain": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"shouldnotcontain": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"postdata": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"requestheaders": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"tags": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"probefilters": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"userids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
+			},
+
+			"teamids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
+			},
+
+			"stringtosend": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+
+			"stringtoexpect": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+		},
+	}
+}
+
+func resourcePingdomCheckStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	oldTags, ok := rawState["tags"]
+	if !ok {
+		return rawState, nil
+	}
+	newTags := []string{}
+	tags := strings.Split(oldTags.(string), ",")
+	for _, t := range tags {
+		newTags = append(newTags, t)
+	}
+	rawState["tags"] = newTags
+	return rawState, nil
 }
