@@ -6,29 +6,35 @@ This currently only supports working with basic HTTP and ping checks.
 
 ## Build and install ##
 
-### Dependencies ###
+### Using released versions ###
 
-You should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
+Prebuild releases for most platforms are available [here](https://github.com/russellcardullo/terraform-provider-pingdom/releases).
+Download the release corresponding to your particular platform and place in `$HOME/.terraform.d/plugins/[os]_[arch]`.  For instance
+on Linux AMD64 the path would be `$HOME/.terraform.d/plugins/linux_amd64`.
+
+After copying the plugin run `terraform init` in your projects that use this provider.
+
+### Dependencies for building from source ###
+
+If you need to build from source, you should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
 
 This project uses [Go Modules](https://github.com/golang/go/wiki/Modules) for dependency management.  To fetch all dependencies run `go get` inside this repository.
 
 ### Build ###
 
 ```
-go get github.com/russellcardullo/terraform-provider-pingdom
+make build
 ```
 
-The binary will then be available at `~/go/bin/terraform-provider-pingdom`, unless you've set `$GOPATH`, in which case you'll find it at `$GOPATH/bin`
+The binary will then be available at `_build/terraform-provider-pingdom_VERSION`.
 
 ### Install ###
 
-You will need to install the binary as a [terraform third party plugin](https://www.terraform.io/docs/configuration/providers.html#third-party-plugins).  Terraform will then pick up the binary from the local filesystem when you run `terraform init`.
-
 ```
-ln -s ~/go/bin/terraform-provider-pingdom ~/.terraform.d/plugins/$(uname | tr '[:upper:]' '[:lower:]')_amd64/terraform-provider-pingdom_v$(date +%Y.%m.%d)
+make install
 ```
 
-Updates can now be applied by re-running `go get github.com/russellcardullo/terraform-provider-pingdom`.
+This will place the binary under `$HOME/.terraform.d/plugins/OS_ARCH/terraform-provider-pingdom_VERSION`.  After installing you will need to run `terraform init` in any project using the plugin.
 
 ## Usage ##
 

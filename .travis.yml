@@ -12,9 +12,7 @@ install:
   - export TF_LOG=INFO
   - go get
 script:
-  - go build -v
-  - ls
-  - TF_ACC=1 go test -v -cover ./...
+  - make test build
 before_deploy:
   - go get github.com/mitchellh/gox
   - export TARGET_OS="freebsd darwin linux windows"
