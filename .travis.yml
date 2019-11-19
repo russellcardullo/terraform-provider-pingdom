@@ -1,7 +1,7 @@
 language: go
 go:
-  - '1.11'
   - '1.12'
+  - '1.13'
   - master
 env:
   - GO111MODULE=on
@@ -32,5 +32,5 @@ deploy:
   on:
     tags: true
     branch: master
-    go: '1.12'
+    go: '1.13'
     repo: russellcardullo/terraform-provider-pingdom
