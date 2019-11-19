@@ -1,8 +1,10 @@
 language: go
 go:
-  - '1.11'
   - '1.12'
+  - '1.13'
   - master
+env:
+  - GO111MODULE=on
 matrix:
   allow_failures:
     - go: master
@@ -10,11 +12,8 @@ install:
   - export TF_LOG=INFO
   - go get
 script:
-  - go build -v
-  - ls
-  - TF_ACC=1 go test -v -cover ./...
+  - make test build
 before_deploy:
-  - export GO111MODULE=on
   - go get github.com/mitchellh/gox
   - export TARGET_OS="freebsd darwin linux windows"
   - export TARGET_ARCH="386 amd64"
@@ -33,5 +32,5 @@ deploy:
   on:
     tags: true
     branch: master
-    go: '1.12'
+    go: '1.13'
     repo: russellcardullo/terraform-provider-pingdom

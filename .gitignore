@@ -4,3 +4,5 @@
 examples/*.tfstate*
 examples/*.tfstate.backup
 examples/*.tfvars
+
+build/
