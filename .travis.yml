@@ -3,6 +3,8 @@ go:
   - '1.11'
   - '1.12'
   - master
+env:
+  - GO111MODULE=on
 matrix:
   allow_failures:
     - go: master
@@ -14,7 +16,6 @@ script:
   - ls
   - TF_ACC=1 go test -v -cover ./...
 before_deploy:
-  - export GO111MODULE=on
   - go get github.com/mitchellh/gox
   - export TARGET_OS="freebsd darwin linux windows"
   - export TARGET_ARCH="386 amd64"
