@@ -1,3 +1,56 @@
+## Unreleased
+
+NEW FEATURES:
+
+  * Add support for managing teams, contacts, users (#36)
+
+IMPROVEMENTS:
+
+  * Add responsetimethreshold to checks (#36)
+  * CI improvements (#48)
+  * Documentation improvements (#45)
+  * Uses latest patch version of go in CI builds (#50)
+  * Update to terraform 0.12.17 (#51)
+
+BUG FIXES:
+  * Include existing probefilter values on reads (#47)
+
+## 1.1.1 (October 5, 2019)
+
+IMPROVEMENTS:
+
+  * Add sensitive flags for secret values (#44)
+  * Publish releases from Travis CI (#41)
+
+## 1.0.0 (July 3, 2019)
+
+NEW FEATURES:
+
+  * Add TCP Checks (#21)
+  * Add support for Public Reports (#21)
+  * Add support for integrations/webhooks in checks (#14)
+  * Add support for probe filters (#13)
+  * Checks support paused parameter (#22)
+  * Add support for tags on checks (#8)
+  * Add support for importing existing checks (#9)
+  * Add contact IDs to schema (#3)
+  * Add option to use legacy notifications
+  * Add spport for multi-user accounts (#1)
+
+IMPROVEMENTS:
+
+  * Use go modules to manage dependencies (#30)
+  * Update to go-pingdom v1.0.0
+  * Update to terraform 0.12.3 (#38)
+  * Documentation updates (#12)
+
+BUG FIXES:
+
+  * Cannot use imported resource without forced re-creation (#31)
+  * Fix teams response (#27)
+  * Stop using `id` check schema in (#11)
+  * Add default value for check URLs (#4)
+
 ## 0.2.0 (October 17, 2014)
 
 IMPROVEMENTS:
