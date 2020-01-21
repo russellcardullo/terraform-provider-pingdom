@@ -3,6 +3,7 @@ package pingdom
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -150,6 +151,9 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				StateFunc: func(val interface{}) string {
+					return sortString(val.(string), ",")
+				},
 			},
 
 			"probefilters": {
@@ -212,6 +216,12 @@ type commonCheckParams struct {
 	ProbeFilters             string
 	StringToSend             string
 	StringToExpect           string
+}
+
+func sortString(input string, seperator string) string {
+	list := strings.Split(input, seperator)
+	sort.Strings(list)
+	return strings.Join(list, seperator)
 }
 
 func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
@@ -315,7 +325,8 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}
 	}
 	if v, ok := d.GetOk("tags"); ok {
-		checkParams.Tags = v.(string)
+		// Sort alphabetically before contionuing
+		checkParams.Tags = sortString(v.(string), ",")
 	}
 
 	if v, ok := d.GetOk("probefilters"); ok {
@@ -417,7 +428,7 @@ func resourcePingdomCheckCreate(d *schema.ResourceData, meta interface{}) error 
 		client.PublicReport.PublishCheck(ck.ID)
 	}
 
-	return nil
+	return resourcePingdomCheckRead(d, meta)
 }
 
 func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
@@ -471,6 +482,10 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	for _, tag := range ck.Tags {
 		tags = append(tags, tag.Name)
 	}
+
+	// We need to sort the strings here as the pingdom API returns them sorted by
+	//number of occurances across all checks
+	sort.Strings(tags)
 	d.Set("tags", strings.Join(tags, ","))
 
 	if ck.Status == "paused" {
@@ -565,7 +580,7 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 		client.PublicReport.WithdrawlCheck(id)
 	}
 
-	return nil
+	return resourcePingdomCheckRead(d, meta)
 }
 
 func resourcePingdomCheckDelete(d *schema.ResourceData, meta interface{}) error {
