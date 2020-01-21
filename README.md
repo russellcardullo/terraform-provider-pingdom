@@ -229,7 +229,7 @@ For the HTTP checks, you can set these attributes:
 
   * **requestheaders** - Custom HTTP headers. It should be a hash with pairs, like `{ "header_name" = "header_content" }`
 
-  * **tags** - List of tags the check should contain. Should be in the format "tagA,tagB"
+  * **tags** - Unordered set of Pingdom tags to assign to the check. Should be in the format `["tagA", "tagB"]`
 
   * **probefilters** - Region from which the check should originate. One of NA, EU, APAC, or LATAM. Should be in the format "region:NA"
 
