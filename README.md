@@ -106,14 +106,14 @@ variable "pingdom_password" {}
 variable "pingdom_api_key" {}
 
 provider "heroku" {
-    email = "${var.heroku_email}"
-    api_key = "${var.heroku_api_key}"
+    email = var.heroku_email
+    api_key = var.heroku_api_key
 }
 
 provider "pingdom" {
-    user = "${var.pingdom_user}"
-    password = "${var.pingdom_password}"
-    api_key = "${var.pingdom_api_key}"
+    user = var.pingdom_user
+    password = var.pingdom_password
+    api_key = var.pingdom_api_key
 }
 
 resource "heroku_app" "example" {
@@ -123,7 +123,7 @@ resource "heroku_app" "example" {
 
 resource "pingdom_check" "example" {
     name = "my check"
-    host = "${heroku_app.example.heroku_hostname}"
+    host = heroku_app.example.heroku_hostname
     resolution = 5
 }
 ```
@@ -133,6 +133,9 @@ resource "pingdom_check" "example" {
 ```
 resource "pingdom_team" "test" {
   name = "The Test team"
+  userids = [
+    pingdom_user.first_user.id,
+  ]
 }
 ```
 
@@ -153,13 +156,13 @@ resource "pingdom_user" "second_user" {
 ```
 
 resource "pingdom_contact" "first_user_contact_email_2" {
-  user_id        = "${pingdom_user.first_user.id}"
+  user_id        = pingdom_user.first_user.id
   email          = "john.doe@doe.com"
   severity_level = "LOW"
 }
 
 resource "pingdom_contact" "first_user_contact_sms_1" {
-  user_id        = "${pingdom_user.first_user.id}"
+  user_id        = pingdom_user.first_user.id
   number         = "700000000"
   country_code   = "33"
   phone_provider = "nexmo"
@@ -171,7 +174,7 @@ resource "pingdom_user" "second_user" {
 }
 
 resource "pingdom_contact" "second_user_contact_email_1" {
-  user_id        = "${pingdom_user.second_user.id}"
+  user_id        = pingdom_user.second_user.id
   email          = "jane@doe.com"
   severity_level = "high"
 }
@@ -253,6 +256,8 @@ The following attributes are exported:
 ### Pingdom Team ###
 
   * **name** - (Required) The name of the team
+
+  * **userids** - List of integer user IDs that will be notified when the check is down.
 
 
 ### Pingdom User ###
