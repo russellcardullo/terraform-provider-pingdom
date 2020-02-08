@@ -21,7 +21,7 @@ func resourcePingdomContact() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"user_id": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Required: true,
 			},
 			"severity_level": {
@@ -49,7 +49,7 @@ func resourcePingdomContact() *schema.Resource {
 }
 
 type commonContactParams struct {
-	UserID        string
+	UserID        int
 	Email         string
 	Number        string
 	PhoneProvider string
@@ -62,7 +62,7 @@ func contactForResource(d *schema.ResourceData) (pingdom.Contact, error) {
 
 	// required
 	if v, ok := d.GetOk("user_id"); ok {
-		contactParams.UserID = v.(string)
+		contactParams.UserID = v.(int)
 	}
 
 	if v, ok := d.GetOk("email"); ok {
@@ -102,8 +102,8 @@ func resourcePingdomContactCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	userID, err := strconv.Atoi(d.Get("user_id").(string))
-	if err != nil {
+	userID, ok := d.Get("user_id").(int)
+	if !ok {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
@@ -125,20 +125,40 @@ func resourcePingdomContactRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
-	userID, err := strconv.Atoi(d.Get("user_id").(string))
+	user := pingdom.UsersResponse{}
+	users, err := client.Users.List()
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("Error retrieving users: %s", err)
 	}
-
-	user, err := client.Users.Read(userID)
-	if err != nil {
-		return fmt.Errorf("Error retrieving Contact: %s", err)
+	userFound := false
+	for _, u := range users {
+		for _, email := range u.Email {
+			if email.Id == id {
+				user = u
+				userFound = true
+				break
+			}
+		}
+		for _, sms := range u.Sms {
+			if sms.Id == id {
+				user = u
+				userFound = true
+				break
+			}
+		}
+		if userFound {
+			break
+		}
+	}
+	if !userFound {
+		return fmt.Errorf("Error matching contact %d to a user", id)
 	}
 
 	for _, contact := range user.Email {
 		if contact.Id == id {
 			d.Set("email", contact.Address)
-			d.Set("severity", contact.Severity)
+			d.Set("severity_level", contact.Severity)
+			d.Set("user_id", user.Id)
 			return nil
 		}
 	}
@@ -148,6 +168,7 @@ func resourcePingdomContactRead(d *schema.ResourceData, meta interface{}) error 
 			d.Set("country_code", contact.CountryCode)
 			d.Set("phone_provider", contact.Provider)
 			d.Set("severity_level", contact.Severity)
+			d.Set("user_id", user.Id)
 			return nil
 		}
 	}
@@ -162,8 +183,8 @@ func resourcePingdomContactDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
-	userID, err := strconv.Atoi(d.Get("user_id").(string))
-	if err != nil {
+	userID, ok := d.Get("user_id").(int)
+	if !ok {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
@@ -186,8 +207,8 @@ func resourcePingdomContactUpdate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
-	userID, err := strconv.Atoi(d.Get("user_id").(string))
-	if err != nil {
+	userID, ok := d.Get("user_id").(int)
+	if !ok {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
