@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/russellcardullo/go-pingdom/pingdom"
@@ -36,17 +35,17 @@ func resourcePingdomMaintenanceWindow() *schema.Resource {
 			},
 			"recurrence_type": {
 				Type:     schema.TypeString,
-				Required: true,
-				// Default:  "none",
+				Optional: true,
+				Default:  "none",
 			},
 			"repeat_every": {
 				Type:     schema.TypeInt,
-				Required: true,
-				// Default:  0,
+				Optional: true,
+				Default:  0,
 			},
 			"effective_to": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 			},
 			"uptimeids": {
 				Type:     schema.TypeSet,
@@ -71,8 +70,8 @@ type commonMaintenanceWindowParams struct {
 	RecurenceType string
 	RepeatEvery   int
 	EffectiveTo   int
-	UptimeIds     string
-	TmIds         string
+	UptimeIds     []int
+	TmsIds        []int
 }
 
 func maintenanceWindowForResource(d *schema.ResourceData) (*pingdom.MaintenanceWindow, error) {
@@ -97,10 +96,30 @@ func maintenanceWindowForResource(d *schema.ResourceData) (*pingdom.MaintenanceW
 		windowParams.EffectiveTo = v.(int)
 	}
 	if v, ok := d.GetOk("uptimeids"); ok {
-		windowParams.UptimeIds = v.(string)
+		interfaceSlice := v.(*schema.Set).List()
+		var intSlice []int
+		for i := range interfaceSlice {
+			intSlice = append(intSlice, interfaceSlice[i].(int))
+		}
+		windowParams.UptimeIds = intSlice
 	}
-	if v, ok := d.GetOk("tmids"); ok {
-		windowParams.TmIds = v.(string)
+	if v, ok := d.GetOk("tmsids"); ok {
+		interfaceSlice := v.(*schema.Set).List()
+		var intSlice []int
+		for i := range interfaceSlice {
+			intSlice = append(intSlice, interfaceSlice[i].(int))
+		}
+		windowParams.TmsIds = intSlice
+	}
+
+	uptimeIds := ""
+	for _, id := range windowParams.UptimeIds {
+		uptimeIds += strconv.Itoa(id)
+	}
+
+	tmsIds := ""
+	for _, id := range windowParams.TmsIds {
+		tmsIds += strconv.Itoa(id)
 	}
 
 	return &pingdom.MaintenanceWindow{
@@ -110,23 +129,32 @@ func maintenanceWindowForResource(d *schema.ResourceData) (*pingdom.MaintenanceW
 		RecurrenceType: windowParams.RecurenceType,
 		RepeatEvery:    windowParams.RepeatEvery,
 		EffectiveTo:    windowParams.EffectiveTo,
-		UptimeIDs:      windowParams.UptimeIds,
-		TmsIDs:         windowParams.TmIds,
+		UptimeIDs:      uptimeIds,
+		TmsIDs:         tmsIds,
 	}, nil
 }
 
 func resourcePingdomMaintenanceWindowRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pingdom.Client)
 
-	log.Printf("[DEBUG] Read Maintenante window with ID: %v", d.Id())
+	log.Printf("[DEBUG] Read Maintenance window with ID: %v", d.Id())
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
+
+	// log.Printf("========================== Maintenances")
+	// maintenances, err := client.Maintenances.List()
+	// log.Println("Maintenances: ", maintenances) // [{ID Description} ...]
+	// for _, m := range maintenances {
+	// 	log.Println("Maintenance: ", m)
+	// }
+
 	window, err := client.Maintenances.Read(id)
 	if err != nil {
 		return fmt.Errorf("Error retrieving maintenance window: %s", err)
 	}
+	log.Printf("[DEBUG] Maintenance: %+v\n", window)
 
 	d.Set("descrition", window.Description)
 	d.Set("from", window.From)
@@ -135,17 +163,25 @@ func resourcePingdomMaintenanceWindowRead(d *schema.ResourceData, meta interface
 	d.Set("repeat_every", window.RepeatEvery)
 	d.Set("effective_to", window.EffectiveTo)
 
-	uptimeids := make([]string, len(window.Checks.Uptime))
-	for i, x := range window.Checks.Uptime {
-		uptimeids[i] = strconv.Itoa(x)
+	uptimeIds := schema.NewSet(
+		func(id interface{}) int { return id.(int) },
+		[]interface{}{},
+	)
+	for _, id := range window.Checks.Uptime {
+		log.Println("Uptime: ", id)
+		uptimeIds.Add(id)
 	}
-	d.Set("uptimeids", strings.Join(uptimeids, ","))
+	d.Set("uptimeids", uptimeIds)
 
-	tmids := make([]string, len(window.Checks.Tms))
-	for i, x := range window.Checks.Tms {
-		tmids[i] = strconv.Itoa(x)
+	tmsIds := schema.NewSet(
+		func(id interface{}) int { return id.(int) },
+		[]interface{}{},
+	)
+	for _, id := range window.Checks.Tms {
+		log.Println("Tm: ", id)
+		tmsIds.Add(id)
 	}
-	d.Set("tmids", strings.Join(tmids, ","))
+	d.Set("tmsids", tmsIds)
 
 	return nil
 }
@@ -153,7 +189,7 @@ func resourcePingdomMaintenanceWindowRead(d *schema.ResourceData, meta interface
 func resourcePingdomMaintenanceWindowCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pingdom.Client)
 
-	log.Printf("[DEBUG] Create Maintenante window with ID: %v", d.Id())
+	log.Printf("[DEBUG] Create Maintenance window with ID: %v", d.Id())
 	window, err := maintenanceWindowForResource(d)
 	if err != nil {
 		return err
@@ -172,7 +208,7 @@ func resourcePingdomMaintenanceWindowCreate(d *schema.ResourceData, meta interfa
 func resourcePingdomMaintenanceWindowDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pingdom.Client)
 
-	log.Printf("[DEBUG] Delete Maintenante window with ID: %v", d.Id())
+	log.Printf("[DEBUG] Delete Maintenance window with ID: %v", d.Id())
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
@@ -186,7 +222,7 @@ func resourcePingdomMaintenanceWindowDelete(d *schema.ResourceData, meta interfa
 func resourcePingdomMaintenanceWindowUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pingdom.Client)
 
-	log.Printf("[DEBUG] Update Maintenante window with ID: %v", d.Id())
+	log.Printf("[DEBUG] Update Maintenance window with ID: %v", d.Id())
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
