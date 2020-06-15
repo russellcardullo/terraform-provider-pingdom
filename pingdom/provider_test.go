@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/config"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/config"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
@@ -63,13 +63,8 @@ func TestProviderConfigure(t *testing.T) {
 		"account_email": expectedAccountEmail,
 	}
 
-	rawConfig, err := config.NewRawConfig(raw)
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	rp := Provider().(*schema.Provider)
-	err = rp.Configure(terraform.NewResourceConfig(rawConfig))
+	// rawConfig, err := config.NewRawConfig(raw)
+	err := rp.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
