@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/russellcardullo/go-pingdom/pingdom"
@@ -24,12 +25,20 @@ func resourcePingdomTeam() *schema.Resource {
 				Required: true,
 				ForceNew: false,
 			},
+
+			"userids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
+			},
 		},
 	}
 }
 
 type commonTeamParams struct {
-	Name string
+	Name    string
+	UserIDs []string
 }
 
 func teamForResource(d *schema.ResourceData) (*pingdom.TeamData, error) {
@@ -40,8 +49,19 @@ func teamForResource(d *schema.ResourceData) (*pingdom.TeamData, error) {
 		teamParams.Name = v.(string)
 	}
 
+	if v, ok := d.GetOk("userids"); ok {
+		interfaceSlice := v.(*schema.Set).List()
+		var stringSlice []string
+		for i := range interfaceSlice {
+			stringSlice = append(stringSlice, strconv.Itoa(interfaceSlice[i].(int)))
+
+		}
+		teamParams.UserIDs = stringSlice
+	}
+
 	return &pingdom.TeamData{
-		Name: teamParams.Name,
+		Name:    teamParams.Name,
+		UserIds: strings.Join(teamParams.UserIDs, ","),
 	}, nil
 }
 
@@ -91,6 +111,20 @@ func resourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", team.Name)
+
+	userids := schema.NewSet(
+		func(userId interface{}) int { return userId.(int) },
+		[]interface{}{},
+	)
+	for _, user := range team.Users {
+		id, err := strconv.Atoi(user.ID)
+		if err != nil {
+			return fmt.Errorf("Error retrieving id for resource: %s", err)
+		}
+		userids.Add(id)
+	}
+	d.Set("userids", userids)
+
 	return nil
 }
 
