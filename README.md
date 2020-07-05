@@ -200,7 +200,7 @@ The following common attributes for all check types can be set:
 
   * **notifyagainevery** - Notify again after n results.  A value of 0 means no additional notifications will be sent.
 
-  * **notifywhenbackup** - Notify when backup.
+  * **notifywhenbackup** - Notify when back up.
 
   * **integrationids** - List of integer integration IDs (defined by webhook URL) that will be triggered by the alerts. The ID can be extracted from the integrations page URL on the pingdom website. See note about interaction with `sendnotificationwhendown` below.
 
