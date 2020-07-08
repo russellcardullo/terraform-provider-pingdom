@@ -4,6 +4,8 @@ This project is a [terraform](http://www.terraform.io/) provider for [pingdom](h
 
 This currently only supports working with basic HTTP and ping checks.
 
+This supports Pingdom API v2.1: [API reference docs](https://www.pingdom.com/api/2.1/)
+
 ## Build and install ##
 
 ### Using released versions ###
@@ -184,7 +186,7 @@ resource "pingdom_contact" "second_user_contact_email_1" {
 
 ### Pingdom Check ###
 
-#### Common Attibutes ####
+#### Common Attributes ####
 
 The following common attributes for all check types can be set:
 
@@ -195,6 +197,10 @@ The following common attributes for all check types can be set:
   * **resolution** - (Required) The time in minutes between each check.  Allowed values: (1,5,15,30,60).
 
   * **type** - (Required) The check type.  Allowed values: (http, ping).
+  
+  * **paused** - Whether the check is active or not (defaults to False, if not provided)
+  
+  * **responsetime_threshold** = How long (int: milliseconds) pingdom should wait before marking a probe as failed (defaults to 30000 ms)
 
   * **sendnotificationwhendown** - The number of consecutive failed checks required to trigger an alert. Values of 0 are ignored. See note about interaction with `integrationids` below.
 
@@ -210,7 +216,7 @@ The following common attributes for all check types can be set:
 
 Note that when using `integrationids`, the `sendnotificationswhendown` value will be ignored when sending webhook notifications.  You may need to contact Pingdom support for more details.  See #52.
 
-#### HTTP specific attibutes ####
+#### HTTP specific attributes ####
 
 For the HTTP checks, you can set these attributes:
 
@@ -238,7 +244,7 @@ For the HTTP checks, you can set these attributes:
 
   * **publicreport** - If `true`, this check will be included in the public report (default: `false`)
 
-#### TCP specific attibutes ####
+#### TCP specific attributes ####
 
 For the TCP checks, you can set these attributes:
 
