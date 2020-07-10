@@ -198,7 +198,7 @@ The following common attributes for all check types can be set:
 
   * **type** - (Required) The check type.  Allowed values: (http, ping).
   
-  * **paused** - Whether the check is active or not (defaults to False, if not provided)
+  * **paused** - Whether the check is active or not (defaults to `false`, if not provided). Allowed values (bool): `true`, `false`
   
   * **responsetime_threshold** = How long (int: milliseconds) pingdom should wait before marking a probe as failed (defaults to 30000 ms)
 
