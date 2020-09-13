@@ -156,19 +156,35 @@ func resourcePingdomContactRead(d *schema.ResourceData, meta interface{}) error 
 
 	for _, contact := range user.Email {
 		if contact.Id == id {
-			d.Set("email", contact.Address)
-			d.Set("severity_level", contact.Severity)
-			d.Set("user_id", user.Id)
+			if err := d.Set("email", contact.Address); err != nil {
+				return err
+			}
+			if err := d.Set("severity_level", contact.Severity); err != nil {
+				return err
+			}
+			if err := d.Set("user_id", user.Id); err != nil {
+				return err
+			}
 			return nil
 		}
 	}
 	for _, contact := range user.Sms {
 		if contact.Id == id {
-			d.Set("number", contact.Number)
-			d.Set("country_code", contact.CountryCode)
-			d.Set("phone_provider", contact.Provider)
-			d.Set("severity_level", contact.Severity)
-			d.Set("user_id", user.Id)
+			if err := d.Set("number", contact.Number); err != nil {
+				return err
+			}
+			if err := d.Set("country_code", contact.CountryCode); err != nil {
+				return err
+			}
+			if err := d.Set("phone_provider", contact.Provider); err != nil {
+				return err
+			}
+			if err := d.Set("severity_level", contact.Severity); err != nil {
+				return err
+			}
+			if err := d.Set("user_id", user.Id); err != nil {
+				return err
+			}
 			return nil
 		}
 	}

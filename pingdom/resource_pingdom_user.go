@@ -74,7 +74,9 @@ func resourcePingdomUserRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error retrieving user: %s", err)
 	}
 
-	d.Set("username", user.Username)
+	if err := d.Set("username", user.Username); err != nil {
+		return err
+	}
 	return nil
 }
 

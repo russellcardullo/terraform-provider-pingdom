@@ -36,7 +36,10 @@ func dataSourcePingdomUserRead(d *schema.ResourceData, meta interface{}) error {
 			found = user
 		}
 	}
-	d.Set("username", found.Username)
+	err = d.Set("username", found.Username)
+	if err != nil {
+		return fmt.Errorf("Error setting username: %s", err)
+	}
 	d.SetId(fmt.Sprintf("%d", found.Id))
 	return nil
 }

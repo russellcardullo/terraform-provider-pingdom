@@ -110,7 +110,9 @@ func resourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error retrieving team: %s", err)
 	}
 
-	d.Set("name", team.Name)
+	if err := d.Set("name", team.Name); err != nil {
+		return err
+	}
 
 	userids := schema.NewSet(
 		func(userId interface{}) int { return userId.(int) },
@@ -123,7 +125,9 @@ func resourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		userids.Add(id)
 	}
-	d.Set("userids", userids)
+	if err := d.Set("userids", userids); err != nil {
+		return err
+	}
 
 	return nil
 }
