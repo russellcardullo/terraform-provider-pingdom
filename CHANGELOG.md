@@ -1,8 +1,11 @@
 ## Unreleased
 
+## 1.1.2 (September 13, 2020)
+
 NEW FEATURES:
 
   * Add support for managing teams, contacts, users (#36)
+  * Allow adding users to teams (#61)
 
 IMPROVEMENTS:
 
@@ -10,10 +13,15 @@ IMPROVEMENTS:
   * CI improvements (#48)
   * Documentation improvements (#45)
   * Uses latest patch version of go in CI builds (#50)
-  * Update to terraform 0.12.17 (#51)
+  * Update to terraform 0.12.18 (#51, #54)
+  * Migrate to terraform-plugin-sdk (#65)
+  * Sort tags on write to prevent unnecessary diffs (#58)
+  * Documentation improvements (#53, #66, #67)
+  * Use GitHub actions for builds and releases (#72)
 
 BUG FIXES:
   * Include existing probefilter values on reads (#47)
+  * Fix issue importing contacts (#60)
 
 ## 1.1.1 (October 5, 2019)
 
