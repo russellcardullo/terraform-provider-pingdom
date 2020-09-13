@@ -4,6 +4,8 @@ This project is a [terraform](http://www.terraform.io/) provider for [pingdom](h
 
 This currently only supports working with basic HTTP and ping checks.
 
+This supports Pingdom API v2.1: [API reference docs](https://www.pingdom.com/api/2.1/)
+
 ## Build and install ##
 
 ### Using released versions ###
@@ -195,6 +197,10 @@ The following common attributes for all check types can be set:
   * **resolution** - (Required) The time in minutes between each check.  Allowed values: (1,5,15,30,60).
 
   * **type** - (Required) The check type.  Allowed values: (http, ping).
+  
+  * **paused** - Whether the check is active or not (defaults to `false`, if not provided). Allowed values (bool): `true`, `false`
+  
+  * **responsetime_threshold** = How long (int: milliseconds) pingdom should wait before marking a probe as failed (defaults to 30000 ms)
 
   * **sendnotificationwhendown** - The number of consecutive failed checks required to trigger an alert. Values of 0 are ignored. See note about interaction with `integrationids` below.
 
