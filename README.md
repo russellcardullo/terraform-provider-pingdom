@@ -184,7 +184,7 @@ resource "pingdom_contact" "second_user_contact_email_1" {
 
 ### Pingdom Check ###
 
-#### Common Attibutes ####
+#### Common Attributes ####
 
 The following common attributes for all check types can be set:
 
@@ -208,9 +208,9 @@ The following common attributes for all check types can be set:
 
   * **teamids** - List of integer team IDs that will be notified when the check is down.
 
-Note that when using `integrationids`, the `sendnotificationswhendown` value will be ignored when sending webhook notifications.  You may need to contact Pingdom support for more details.  See #52.
+Note that when using `integrationids`, the `sendnotificationwhendown` value will be ignored when sending webhook notifications.  You may need to contact Pingdom support for more details.  See #52.
 
-#### HTTP specific attibutes ####
+#### HTTP specific attributes ####
 
 For the HTTP checks, you can set these attributes:
 
@@ -238,7 +238,7 @@ For the HTTP checks, you can set these attributes:
 
   * **publicreport** - If `true`, this check will be included in the public report (default: `false`)
 
-#### TCP specific attibutes ####
+#### TCP specific attributes ####
 
 For the TCP checks, you can set these attributes:
 
