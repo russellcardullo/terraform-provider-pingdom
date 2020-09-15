@@ -201,7 +201,7 @@ The following common attributes for all check types can be set:
   
   * **responsetime_threshold** = How long (int: milliseconds) pingdom should wait before marking a probe as failed (defaults to 30000 ms)
 
-  * **sendnotificationwhendown** - The number of consecutive failed checks required to trigger an alert. Values of 0 are ignored. See note about interaction with `integrationids` below.
+  * **sendnotificationwhendown** - The consecutive failed checks required to trigger an alert. Values of 1 imply notification instantly. Values of 2 mean pingdom will wait for a second check to fail, i.e. `resolution` minutes, to trigger an alert. For example `sendnotificationwhendown: 2` and `resolution: 1`, will trigger an alert after 1 minute. Further, values of N will trigger an alert after `(N - 1) * resolution` minutes, e.g. `sendnotificationwhendown: 6` and `resolution: 1` will trigger an alert after 5 minutes. Values of 0 are ignored. See note about interaction with `integrationids` below.
 
   * **notifyagainevery** - Notify again after n results.  A value of 0 means no additional notifications will be sent.
 
