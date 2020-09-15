@@ -6,3 +6,4 @@ examples/*.tfstate.backup
 examples/*.tfvars
 
 build/
+vendor/*
