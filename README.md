@@ -24,7 +24,7 @@ This project uses [Go Modules](https://github.com/golang/go/wiki/Modules) for de
 
 ### Build ###
 
-```
+```sh
 make build
 ```
 
@@ -32,7 +32,7 @@ The binary will then be available at `_build/terraform-provider-pingdom_VERSION`
 
 ### Install ###
 
-```
+```sh
 make install
 ```
 
@@ -42,7 +42,7 @@ This will place the binary under `$HOME/.terraform.d/plugins/OS_ARCH/terraform-p
 
 **Basic Check**
 
-```
+```hcl
 variable "pingdom_user" {}
 variable "pingdom_password" {}
 variable "pingdom_api_key" {}
@@ -90,7 +90,7 @@ resource "pingdom_check" "ping_example" {
 ```
 
 Apply with:
-```
+```sh
  terraform apply \
     -var 'pingdom_user=YOUR_USERNAME' \
     -var 'pingdom_password=YOUR_PASSWORD' \
@@ -99,7 +99,7 @@ Apply with:
 
 **Using attributes from other resources**
 
-```
+```hcl
 variable "heroku_email" {}
 variable "heroku_api_key" {}
 
@@ -132,7 +132,7 @@ resource "pingdom_check" "example" {
 
 **Teams**
 
-```
+```hcl
 resource "pingdom_team" "test" {
   name = "The Test team"
   userids = [
@@ -143,7 +143,7 @@ resource "pingdom_team" "test" {
 
 **Users**
 
-```
+```hcl
 resource "pingdom_user" "first_user" {
   username = "johndoe"
 }
@@ -155,8 +155,7 @@ resource "pingdom_user" "second_user" {
 
 **Contacts**
 
-```
-
+```hcl
 resource "pingdom_contact" "first_user_contact_email_2" {
   user_id        = pingdom_user.first_user.id
   email          = "john.doe@doe.com"
