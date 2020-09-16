@@ -6,43 +6,23 @@ This currently only supports working with basic HTTP and ping checks.
 
 This supports Pingdom API v2.1: [API reference docs](https://www.pingdom.com/api/2.1/)
 
-## Build and install ##
-
-### Using released versions ###
-
-Prebuild releases for most platforms are available [here](https://github.com/russellcardullo/terraform-provider-pingdom/releases).
-Download the release corresponding to your particular platform and place in `$HOME/.terraform.d/plugins/[os]_[arch]`.  For instance
-on Linux AMD64 the path would be `$HOME/.terraform.d/plugins/linux_amd64`.
-
-After copying the plugin run `terraform init` in your projects that use this provider.
-
-### Dependencies for building from source ###
-
-If you need to build from source, you should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
-
-This project uses [Go Modules](https://github.com/golang/go/wiki/Modules) for dependency management.  To fetch all dependencies run `go get` inside this repository.
-
-### Build ###
-
-```sh
-make build
-```
-
-The binary will then be available at `_build/terraform-provider-pingdom_VERSION`.
-
-### Install ###
-
-```sh
-make install
-```
-
-This will place the binary under `$HOME/.terraform.d/plugins/OS_ARCH/terraform-provider-pingdom_VERSION`.  After installing you will need to run `terraform init` in any project using the plugin.
+## Requirements ##
+* Terraform 0.12.x
+* Go 1.14 (to build the provider plugin)
 
 ## Usage ##
 
-**Basic Check**
-
+**Use provider**
 ```hcl
+terraform {
+  required_providers {
+    pingdom = {
+      source = "russellcardullo/pingdom"
+      version = "1.1.2"
+    }
+  }
+}
+
 variable "pingdom_user" {}
 variable "pingdom_password" {}
 variable "pingdom_api_key" {}
@@ -54,7 +34,10 @@ provider "pingdom" {
     api_key = "${var.pingdom_api_key}"
     account_email = "${var.pingdom_account_email}" # Optional: only required for multi-user accounts
 }
+```
 
+**Basic Check**
+```hcl
 resource "pingdom_check" "example" {
     type = "http"
     name = "my http check"
@@ -67,7 +50,7 @@ resource "pingdom_check" "example_with_alert" {
     name = "my http check"
     host = "example.com"
     resolution = 5
-    sendnotificationwhendown = 2
+    sendnotificationwhendown = 2 # alert after 5 mins, with resolution 5*(2-1)
     integrationids = [
       12345678,
       23456789
@@ -283,3 +266,27 @@ The following attributes are exported:
   * **country_code**: Cellphone country code (Requires number)
 
   * **phone_provider**: SMS provider (Requires number and countrycode)
+
+## Develop The Provider ##
+
+### Dependencies for building from source ###
+
+If you need to build from source, you should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
+
+This project uses [Go Modules](https://github.com/golang/go/wiki/Modules) for dependency management.  To fetch all dependencies run `go get` inside this repository.
+
+### Build ###
+
+```sh
+make build
+```
+
+The binary will then be available at `_build/terraform-provider-pingdom_VERSION`.
+
+### Install ###
+
+```sh
+make install
+```
+
+This will place the binary under `$HOME/.terraform.d/plugins/OS_ARCH/terraform-provider-pingdom_VERSION`.  After installing you will need to run `terraform init` in any project using the plugin.
