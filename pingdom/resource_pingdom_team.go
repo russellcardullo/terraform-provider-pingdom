@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/russellcardullo/go-pingdom/pingdom"
@@ -25,8 +24,7 @@ func resourcePingdomTeam() *schema.Resource {
 				Required: true,
 				ForceNew: false,
 			},
-
-			"userids": {
+			"member_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
@@ -37,32 +35,29 @@ func resourcePingdomTeam() *schema.Resource {
 }
 
 type commonTeamParams struct {
-	Name    string
-	UserIDs []string
+	Name      string
+	MemberIDs []int
 }
 
-func teamForResource(d *schema.ResourceData) (*pingdom.TeamData, error) {
-	teamParams := commonTeamParams{}
+func teamForResource(d *schema.ResourceData) (*pingdom.Team, error) {
+	team := pingdom.Team{}
 
 	// required
 	if v, ok := d.GetOk("name"); ok {
-		teamParams.Name = v.(string)
+		team.Name = v.(string)
 	}
 
-	if v, ok := d.GetOk("userids"); ok {
+	if v, ok := d.GetOk("member_ids"); ok {
 		interfaceSlice := v.(*schema.Set).List()
-		var stringSlice []string
+		var intSlice []int
 		for i := range interfaceSlice {
-			stringSlice = append(stringSlice, strconv.Itoa(interfaceSlice[i].(int)))
+			intSlice = append(intSlice, interfaceSlice[i].(int))
 
 		}
-		teamParams.UserIDs = stringSlice
+		team.MemberIDs = intSlice
 	}
 
-	return &pingdom.TeamData{
-		Name:    teamParams.Name,
-		UserIds: strings.Join(teamParams.UserIDs, ","),
-	}, nil
+	return &team, nil
 }
 
 func resourcePingdomTeamCreate(d *schema.ResourceData, meta interface{}) error {
@@ -79,7 +74,7 @@ func resourcePingdomTeamCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	d.SetId(result.ID)
+	d.SetId(strconv.Itoa(result.ID))
 	return nil
 }
 
@@ -92,7 +87,7 @@ func resourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	exists := false
 	for _, team := range teams {
-		if team.ID == d.Id() {
+		if strconv.Itoa(team.ID) == d.Id() {
 			exists = true
 			break
 		}
@@ -114,18 +109,14 @@ func resourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	userids := schema.NewSet(
-		func(userId interface{}) int { return userId.(int) },
+	memberids := schema.NewSet(
+		func(memberId interface{}) int { return memberId.(int) },
 		[]interface{}{},
 	)
-	for _, user := range team.Users {
-		id, err := strconv.Atoi(user.ID)
-		if err != nil {
-			return fmt.Errorf("Error retrieving id for resource: %s", err)
-		}
-		userids.Add(id)
+	for _, member := range team.Members {
+		memberids.Add(member.ID)
 	}
-	if err := d.Set("userids", userids); err != nil {
+	if err := d.Set("member_ids", memberids); err != nil {
 		return err
 	}
 

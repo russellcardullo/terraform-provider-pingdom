@@ -19,11 +19,10 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"pingdom_check":   resourcePingdomCheck(),
 			"pingdom_team":    resourcePingdomTeam(),
-			"pingdom_user":    resourcePingdomUser(),
 			"pingdom_contact": resourcePingdomContact(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"pingdom_user": dataSourcePingdomUser(),
+			"pingdom_contact": dataSourcePingdomContact(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
