@@ -4,6 +4,7 @@
 examples/*.tfstate*
 examples/*.tfstate.backup
 examples/*.tfvars
+examples/.terraform
 
 build/
 vendor/*
