@@ -133,12 +133,12 @@ func getNotificationMethods(d *schema.ResourceData) (pingdom.NotificationTargets
 			hasLowSeverity = true
 		}
 		switch sms.Provider {
-		case "nexmo", "bulk sms", "esendex", "cellsynt":
+		case "nexmo", "bulksms", "esendex", "cellsynt":
 			base.SMS = append(base.SMS, sms)
 			continue
 		}
-		// Bulk SMS should be sent to the api as `bulksms`, however the API rejects it unless you submit it as `bulk sms`, which ends up invalid
-		return base, fmt.Errorf("SMS provider must be one of: nexmo, esendex, or cellsynt. 'bulk sms' is not presently supported")
+
+		return base, fmt.Errorf("SMS provider must be one of: nexmo, bulksms, esendex, or cellsynt")
 	}
 
 	for _, raw := range d.Get("email_notification").(*schema.Set).List() {
@@ -150,7 +150,7 @@ func getNotificationMethods(d *schema.ResourceData) (pingdom.NotificationTargets
 		base.Email = append(base.Email, email)
 	}
 
-	// If Pingdom re-adds this to their API, we can uncomment
+	// We can't write APNS or AGCM data, but we can read it.... TODO: Decide what to do
 	// for _, raw := range d.Get("apns_notification").(*schema.Set).List() {
 	// 	input := raw.(map[string]interface{})
 	// 	apns := pingdom.APNSNotification{
