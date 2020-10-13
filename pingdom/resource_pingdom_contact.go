@@ -70,43 +70,6 @@ func resourcePingdomContact() *schema.Resource {
 					},
 				},
 			},
-			// If Pingdom re-adds this to their API, we can uncomment
-			// "apns_notification": {
-			// 	Type:     schema.TypeSet,
-			// 	Optional: true,
-			// 	Elem: &schema.Resource{
-			// 		Schema: map[string]*schema.Schema{
-			// 			"device": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 			"name": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 			"severity": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 		},
-			// 	},
-			// },
-			// "agcm_notification": {
-			// 	Type:     schema.TypeSet,
-			// 	Optional: true,
-			// 	Elem: &schema.Resource{
-			// 		Schema: map[string]*schema.Schema{
-			// 			"agcmid": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 			"severity": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 		},
-			// 	},
-			// },
 		},
 	}
 }
@@ -149,26 +112,6 @@ func getNotificationMethods(d *schema.ResourceData) (pingdom.NotificationTargets
 		}
 		base.Email = append(base.Email, email)
 	}
-
-	// We can't write APNS or AGCM data, but we can read it.... TODO: Decide what to do
-	// for _, raw := range d.Get("apns_notification").(*schema.Set).List() {
-	// 	input := raw.(map[string]interface{})
-	// 	apns := pingdom.APNSNotification{
-	// 		Device:   input["device"].(string),
-	// 		Name:     input["name"].(string),
-	// 		Severity: input["severity"].(string),
-	// 	}
-	// 	base.APNS = append(base.APNS, apns)
-	// }
-
-	// for _, raw := range d.Get("agcm_notification").(*schema.Set).List() {
-	// 	input := raw.(map[string]interface{})
-	// 	apns := pingdom.AGCMNotification{
-	// 		AGCMID:   input["agcmid"].(string),
-	// 		Severity: input["severity"].(string),
-	// 	}
-	// 	base.AGCM = append(base.AGCM, apns)
-	// }
 
 	if !hasHighSeverity || !hasLowSeverity {
 		return base, fmt.Errorf("You must provide both a high and low severity notification method")

@@ -79,43 +79,6 @@ func dataSourcePingdomContact() *schema.Resource {
 					},
 				},
 			},
-			// If Pingdom re-adds this to their API, we can uncomment
-			// "apns_notification": {
-			// 	Type:     schema.TypeSet,
-			// 	Optional: true,
-			// 	Elem: &schema.Resource{
-			// 		Schema: map[string]*schema.Schema{
-			// 			"device": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 			"name": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 			"severity": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 		},
-			// 	},
-			// },
-			// "agcm_notification": {
-			// 	Type:     schema.TypeSet,
-			// 	Optional: true,
-			// 	Elem: &schema.Resource{
-			// 		Schema: map[string]*schema.Schema{
-			// 			"agcmid": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 			"severity": {
-			// 				Type:     schema.TypeString,
-			// 				Required: true,
-			// 			},
-			// 		},
-			// 	},
-			// },
 		},
 	}
 }
