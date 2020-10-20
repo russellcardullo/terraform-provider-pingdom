@@ -1,5 +1,20 @@
 ## Unreleased
 
+## 1.1.3 (October 20, 2020)
+
+BREAKING CHANGES:
+
+  * This release removes support for the deprecated v2.X Pingdom APIs.
+
+NEW FEATURES:
+
+  * Add support for the v3.1 Pingdom API (#77)
+
+IMPROVEMENTS:
+  
+  * Documentation improvements (#73, #76)
+  * Add GitHub actions workflows for linting and testing (#75)
+
 ## 1.1.2 (September 13, 2020)
 
 NEW FEATURES:
