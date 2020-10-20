@@ -21,45 +21,52 @@ resource "pingdom_team" "test_one" {
 }
 
 provider "pingdom" {
-  user     = "${var.pingdom_user}"
-  password = "${var.pingdom_password}"
-  api_key  = "${var.pingdom_api_key}"
+  api_token  = "${var.pingdom_api_token}"
 }
 
 resource "pingdom_team" "test" {
-  name = "Team for testing"
+  name = "Team 2 (updated by Terraform) with contacts"
+
+  member_ids = [pingdom_contact.first_contact.id, pingdom_contact.second_contact.id]
 }
 
-resource "pingdom_user" "first_user" {
-  username = "johndoe"
+resource "pingdom_contact" "first_contact" {
+  name = "johndoe"
+
+  sms_notification {
+    number   = "5555555555"
+    severity = "HIGH"
+  }
+  sms_notification {
+    number   = "2222222222"
+    severity = "LOW"
+  }
 }
 
-resource "pingdom_contact" "first_user_contact_email_1" {
-  user_id        = "${pingdom_user.first_user.id}"
-  email          = "john@doe.com"
-  severity_level = "HIGH"
+resource "pingdom_contact" "second_contact" {
+  name   = "janedoe"
+  paused = true
+
+  sms_notification {
+    number   = "5555555555"
+    severity = "HIGH"
+  }
+  sms_notification {
+    number       = "3333333333"
+    country_code = "91"
+    severity     = "LOW"
+    provider     = "esendex"
+  }
+  email_notification {
+    address  = "test@test.com"
+    severity = "LOW"
+  }
 }
 
-resource "pingdom_contact" "first_user_contact_email_2" {
-  user_id        = "${pingdom_user.first_user.id}"
-  email          = "john.doe@doe.com"
-  severity_level = "LOW"
+data "pingdom_contact" "data_contact" {
+  name = "janedoe"
 }
 
-resource "pingdom_contact" "first_user_contact_sms_1" {
-  user_id        = "${pingdom_user.first_user.id}"
-  number         = "700000000"
-  country_code   = "33"
-  phone_provider = "nexmo"
-  severity_level = "HIGH"
-}
-
-resource "pingdom_user" "second_user" {
-  username = "janedoe"
-}
-
-resource "pingdom_contact" "second_user_contact_email_1" {
-  user_id        = "${pingdom_user.second_user.id}"
-  email          = "jane@doe.com"
-  severity_level = "high"
+output "test" {
+  value = data.pingdom_contact.data_contact
 }

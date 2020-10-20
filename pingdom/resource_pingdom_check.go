@@ -53,12 +53,6 @@ func resourcePingdomCheck() *schema.Resource {
 				Computed: true,
 			},
 
-			"publicreport": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-			},
-
 			"resolution": {
 				Type:     schema.TypeInt,
 				Required: true,
@@ -424,13 +418,6 @@ func resourcePingdomCheckCreate(d *schema.ResourceData, meta interface{}) error 
 
 	d.SetId(strconv.Itoa(ck.ID))
 
-	if v, ok := d.GetOk("publicreport"); ok && v.(bool) {
-		_, err = client.PublicReport.PublishCheck(ck.ID)
-		if err != nil {
-			return err
-		}
-	}
-
 	return resourcePingdomCheckRead(d, meta)
 }
 
@@ -460,17 +447,6 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving check: %s", err)
 	}
-	rl, err := client.PublicReport.List()
-	if err != nil {
-		return fmt.Errorf("Error retrieving list of public report checks: %s", err)
-	}
-	inPublicReport := false
-	for _, ckid := range rl {
-		if ckid.ID == id {
-			inPublicReport = true
-			break
-		}
-	}
 
 	if err := d.Set("host", ck.Hostname); err != nil {
 		return err
@@ -497,10 +473,6 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := d.Set("notifywhenbackup", ck.NotifyWhenBackup); err != nil {
-		return err
-	}
-
-	if err := d.Set("publicreport", inPublicReport); err != nil {
 		return err
 	}
 
@@ -642,16 +614,6 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 	_, err = client.Checks.Update(id, check)
 	if err != nil {
 		return fmt.Errorf("Error updating check: %s", err)
-	}
-
-	if v, ok := d.GetOk("publicreport"); ok && v.(bool) {
-		if _, err := client.PublicReport.PublishCheck(id); err != nil {
-			return err
-		}
-	} else {
-		if _, err := client.PublicReport.WithdrawlCheck(id); err != nil {
-			return err
-		}
 	}
 
 	return resourcePingdomCheckRead(d, meta)

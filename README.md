@@ -23,16 +23,10 @@ terraform {
   }
 }
 
-variable "pingdom_user" {}
-variable "pingdom_password" {}
-variable "pingdom_api_key" {}
-variable "pingdom_account_email" {} # Optional: only required for multi-user accounts
+variable "pingdom_api_token" {}
 
 provider "pingdom" {
-    user = "${var.pingdom_user}"
-    password = "${var.pingdom_password}"
-    api_key = "${var.pingdom_api_key}"
-    account_email = "${var.pingdom_account_email}" # Optional: only required for multi-user accounts
+    pingdom_api_token = "${var.pingdom_api_token}"
 }
 ```
 
@@ -75,9 +69,7 @@ resource "pingdom_check" "ping_example" {
 Apply with:
 ```sh
  terraform apply \
-    -var 'pingdom_user=YOUR_USERNAME' \
-    -var 'pingdom_password=YOUR_PASSWORD' \
-    -var 'pingdom_api_key=YOUR_API_KEY'
+    -var 'pingdom_api_token=YOUR_API_TOKEN'
 ```
 
 **Using attributes from other resources**
@@ -86,9 +78,7 @@ Apply with:
 variable "heroku_email" {}
 variable "heroku_api_key" {}
 
-variable "pingdom_user" {}
-variable "pingdom_password" {}
-variable "pingdom_api_key" {}
+variable "pingdom_api_token" {}
 
 provider "heroku" {
     email = var.heroku_email
@@ -96,9 +86,7 @@ provider "heroku" {
 }
 
 provider "pingdom" {
-    user = var.pingdom_user
-    password = var.pingdom_password
-    api_key = var.pingdom_api_key
+    pingdom_api_token = var.pingdom_api_token
 }
 
 resource "heroku_app" "example" {
@@ -118,49 +106,52 @@ resource "pingdom_check" "example" {
 ```hcl
 resource "pingdom_team" "test" {
   name = "The Test team"
-  userids = [
-    pingdom_user.first_user.id,
+  member_ids = [
+    pingdom_contact.first_contact.id,
   ]
-}
-```
-
-**Users**
-
-```hcl
-resource "pingdom_user" "first_user" {
-  username = "johndoe"
-}
-
-resource "pingdom_user" "second_user" {
-  username = "janedoe"
 }
 ```
 
 **Contacts**
 
+Note that all contacts _must_ have both a high and low severity notification
+
 ```hcl
-resource "pingdom_contact" "first_user_contact_email_2" {
-  user_id        = pingdom_user.first_user.id
-  email          = "john.doe@doe.com"
-  severity_level = "LOW"
+
+resource "pingdom_contact" "first_contact" {
+  name = "johndoe"
+
+  sms_notification {
+    number   = "5555555555"
+    severity = "HIGH"
+  }
+
+  sms_notification {
+    number       = "3333333333"
+    country_code = "91"
+    severity     = "LOW"
+    provider     = "esendex"
+  }
+
+  email_notification {
+    address  = "test@test.com"
+    severity = "LOW"
+  }
 }
 
-resource "pingdom_contact" "first_user_contact_sms_1" {
-  user_id        = pingdom_user.first_user.id
-  number         = "700000000"
-  country_code   = "33"
-  phone_provider = "nexmo"
-  severity_level = "HIGH"
-}
+resource "pingdom_contact" "second_contact" {
+  name   = "janedoe"
+  paused = true
 
-resource "pingdom_user" "second_user" {
-  username = "janedoe"
-}
+  email_notification {
+    address  = "test@test.com"
+    severity = "LOW"
+  }
 
-resource "pingdom_contact" "second_user_contact_email_1" {
-  user_id        = pingdom_user.second_user.id
-  email          = "jane@doe.com"
-  severity_level = "high"
+  email_notification {
+    address  = "test@test.com"
+    severity = "HIGH"
+  }
 }
 ```
 
@@ -179,9 +170,9 @@ The following common attributes for all check types can be set:
   * **resolution** - (Required) The time in minutes between each check.  Allowed values: (1,5,15,30,60).
 
   * **type** - (Required) The check type.  Allowed values: (http, ping).
-  
+
   * **paused** - Whether the check is active or not (defaults to `false`, if not provided). Allowed values (bool): `true`, `false`
-  
+
   * **responsetime_threshold** = How long (int: milliseconds) pingdom should wait before marking a probe as failed (defaults to 30000 ms)
 
   * **sendnotificationwhendown** - The consecutive failed checks required to trigger an alert. Values of 1 imply notification instantly. Values of 2 mean pingdom will wait for a second check to fail, i.e. `resolution` minutes, to trigger an alert. For example `sendnotificationwhendown: 2` and `resolution: 1`, will trigger an alert after 1 minute. Further, values of N will trigger an alert after `(N - 1) * resolution` minutes, e.g. `sendnotificationwhendown: 6` and `resolution: 1` will trigger an alert after 5 minutes. Values of 0 are ignored. See note about interaction with `integrationids` below.
@@ -224,8 +215,6 @@ For the HTTP checks, you can set these attributes:
 
   * **probefilters** - Region from which the check should originate. One of NA, EU, APAC, or LATAM. Should be in the format "region:NA"
 
-  * **publicreport** - If `true`, this check will be included in the public report (default: `false`)
-
 #### TCP specific attributes ####
 
 For the TCP checks, you can set these attributes:
@@ -245,27 +234,30 @@ The following attributes are exported:
 
   * **name** - (Required) The name of the team
 
-  * **userids** - List of integer user IDs that will be notified when the check is down.
-
-
-### Pingdom User ###
-
-  * **username** - (Required) The name of the user
+  * **member_ids** - List of integer contact IDs that will be notified when the check is down.
 
 
 ### Pingdom Contact ###
 
-  * **user_id**: (Required) ID of the user linked to this contact
+  * **name**: (Required) Name of the contact
 
-  * **severity_level**: (Required) Severity level for target
+  * **paused**: Whether alerts for this contact should be disabled
 
-  * **email**: Email
+  * **sms_notification**: Block resource describing an SMS notification
 
-  * **number**: Cellphone number, without the country code part. (Requires countrycode)
+      * **country_code**: The country code, defaults to "1"
 
-  * **country_code**: Cellphone country code (Requires number)
+      * **number**: The phone number
 
-  * **phone_provider**: SMS provider (Requires number and countrycode)
+      * **provider**: Provider for SMS messaging. One of nexcom|bulk sms|esendex|cellsynt. 'bulk sms' not presently operational
+
+      * **severity**: Severity of this notification. One of HIGH|LOW
+
+  * **email_notification**: Block resource describing an Email notification
+
+      * **address**: Email address to notify
+
+      * **severity**: Severity of this notification. One of HIGH|LOW
 
 ## Develop The Provider ##
 
