@@ -34,11 +34,6 @@ func resourcePingdomTeam() *schema.Resource {
 	}
 }
 
-type commonTeamParams struct {
-	Name      string
-	MemberIDs []int
-}
-
 func teamForResource(d *schema.ResourceData) (*pingdom.Team, error) {
 	team := pingdom.Team{}
 
