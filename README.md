@@ -4,7 +4,7 @@ This project is a [terraform](http://www.terraform.io/) provider for [pingdom](h
 
 This currently only supports working with basic HTTP and ping checks.
 
-This supports Pingdom API v2.1: [API reference docs](https://www.pingdom.com/api/2.1/)
+This supports Pingdom API v3.1: [API reference docs](https://docs.pingdom.com/api/)
 
 ## Requirements ##
 * Terraform 0.12.x
@@ -18,7 +18,7 @@ terraform {
   required_providers {
     pingdom = {
       source = "russellcardullo/pingdom"
-      version = "1.1.2"
+      version = "1.1.3"
     }
   }
 }
