@@ -18,7 +18,7 @@ terraform {
   required_providers {
     pingdom = {
       source = "russellcardullo/pingdom"
-      version = "1.1.2"
+      version = "1.1.3"
     }
   }
 }
@@ -26,7 +26,7 @@ terraform {
 variable "pingdom_api_token" {}
 
 provider "pingdom" {
-    pingdom_api_token = "${var.pingdom_api_token}"
+    api_token = "${var.pingdom_api_token}"
 }
 ```
 
@@ -86,7 +86,7 @@ provider "heroku" {
 }
 
 provider "pingdom" {
-    pingdom_api_token = var.pingdom_api_token
+    api_token = var.pingdom_api_token
 }
 
 resource "heroku_app" "example" {
