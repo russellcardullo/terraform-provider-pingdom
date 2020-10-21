@@ -110,6 +110,12 @@ func getNotificationMethods(d *schema.ResourceData) (pingdom.NotificationTargets
 			Address:  input["address"].(string),
 			Severity: input["severity"].(string),
 		}
+		if email.Severity == "HIGH" {
+			hasHighSeverity = true
+		}
+		if email.Severity == "LOW" {
+			hasLowSeverity = true
+		}
 		base.Email = append(base.Email, email)
 	}
 
