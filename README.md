@@ -4,7 +4,7 @@ This project is a [terraform](http://www.terraform.io/) provider for [pingdom](h
 
 This currently only supports working with basic HTTP and ping checks.
 
-This supports Pingdom API v2.1: [API reference docs](https://www.pingdom.com/api/2.1/)
+This supports Pingdom API v3.1: [API reference docs](https://docs.pingdom.com/api/)
 
 ## Requirements ##
 * Terraform 0.12.x
@@ -18,7 +18,7 @@ terraform {
   required_providers {
     pingdom = {
       source = "russellcardullo/pingdom"
-      version = "1.1.2"
+      version = "1.1.3"
     }
   }
 }
@@ -26,7 +26,7 @@ terraform {
 variable "pingdom_api_token" {}
 
 provider "pingdom" {
-    pingdom_api_token = "${var.pingdom_api_token}"
+    api_token = "${var.pingdom_api_token}"
 }
 ```
 
@@ -49,7 +49,7 @@ resource "pingdom_check" "example_with_alert" {
       12345678,
       23456789
     ]
-    userids = [
+    member_ids = [
       24680,
       13579
     ]
@@ -60,7 +60,7 @@ resource "pingdom_check" "ping_example" {
     name = "my ping check"
     host = "example.com"
     resolution = 1
-    userids = [
+    member_ids = [
       24680
     ]
 }
@@ -183,7 +183,7 @@ The following common attributes for all check types can be set:
 
   * **integrationids** - List of integer integration IDs (defined by webhook URL) that will be triggered by the alerts. The ID can be extracted from the integrations page URL on the pingdom website. See note about interaction with `sendnotificationwhendown` below.
 
-  * **userids** - List of integer user IDs that will be notified when the check is down.
+  * **member_ids** - List of integer user IDs that will be notified when the check is down.
 
   * **teamids** - List of integer team IDs that will be notified when the check is down.
 
