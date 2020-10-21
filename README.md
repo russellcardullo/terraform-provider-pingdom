@@ -86,7 +86,7 @@ provider "heroku" {
 }
 
 provider "pingdom" {
-    pingdom_api_token = var.pingdom_api_token
+    api_token = var.pingdom_api_token
 }
 
 resource "heroku_app" "example" {
