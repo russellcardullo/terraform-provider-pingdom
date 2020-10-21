@@ -26,7 +26,7 @@ terraform {
 variable "pingdom_api_token" {}
 
 provider "pingdom" {
-    pingdom_api_token = "${var.pingdom_api_token}"
+    api_token = "${var.pingdom_api_token}"
 }
 ```
 
