@@ -249,7 +249,7 @@ The following attributes are exported:
 
       * **number**: The phone number
 
-      * **provider**: Provider for SMS messaging. One of nexcom|bulk sms|esendex|cellsynt. 'bulk sms' not presently operational
+      * **provider**: Provider for SMS messaging. One of nexmo|bulksms|esendex|cellsynt. 'bulksms' not presently operational
 
       * **severity**: Severity of this notification. One of HIGH|LOW
 
