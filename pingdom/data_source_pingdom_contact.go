@@ -96,6 +96,7 @@ func dataSourcePingdomContactRead(d *schema.ResourceData, meta interface{}) erro
 		if contact.Name == name {
 			log.Printf("Contact: %v", contact)
 			found = &contact
+			break
 		}
 	}
 	if found == nil {
