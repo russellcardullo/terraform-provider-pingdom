@@ -23,6 +23,7 @@ func Provider() terraform.ResourceProvider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"pingdom_contact": dataSourcePingdomContact(),
+			"pingdom_team":    dataSourcePingdomTeam(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
