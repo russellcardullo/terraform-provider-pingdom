@@ -49,7 +49,7 @@ resource "pingdom_check" "example_with_alert" {
       12345678,
       23456789
     ]
-    member_ids = [
+    userids = [
       24680,
       13579
     ]
@@ -60,7 +60,7 @@ resource "pingdom_check" "ping_example" {
     name = "my ping check"
     host = "example.com"
     resolution = 1
-    member_ids = [
+    userids = [
       24680
     ]
 }
@@ -183,7 +183,7 @@ The following common attributes for all check types can be set:
 
   * **integrationids** - List of integer integration IDs (defined by webhook URL) that will be triggered by the alerts. The ID can be extracted from the integrations page URL on the pingdom website. See note about interaction with `sendnotificationwhendown` below.
 
-  * **member_ids** - List of integer user IDs that will be notified when the check is down.
+  * **userids** - List of integer user IDs that will be notified when the check is down.
 
   * **teamids** - List of integer team IDs that will be notified when the check is down.
 
