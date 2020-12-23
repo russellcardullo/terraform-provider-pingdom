@@ -7,7 +7,7 @@ This currently only supports working with basic HTTP and ping checks.
 This supports Pingdom API v3.1: [API reference docs](https://docs.pingdom.com/api/)
 
 ## Requirements ##
-* Terraform 0.12.x
+* Terraform 0.13.x
 * Go 1.14 (to build the provider plugin)
 
 ## Usage ##
