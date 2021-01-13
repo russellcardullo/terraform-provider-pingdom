@@ -81,10 +81,10 @@ func maintenanceWindowForResource(d *schema.ResourceData) (*pingdom.MaintenanceW
 		windowParams.Description = v.(string)
 	}
 	if v, ok := d.GetOk("from"); ok {
-		windowParams.From = v.(int64)
+		windowParams.From = int64(v.(int))
 	}
 	if v, ok := d.GetOk("to"); ok {
-		windowParams.To = v.(int64)
+		windowParams.To = int64(v.(int))
 	}
 	if v, ok := d.GetOk("recurrence_type"); ok {
 		windowParams.RecurenceType = v.(string)
