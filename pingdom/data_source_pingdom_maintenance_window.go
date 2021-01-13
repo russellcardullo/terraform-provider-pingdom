@@ -65,24 +65,40 @@ func dataSourcePingdomMaintenanceWindowRead(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("Error retrieving maintenance window: %s", err)
 	}
 
-	d.Set("descrition", window.Description)
-	d.Set("from", window.From)
-	d.Set("to", window.To)
-	d.Set("recurence_type", window.RecurrenceType)
-	d.Set("repeat_every", window.RepeatEvery)
-	d.Set("effective_to", window.EffectiveTo)
+	if err = d.Set("description", window.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err = d.Set("from", window.From); err != nil {
+		return fmt.Errorf("Error setting from : %s", err)
+	}
+	if err = d.Set("to", window.To); err != nil {
+		return fmt.Errorf("Error setting to: %s", err)
+	}
+	if err = d.Set("recurence_type", window.RecurrenceType); err != nil {
+		return fmt.Errorf("Error setting recurence_type: %s", err)
+	}
+	if err = d.Set("repeat_every", window.RepeatEvery); err != nil {
+		return fmt.Errorf("Error setting repeat_every: %s", err)
+	}
+	if err =   d.Set("effective_to", window.EffectiveTo); err != nil {
+		return fmt.Errorf("Error setting effective_to: %s", err)
+	}
 
 	uptimeids := make([]string, len(window.Checks.Uptime))
 	for i, x := range window.Checks.Uptime {
 		uptimeids[i] = strconv.Itoa(x)
 	}
-	d.Set("uptimeids", strings.Join(uptimeids, ","))
+	if err = d.Set("uptimeids", strings.Join(uptimeids, ",")); err != nil {
+		return fmt.Errorf("Error setting uptimeids: %s", err)
+	}
 
 	tmids := make([]string, len(window.Checks.Tms))
 	for i, x := range window.Checks.Tms {
 		tmids[i] = strconv.Itoa(x)
 	}
-	d.Set("tmids", strings.Join(tmids, ","))
+	if err = d.Set("tmsids", strings.Join(tmids, ",")); err != nil {
+		return fmt.Errorf("Error setting tmsids: %s", err)
+	}
 
 	return nil
 }

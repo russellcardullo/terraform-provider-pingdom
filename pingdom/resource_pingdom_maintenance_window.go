@@ -1,7 +1,7 @@
 package pingdom
 
 import (
-	"fmt"
+   "fmt"
 	"log"
 	"strconv"
 
@@ -149,12 +149,24 @@ func resourcePingdomMaintenanceWindowRead(d *schema.ResourceData, meta interface
 	}
 	log.Printf("[DEBUG] Maintenance: %+v\n", window)
 
-	d.Set("descrition", window.Description)
-	d.Set("from", window.From)
-	d.Set("to", window.To)
-	d.Set("recurence_type", window.RecurrenceType)
-	d.Set("repeat_every", window.RepeatEvery)
-	d.Set("effective_to", window.EffectiveTo)
+	if err = d.Set("description", window.Description); err != nil {
+		return fmt.Errorf("Error setting description: %s", err)
+	}
+	if err = d.Set("from", window.From); err != nil {
+		return fmt.Errorf("Error setting from : %s", err)
+	}
+	if err = d.Set("to", window.To); err != nil {
+		return fmt.Errorf("Error setting to: %s", err)
+	}
+	if err = d.Set("recurence_type", window.RecurrenceType); err != nil {
+		return fmt.Errorf("Error setting recurence_type: %s", err)
+	}
+	if err = d.Set("repeat_every", window.RepeatEvery); err != nil {
+		return fmt.Errorf("Error setting repeat_every: %s", err)
+	}
+	if err =   d.Set("effective_to", window.EffectiveTo); err != nil {
+		return fmt.Errorf("Error setting effective_to: %s", err)
+	}
 
 	uptimeIds := schema.NewSet(
 		func(id interface{}) int { return id.(int) },
@@ -164,7 +176,9 @@ func resourcePingdomMaintenanceWindowRead(d *schema.ResourceData, meta interface
 		log.Println("Uptime: ", id)
 		uptimeIds.Add(id)
 	}
-	d.Set("uptimeids", uptimeIds)
+	if err = d.Set("uptimeids", uptimeIds); err != nil {
+		return fmt.Errorf("Error setting uptimeids: %s", err)
+	}
 
 	tmsIds := schema.NewSet(
 		func(id interface{}) int { return id.(int) },
@@ -174,7 +188,9 @@ func resourcePingdomMaintenanceWindowRead(d *schema.ResourceData, meta interface
 		log.Println("Tm: ", id)
 		tmsIds.Add(id)
 	}
-	d.Set("tmsids", tmsIds)
+	if err = d.Set("tmsids", tmsIds); err != nil {
+		return fmt.Errorf("Error setting tmsids: %s", err)
+	}
 
 	return nil
 }
