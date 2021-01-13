@@ -17,13 +17,15 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"pingdom_check":   resourcePingdomCheck(),
-			"pingdom_team":    resourcePingdomTeam(),
-			"pingdom_contact": resourcePingdomContact(),
+			"pingdom_check":              resourcePingdomCheck(),
+			"pingdom_team":               resourcePingdomTeam(),
+			"pingdom_contact":            resourcePingdomContact(),
+			"pingdom_maintenance_window": resourcePingdomMaintenanceWindow(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"pingdom_contact": dataSourcePingdomContact(),
-			"pingdom_team":    dataSourcePingdomTeam(),
+			"pingdom_contact":            dataSourcePingdomContact(),
+			"pingdom_team":               dataSourcePingdomTeam(),
+			"pingdom_maintenance_window": dataSourcePingdomMaintenanceWindow(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
