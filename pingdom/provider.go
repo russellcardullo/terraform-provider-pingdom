@@ -24,8 +24,8 @@ func Provider() terraform.ResourceProvider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"pingdom_contact":            dataSourcePingdomContact(),
-         "pingdom_team":               dataSourcePingdomTeam(),
-         "pingdom_maintenance_window": dataSourcePingdomMaintenanceWindow(),
+			"pingdom_team":               dataSourcePingdomTeam(),
+			"pingdom_maintenance_window": dataSourcePingdomMaintenanceWindow(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
