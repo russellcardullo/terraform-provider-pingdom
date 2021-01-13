@@ -5,13 +5,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+   "github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
 func dataSourcePingdomMaintenanceWindow() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourcePingdomUserRead,
+		Read: dataSourcePingdomMaintenanceWindowRead,
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Type:     schema.TypeString,
@@ -57,7 +57,7 @@ func dataSourcePingdomMaintenanceWindow() *schema.Resource {
 	}
 }
 
-func dataSourcePingdomMainteannceWindowRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourcePingdomMaintenanceWindowRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pingdom.Client)
 	id := d.Get("id").(int)
 	window, err := client.Maintenances.Read(id)

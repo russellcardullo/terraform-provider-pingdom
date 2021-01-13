@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
@@ -20,78 +19,166 @@ func resourcePingdomContact() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		Schema: map[string]*schema.Schema{
-			"user_id": {
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"severity_level": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"email": {
-				Type:     schema.TypeString,
+			"paused": {
+				Type:     schema.TypeBool,
 				Optional: true,
+				Default:  false,
 			},
-			"number": {
-				Type:     schema.TypeString,
+			"sms_notification": {
+				Type:     schema.TypeSet,
 				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"number": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"country_code": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "1",
+						},
+						"severity": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"provider": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "nexmo",
+						},
+					},
+				},
 			},
-			"country_code": {
-				Type:     schema.TypeString,
+			"email_notification": {
+				Type:     schema.TypeSet,
 				Optional: true,
-			},
-			"phone_provider": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"address": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"severity": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
 			},
 		},
 	}
 }
 
-type commonContactParams struct {
-	UserID        string
-	Email         string
-	Number        string
-	PhoneProvider string
-	CountryCode   string
-	Severity      string
+func getNotificationMethods(d *schema.ResourceData) (pingdom.NotificationTargets, error) {
+	base := pingdom.NotificationTargets{}
+
+	// You must have both a low and a high severity notification for a user to be valid
+	hasLowSeverity := false
+	hasHighSeverity := false
+
+	for _, raw := range d.Get("sms_notification").(*schema.Set).List() {
+		input := raw.(map[string]interface{})
+		sms := pingdom.SMSNotification{
+			CountryCode: input["country_code"].(string),
+			Number:      input["number"].(string),
+			Provider:    input["provider"].(string),
+			Severity:    input["severity"].(string),
+		}
+		if sms.Severity == "HIGH" {
+			hasHighSeverity = true
+		}
+		if sms.Severity == "LOW" {
+			hasLowSeverity = true
+		}
+		switch sms.Provider {
+		case "nexmo", "bulksms", "esendex", "cellsynt":
+			base.SMS = append(base.SMS, sms)
+			continue
+		}
+
+		return base, fmt.Errorf("SMS provider must be one of: nexmo, bulksms, esendex, or cellsynt")
+	}
+
+	for _, raw := range d.Get("email_notification").(*schema.Set).List() {
+		input := raw.(map[string]interface{})
+		email := pingdom.EmailNotification{
+			Address:  input["address"].(string),
+			Severity: input["severity"].(string),
+		}
+		if email.Severity == "HIGH" {
+			hasHighSeverity = true
+		}
+		if email.Severity == "LOW" {
+			hasLowSeverity = true
+		}
+		base.Email = append(base.Email, email)
+	}
+
+	if !hasHighSeverity || !hasLowSeverity {
+		return base, fmt.Errorf("You must provide both a high and low severity notification method")
+	}
+
+	return base, nil
 }
 
-func contactForResource(d *schema.ResourceData) (pingdom.Contact, error) {
-	contactParams := commonContactParams{}
+func contactForResource(d *schema.ResourceData) (*pingdom.Contact, error) {
+	contact := pingdom.Contact{}
 
 	// required
-	if v, ok := d.GetOk("user_id"); ok {
-		contactParams.UserID = v.(string)
+	if v, ok := d.GetOk("name"); ok {
+		contact.Name = v.(string)
 	}
 
-	if v, ok := d.GetOk("email"); ok {
-		contactParams.Email = v.(string)
+	notifications, err := getNotificationMethods(d)
+	if err != nil {
+		return nil, err
+	}
+	contact.NotificationTargets = notifications
+
+	if v, ok := d.GetOk("paused"); ok {
+		contact.Paused = v.(bool)
 	}
 
-	if v, ok := d.GetOk("number"); ok {
-		contactParams.Number = v.(string)
+	return &contact, nil
+}
+
+func updateResourceFromContactResponse(d *schema.ResourceData, c *pingdom.Contact) error {
+	smsTargets := []map[string]string{}
+	for _, raw := range c.NotificationTargets.SMS {
+		sms := map[string]string{
+			"country_code": raw.CountryCode,
+			"number":       raw.Number,
+			"severity":     raw.Severity,
+			"provider":     raw.Provider,
+		}
+		smsTargets = append(smsTargets, sms)
+	}
+	if err := d.Set("sms_notification", smsTargets); err != nil {
+		return err
 	}
 
-	if v, ok := d.GetOk("country_code"); ok {
-		contactParams.CountryCode = v.(string)
+	emailTargets := []map[string]string{}
+	for _, raw := range c.NotificationTargets.Email {
+		email := map[string]string{
+			"address":  raw.Address,
+			"severity": raw.Severity,
+		}
+		emailTargets = append(emailTargets, email)
+	}
+	if err := d.Set("email_notification", emailTargets); err != nil {
+		return err
 	}
 
-	if v, ok := d.GetOk("phone_provider"); ok {
-		contactParams.PhoneProvider = v.(string)
+	if err := d.Set("paused", c.Paused); err != nil {
+		return err
 	}
 
-	if v, ok := d.GetOk("severity_level"); ok {
-		contactParams.Severity = strings.ToUpper(v.(string))
-	}
-
-	return pingdom.Contact{
-		Severity:    contactParams.Severity,
-		Email:       contactParams.Email,
-		Number:      contactParams.Number,
-		CountryCode: contactParams.CountryCode,
-		Provider:    contactParams.PhoneProvider,
-	}, nil
+	return nil
 }
 
 func resourcePingdomContactCreate(d *schema.ResourceData, meta interface{}) error {
@@ -102,18 +189,13 @@ func resourcePingdomContactCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	userID, err := strconv.Atoi(d.Get("user_id").(string))
-	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
-	}
-
-	log.Printf("[DEBUG] Contact create configuration: %#v", d.Get("Contactname"))
-	result, err := client.Users.CreateContact(userID, contact)
+	log.Printf("[DEBUG] Contact create configuration: %#v", d.Get("name"))
+	result, err := client.Contacts.Create(contact)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("%d", result.Id))
+	d.SetId(fmt.Sprintf("%d", result.ID))
 	return nil
 }
 
@@ -124,33 +206,39 @@ func resourcePingdomContactRead(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
+	contact, err := client.Contacts.Read(id)
+	if err != nil {
+		return fmt.Errorf("Error retrieving contact: %s", err)
+	}
 
-	userID, err := strconv.Atoi(d.Get("user_id").(string))
+	if err := d.Set("name", contact.Name); err != nil {
+		return err
+	}
+
+	if err := updateResourceFromContactResponse(d, contact); err != nil {
+		return err
+	}
+	return nil
+}
+
+func resourcePingdomContactUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pingdom.Client)
+
+	id, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
-
-	user, err := client.Users.Read(userID)
+	contact, err := contactForResource(d)
 	if err != nil {
-		return fmt.Errorf("Error retrieving Contact: %s", err)
+		return err
 	}
 
-	for _, contact := range user.Email {
-		if contact.Id == id {
-			d.Set("email", contact.Address)
-			d.Set("severity", contact.Severity)
-			return nil
-		}
+	log.Printf("[DEBUG] Contact update configuration: %#v", d.Get("name"))
+
+	if _, err = client.Contacts.Update(id, contact); err != nil {
+		return fmt.Errorf("Error updating contact: %s", err)
 	}
-	for _, contact := range user.Sms {
-		if contact.Id == id {
-			d.Set("number", contact.Number)
-			d.Set("country_code", contact.CountryCode)
-			d.Set("phone_provider", contact.Provider)
-			d.Set("severity_level", contact.Severity)
-			return nil
-		}
-	}
+
 	return nil
 }
 
@@ -161,38 +249,8 @@ func resourcePingdomContactDelete(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
-
-	userID, err := strconv.Atoi(d.Get("user_id").(string))
-	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
-	}
-
-	if _, err := client.Users.DeleteContact(userID, id); err != nil {
-		return fmt.Errorf("Error deleting Contact: %s", err)
-	}
-	return nil
-}
-
-func resourcePingdomContactUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pingdom.Client)
-
-	contact, err := contactForResource(d)
-	if err != nil {
-		return err
-	}
-
-	id, err := strconv.Atoi(d.Id())
-	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
-	}
-
-	userID, err := strconv.Atoi(d.Get("user_id").(string))
-	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
-	}
-
-	if _, err := client.Users.UpdateContact(userID, id, contact); err != nil {
-		return fmt.Errorf("Error updating Contact: %s", err)
+	if _, err := client.Contacts.Delete(id); err != nil {
+		return fmt.Errorf("Error deleting contact: %s", err)
 	}
 	return nil
 }

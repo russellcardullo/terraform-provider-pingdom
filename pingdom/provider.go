@@ -3,46 +3,28 @@ package pingdom
 import (
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/mitchellh/mapstructure"
 )
 
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"user": {
+			"api_token": {
 				Type:     schema.TypeString,
 				Optional: true,
-			},
-
-			"password": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
-			},
-
-			"api_key": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
-			},
-			"account_email": {
-				Type:      schema.TypeString,
-				Default:   "",
-				Optional:  true,
-				Sensitive: true,
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"pingdom_check":              resourcePingdomCheck(),
 			"pingdom_team":               resourcePingdomTeam(),
-			"pingdom_user":               resourcePingdomUser(),
 			"pingdom_contact":            resourcePingdomContact(),
 			"pingdom_maintenance_window": resourcePingdomMaintenanceWindow(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"pingdom_user": dataSourcePingdomUser(),
+			"pingdom_contact": dataSourcePingdomContact(),
+			"pingdom_team":    dataSourcePingdomTeam(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

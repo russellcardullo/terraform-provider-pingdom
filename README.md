@@ -4,55 +4,34 @@ This project is a [terraform](http://www.terraform.io/) provider for [pingdom](h
 
 This currently only supports working with basic HTTP and ping checks.
 
-## Build and install ##
+This supports Pingdom API v3.1: [API reference docs](https://docs.pingdom.com/api/)
 
-### Using released versions ###
-
-Prebuild releases for most platforms are available [here](https://github.com/russellcardullo/terraform-provider-pingdom/releases).
-Download the release corresponding to your particular platform and place in `$HOME/.terraform.d/plugins/[os]_[arch]`.  For instance
-on Linux AMD64 the path would be `$HOME/.terraform.d/plugins/linux_amd64`.
-
-After copying the plugin run `terraform init` in your projects that use this provider.
-
-### Dependencies for building from source ###
-
-If you need to build from source, you should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
-
-This project uses [Go Modules](https://github.com/golang/go/wiki/Modules) for dependency management.  To fetch all dependencies run `go get` inside this repository.
-
-### Build ###
-
-```
-make build
-```
-
-The binary will then be available at `_build/terraform-provider-pingdom_VERSION`.
-
-### Install ###
-
-```
-make install
-```
-
-This will place the binary under `$HOME/.terraform.d/plugins/OS_ARCH/terraform-provider-pingdom_VERSION`.  After installing you will need to run `terraform init` in any project using the plugin.
+## Requirements ##
+* Terraform 0.12.x
+* Go 1.14 (to build the provider plugin)
 
 ## Usage ##
 
-**Basic Check**
-
-```
-variable "pingdom_user" {}
-variable "pingdom_password" {}
-variable "pingdom_api_key" {}
-variable "pingdom_account_email" {} # Optional: only required for multi-user accounts
-
-provider "pingdom" {
-    user = "${var.pingdom_user}"
-    password = "${var.pingdom_password}"
-    api_key = "${var.pingdom_api_key}"
-    account_email = "${var.pingdom_account_email}" # Optional: only required for multi-user accounts
+**Use provider**
+```hcl
+terraform {
+  required_providers {
+    pingdom = {
+      source = "russellcardullo/pingdom"
+      version = "1.1.3"
+    }
+  }
 }
 
+variable "pingdom_api_token" {}
+
+provider "pingdom" {
+    api_token = "${var.pingdom_api_token}"
+}
+```
+
+**Basic Check**
+```hcl
 resource "pingdom_check" "example" {
     type = "http"
     name = "my http check"
@@ -65,7 +44,7 @@ resource "pingdom_check" "example_with_alert" {
     name = "my http check"
     host = "example.com"
     resolution = 5
-    sendnotificationwhendown = 2
+    sendnotificationwhendown = 2 # alert after 5 mins, with resolution 5*(2-1)
     integrationids = [
       12345678,
       23456789
@@ -88,32 +67,26 @@ resource "pingdom_check" "ping_example" {
 ```
 
 Apply with:
-```
+```sh
  terraform apply \
-    -var 'pingdom_user=YOUR_USERNAME' \
-    -var 'pingdom_password=YOUR_PASSWORD' \
-    -var 'pingdom_api_key=YOUR_API_KEY'
+    -var 'pingdom_api_token=YOUR_API_TOKEN'
 ```
 
 **Using attributes from other resources**
 
-```
+```hcl
 variable "heroku_email" {}
 variable "heroku_api_key" {}
 
-variable "pingdom_user" {}
-variable "pingdom_password" {}
-variable "pingdom_api_key" {}
+variable "pingdom_api_token" {}
 
 provider "heroku" {
-    email = "${var.heroku_email}"
-    api_key = "${var.heroku_api_key}"
+    email = var.heroku_email
+    api_key = var.heroku_api_key
 }
 
 provider "pingdom" {
-    user = "${var.pingdom_user}"
-    password = "${var.pingdom_password}"
-    api_key = "${var.pingdom_api_key}"
+    api_token = var.pingdom_api_token
 }
 
 resource "heroku_app" "example" {
@@ -123,57 +96,62 @@ resource "heroku_app" "example" {
 
 resource "pingdom_check" "example" {
     name = "my check"
-    host = "${heroku_app.example.heroku_hostname}"
+    host = heroku_app.example.heroku_hostname
     resolution = 5
 }
 ```
 
 **Teams**
 
-```
+```hcl
 resource "pingdom_team" "test" {
   name = "The Test team"
-}
-```
-
-**Users**
-
-```
-resource "pingdom_user" "first_user" {
-  username = "johndoe"
-}
-
-resource "pingdom_user" "second_user" {
-  username = "janedoe"
+  member_ids = [
+    pingdom_contact.first_contact.id,
+  ]
 }
 ```
 
 **Contacts**
 
-```
+Note that all contacts _must_ have both a high and low severity notification
 
-resource "pingdom_contact" "first_user_contact_email_2" {
-  user_id        = "${pingdom_user.first_user.id}"
-  email          = "john.doe@doe.com"
-  severity_level = "LOW"
+```hcl
+
+resource "pingdom_contact" "first_contact" {
+  name = "johndoe"
+
+  sms_notification {
+    number   = "5555555555"
+    severity = "HIGH"
+  }
+
+  sms_notification {
+    number       = "3333333333"
+    country_code = "91"
+    severity     = "LOW"
+    provider     = "esendex"
+  }
+
+  email_notification {
+    address  = "test@test.com"
+    severity = "LOW"
+  }
 }
 
-resource "pingdom_contact" "first_user_contact_sms_1" {
-  user_id        = "${pingdom_user.first_user.id}"
-  number         = "700000000"
-  country_code   = "33"
-  phone_provider = "nexmo"
-  severity_level = "HIGH"
-}
+resource "pingdom_contact" "second_contact" {
+  name   = "janedoe"
+  paused = true
 
-resource "pingdom_user" "second_user" {
-  username = "janedoe"
-}
+  email_notification {
+    address  = "test@test.com"
+    severity = "LOW"
+  }
 
-resource "pingdom_contact" "second_user_contact_email_1" {
-  user_id        = "${pingdom_user.second_user.id}"
-  email          = "jane@doe.com"
-  severity_level = "high"
+  email_notification {
+    address  = "test@test.com"
+    severity = "HIGH"
+  }
 }
 ```
 
@@ -181,7 +159,7 @@ resource "pingdom_contact" "second_user_contact_email_1" {
 
 ### Pingdom Check ###
 
-#### Common Attibutes ####
+#### Common Attributes ####
 
 The following common attributes for all check types can be set:
 
@@ -193,19 +171,25 @@ The following common attributes for all check types can be set:
 
   * **type** - (Required) The check type.  Allowed values: (http, ping).
 
-  * **sendnotificationwhendown** - The number of consecutive failed checks required to trigger an alert. Values of 0 are ignored.
+  * **paused** - Whether the check is active or not (defaults to `false`, if not provided). Allowed values (bool): `true`, `false`
+
+  * **responsetime_threshold** = How long (int: milliseconds) pingdom should wait before marking a probe as failed (defaults to 30000 ms)
+
+  * **sendnotificationwhendown** - The consecutive failed checks required to trigger an alert. Values of 1 imply notification instantly. Values of 2 mean pingdom will wait for a second check to fail, i.e. `resolution` minutes, to trigger an alert. For example `sendnotificationwhendown: 2` and `resolution: 1`, will trigger an alert after 1 minute. Further, values of N will trigger an alert after `(N - 1) * resolution` minutes, e.g. `sendnotificationwhendown: 6` and `resolution: 1` will trigger an alert after 5 minutes. Values of 0 are ignored. See note about interaction with `integrationids` below.
 
   * **notifyagainevery** - Notify again after n results.  A value of 0 means no additional notifications will be sent.
 
-  * **notifywhenbackup** - Notify when backup.
+  * **notifywhenbackup** - Notify when back up.
 
-  * **integrationids** - List of integer integration IDs (defined by webhook URL) that will be triggered by the alerts. The ID can be extracted from the integrations page URL on the pingdom website.
+  * **integrationids** - List of integer integration IDs (defined by webhook URL) that will be triggered by the alerts. The ID can be extracted from the integrations page URL on the pingdom website. See note about interaction with `sendnotificationwhendown` below.
 
   * **userids** - List of integer user IDs that will be notified when the check is down.
 
   * **teamids** - List of integer team IDs that will be notified when the check is down.
 
-#### HTTP specific attibutes ####
+Note that when using `integrationids`, the `sendnotificationwhendown` value will be ignored when sending webhook notifications.  You may need to contact Pingdom support for more details.  See #52.
+
+#### HTTP specific attributes ####
 
 For the HTTP checks, you can set these attributes:
 
@@ -231,9 +215,7 @@ For the HTTP checks, you can set these attributes:
 
   * **probefilters** - Region from which the check should originate. One of NA, EU, APAC, or LATAM. Should be in the format "region:NA"
 
-  * **publicreport** - If `true`, this check will be included in the public report (default: `false`)
-
-#### TCP specific attibutes ####
+#### TCP specific attributes ####
 
 For the TCP checks, you can set these attributes:
 
@@ -252,22 +234,51 @@ The following attributes are exported:
 
   * **name** - (Required) The name of the team
 
-
-### Pingdom User ###
-
-  * **username** - (Required) The name of the user
+  * **member_ids** - List of integer contact IDs that will be notified when the check is down.
 
 
 ### Pingdom Contact ###
 
-  * **user_id**: (Required) ID of the user linked to this contact
+  * **name**: (Required) Name of the contact
 
-  * **severity_level**: (Required) Severity level for target
+  * **paused**: Whether alerts for this contact should be disabled
 
-  * **email**: Email
+  * **sms_notification**: Block resource describing an SMS notification
 
-  * **number**: Cellphone number, without the country code part. (Requires countrycode)
+      * **country_code**: The country code, defaults to "1"
 
-  * **country_code**: Cellphone country code (Requires number)
+      * **number**: The phone number
 
-  * **phone_provider**: SMS provider (Requires number and countrycode)
+      * **provider**: Provider for SMS messaging. One of nexmo|bulksms|esendex|cellsynt. 'bulksms' not presently operational
+
+      * **severity**: Severity of this notification. One of HIGH|LOW
+
+  * **email_notification**: Block resource describing an Email notification
+
+      * **address**: Email address to notify
+
+      * **severity**: Severity of this notification. One of HIGH|LOW
+
+## Develop The Provider ##
+
+### Dependencies for building from source ###
+
+If you need to build from source, you should have a working Go environment setup.  If not check out the Go [getting started](http://golang.org/doc/install) guide.
+
+This project uses [Go Modules](https://github.com/golang/go/wiki/Modules) for dependency management.  To fetch all dependencies run `go get` inside this repository.
+
+### Build ###
+
+```sh
+make build
+```
+
+The binary will then be available at `_build/terraform-provider-pingdom_VERSION`.
+
+### Install ###
+
+```sh
+make install
+```
+
+This will place the binary under `$HOME/.terraform.d/plugins/OS_ARCH/terraform-provider-pingdom_VERSION`.  After installing you will need to run `terraform init` in any project using the plugin.

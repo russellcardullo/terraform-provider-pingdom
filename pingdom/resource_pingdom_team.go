@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
@@ -24,25 +24,35 @@ func resourcePingdomTeam() *schema.Resource {
 				Required: true,
 				ForceNew: false,
 			},
+			"member_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
+			},
 		},
 	}
 }
 
-type commonTeamParams struct {
-	Name string
-}
-
-func teamForResource(d *schema.ResourceData) (*pingdom.TeamData, error) {
-	teamParams := commonTeamParams{}
+func teamForResource(d *schema.ResourceData) (*pingdom.Team, error) {
+	team := pingdom.Team{}
 
 	// required
 	if v, ok := d.GetOk("name"); ok {
-		teamParams.Name = v.(string)
+		team.Name = v.(string)
 	}
 
-	return &pingdom.TeamData{
-		Name: teamParams.Name,
-	}, nil
+	if v, ok := d.GetOk("member_ids"); ok {
+		interfaceSlice := v.(*schema.Set).List()
+		var intSlice []int
+		for i := range interfaceSlice {
+			intSlice = append(intSlice, interfaceSlice[i].(int))
+
+		}
+		team.MemberIDs = intSlice
+	}
+
+	return &team, nil
 }
 
 func resourcePingdomTeamCreate(d *schema.ResourceData, meta interface{}) error {
@@ -59,7 +69,7 @@ func resourcePingdomTeamCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	d.SetId(result.ID)
+	d.SetId(strconv.Itoa(result.ID))
 	return nil
 }
 
@@ -72,7 +82,7 @@ func resourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	exists := false
 	for _, team := range teams {
-		if team.ID == d.Id() {
+		if strconv.Itoa(team.ID) == d.Id() {
 			exists = true
 			break
 		}
@@ -90,7 +100,21 @@ func resourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error retrieving team: %s", err)
 	}
 
-	d.Set("name", team.Name)
+	if err := d.Set("name", team.Name); err != nil {
+		return err
+	}
+
+	memberids := schema.NewSet(
+		func(memberId interface{}) int { return memberId.(int) },
+		[]interface{}{},
+	)
+	for _, member := range team.Members {
+		memberids.Add(member.ID)
+	}
+	if err := d.Set("member_ids", memberids); err != nil {
+		return err
+	}
+
 	return nil
 }
 

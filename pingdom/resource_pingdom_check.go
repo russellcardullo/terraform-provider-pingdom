@@ -3,10 +3,11 @@ package pingdom
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
@@ -50,12 +51,6 @@ func resourcePingdomCheck() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
-			},
-
-			"publicreport": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
 			},
 
 			"resolution": {
@@ -150,6 +145,9 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+				StateFunc: func(val interface{}) string {
+					return sortString(val.(string), ",")
+				},
 			},
 
 			"probefilters": {
@@ -212,6 +210,12 @@ type commonCheckParams struct {
 	ProbeFilters             string
 	StringToSend             string
 	StringToExpect           string
+}
+
+func sortString(input string, seperator string) string {
+	list := strings.Split(input, seperator)
+	sort.Strings(list)
+	return strings.Join(list, seperator)
 }
 
 func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
@@ -315,7 +319,8 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}
 	}
 	if v, ok := d.GetOk("tags"); ok {
-		checkParams.Tags = v.(string)
+		// Sort alphabetically before contionuing
+		checkParams.Tags = sortString(v.(string), ",")
 	}
 
 	if v, ok := d.GetOk("probefilters"); ok {
@@ -413,11 +418,7 @@ func resourcePingdomCheckCreate(d *schema.ResourceData, meta interface{}) error 
 
 	d.SetId(strconv.Itoa(ck.ID))
 
-	if v, ok := d.GetOk("publicreport"); ok && v.(bool) {
-		client.PublicReport.PublishCheck(ck.ID)
-	}
-
-	return nil
+	return resourcePingdomCheckRead(d, meta)
 }
 
 func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
@@ -446,35 +447,51 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving check: %s", err)
 	}
-	rl, err := client.PublicReport.List()
-	if err != nil {
-		return fmt.Errorf("Error retrieving list of public report checks: %s", err)
-	}
-	inPublicReport := false
-	for _, ckid := range rl {
-		if ckid.ID == id {
-			inPublicReport = true
-			break
-		}
+
+	if err := d.Set("host", ck.Hostname); err != nil {
+		return err
 	}
 
-	d.Set("host", ck.Hostname)
-	d.Set("name", ck.Name)
-	d.Set("resolution", ck.Resolution)
-	d.Set("responsetime_threshold", ck.ResponseTimeThreshold)
-	d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown)
-	d.Set("notifyagainevery", ck.NotifyAgainEvery)
-	d.Set("notifywhenbackup", ck.NotifyWhenBackup)
-	d.Set("publicreport", inPublicReport)
+	if err := d.Set("name", ck.Name); err != nil {
+		return err
+	}
+
+	if err := d.Set("resolution", ck.Resolution); err != nil {
+		return err
+	}
+
+	if err := d.Set("responsetime_threshold", ck.ResponseTimeThreshold); err != nil {
+		return err
+	}
+
+	if err := d.Set("sendnotificationwhendown", ck.SendNotificationWhenDown); err != nil {
+		return err
+	}
+
+	if err := d.Set("notifyagainevery", ck.NotifyAgainEvery); err != nil {
+		return err
+	}
+
+	if err := d.Set("notifywhenbackup", ck.NotifyWhenBackup); err != nil {
+		return err
+	}
 
 	tags := []string{}
 	for _, tag := range ck.Tags {
 		tags = append(tags, tag.Name)
 	}
-	d.Set("tags", strings.Join(tags, ","))
+
+	// We need to sort the strings here as the pingdom API returns them sorted by
+	//number of occurances across all checks
+	sort.Strings(tags)
+	if err := d.Set("tags", strings.Join(tags, ",")); err != nil {
+		return err
+	}
 
 	if ck.Status == "paused" {
-		d.Set("paused", true)
+		if err := d.Set("paused", true); err != nil {
+			return err
+		}
 	}
 
 	integids := schema.NewSet(
@@ -484,7 +501,9 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	for _, integrationId := range ck.IntegrationIds {
 		integids.Add(integrationId)
 	}
-	d.Set("integrationids", integids)
+	if err := d.Set("integrationids", integids); err != nil {
+		return err
+	}
 
 	userids := schema.NewSet(
 		func(userId interface{}) int { return userId.(int) },
@@ -493,7 +512,9 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	for _, userId := range ck.UserIds {
 		userids.Add(userId)
 	}
-	d.Set("userids", userids)
+	if err := d.Set("userids", userids); err != nil {
+		return err
+	}
 
 	teamids := schema.NewSet(
 		func(userId interface{}) int { return userId.(int) },
@@ -502,38 +523,74 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	for _, userId := range ck.TeamIds {
 		teamids.Add(userId)
 	}
-	d.Set("teamids", teamids)
+	if err := d.Set("teamids", teamids); err != nil {
+		return err
+	}
 
 	if probefilters := ck.ProbeFilters; len(probefilters) > 0 {
 		// normalise: "region: NA" -> "region:NA"
-		d.Set("probefilters", strings.Replace(probefilters[0], ": ", ":", 1))
+		if err := d.Set("probefilters", strings.Replace(probefilters[0], ": ", ":", 1)); err != nil {
+			return err
+		}
 	}
 
 	if ck.Type.HTTP != nil {
-		d.Set("type", "http")
-		d.Set("responsetime_threshold", ck.ResponseTimeThreshold)
-		d.Set("url", ck.Type.HTTP.Url)
-		d.Set("encryption", ck.Type.HTTP.Encryption)
-		d.Set("port", ck.Type.HTTP.Port)
-		d.Set("username", ck.Type.HTTP.Username)
-		d.Set("password", ck.Type.HTTP.Password)
-		d.Set("shouldcontain", ck.Type.HTTP.ShouldContain)
-		d.Set("shouldnotcontain", ck.Type.HTTP.ShouldNotContain)
-		d.Set("postdata", ck.Type.HTTP.PostData)
+		if err := d.Set("type", "http"); err != nil {
+			return err
+		}
+		if err := d.Set("responsetime_threshold", ck.ResponseTimeThreshold); err != nil {
+			return err
+		}
+		if err := d.Set("url", ck.Type.HTTP.Url); err != nil {
+			return err
+		}
+		if err := d.Set("encryption", ck.Type.HTTP.Encryption); err != nil {
+			return err
+		}
+		if err := d.Set("port", ck.Type.HTTP.Port); err != nil {
+			return err
+		}
+		if err := d.Set("username", ck.Type.HTTP.Username); err != nil {
+			return err
+		}
+		if err := d.Set("password", ck.Type.HTTP.Password); err != nil {
+			return err
+		}
+		if err := d.Set("shouldcontain", ck.Type.HTTP.ShouldContain); err != nil {
+			return err
+		}
+		if err := d.Set("shouldnotcontain", ck.Type.HTTP.ShouldNotContain); err != nil {
+			return err
+		}
+		if err := d.Set("postdata", ck.Type.HTTP.PostData); err != nil {
+			return err
+		}
 
 		if v, ok := ck.Type.HTTP.RequestHeaders["User-Agent"]; ok {
 			if strings.HasPrefix(v, "Pingdom.com_bot_version_") {
 				delete(ck.Type.HTTP.RequestHeaders, "User-Agent")
 			}
 		}
-		d.Set("requestheaders", ck.Type.HTTP.RequestHeaders)
+		if err := d.Set("requestheaders", ck.Type.HTTP.RequestHeaders); err != nil {
+			return err
+		}
 	} else if ck.Type.TCP != nil {
-		d.Set("type", "tcp")
-		d.Set("port", ck.Type.TCP.Port)
-		d.Set("stringtosend", ck.Type.TCP.StringToSend)
-		d.Set("stringtoexpect", ck.Type.TCP.StringToExpect)
+		if err := d.Set("type", "tcp"); err != nil {
+			return err
+		}
+		if err := d.Set("port", ck.Type.TCP.Port); err != nil {
+			return err
+		}
+		if err := d.Set("stringtosend", ck.Type.TCP.StringToSend); err != nil {
+			return err
+		}
+		if err := d.Set("stringtoexpect", ck.Type.TCP.StringToExpect); err != nil {
+			return err
+		}
 	} else {
-		d.Set("type", "ping")
+		if err := d.Set("type", "ping"); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -559,13 +616,7 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error updating check: %s", err)
 	}
 
-	if v, ok := d.GetOk("publicreport"); ok && v.(bool) {
-		client.PublicReport.PublishCheck(id)
-	} else {
-		client.PublicReport.WithdrawlCheck(id)
-	}
-
-	return nil
+	return resourcePingdomCheckRead(d, meta)
 }
 
 func resourcePingdomCheckDelete(d *schema.ResourceData, meta interface{}) error {
