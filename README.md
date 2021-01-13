@@ -155,6 +155,18 @@ resource "pingdom_contact" "second_contact" {
 }
 ```
 
+**Maintenance Windows**
+
+```hcl
+resource "pingdom_maintenance_window" "maintenance_window_upgrade" {
+   description = "Test maintenance window"
+   from        = 1610512252
+   to          = 1610513452
+   uptimeids  = [ "${pingdom_check.website.id}" ]
+   tmsids     = [ ]
+# }
+```
+
 ## Resources ##
 
 ### Pingdom Check ###
@@ -258,6 +270,25 @@ The following attributes are exported:
       * **address**: Email address to notify
 
       * **severity**: Severity of this notification. One of HIGH|LOW
+
+
+### Pingdom Maintenance Window ###
+
+  * **description**: (Required) Description for maintenance window
+
+  * **from**: (Required) Start time for maintenance window (Unic Epoch)
+
+  * **to**: (Required) Start time for maintenance window (Unic Epoch)
+
+  * **recurrence_type**: For recurring maintenance windows
+
+  * **repeat_every**: Frequency for recurring maintenance windows
+
+  * **effective_to**: End date for recurring maintenance windows
+
+ * **uptimeids**: (Required) List of IDs for the Uptime monitors affected by the maintenance window. You can use `[ ]` for an empty list
+
+  * **tmsids**: (Required) List of IDs for the Transaction monitors affected by the maintenance window. You can use `[ ]` for an empty list
 
 ## Develop The Provider ##
 
