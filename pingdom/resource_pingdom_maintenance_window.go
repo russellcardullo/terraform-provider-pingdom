@@ -143,13 +143,6 @@ func resourcePingdomMaintenanceWindowRead(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error retrieving id for resource: %s", err)
 	}
 
-	// log.Printf("========================== Maintenances")
-	// maintenances, err := client.Maintenances.List()
-	// log.Println("Maintenances: ", maintenances) // [{ID Description} ...]
-	// for _, m := range maintenances {
-	// 	log.Println("Maintenance: ", m)
-	// }
-
 	window, err := client.Maintenances.Read(id)
 	if err != nil {
 		return fmt.Errorf("Error retrieving maintenance window: %s", err)
