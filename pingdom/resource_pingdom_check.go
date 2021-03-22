@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/russellcardullo/go-pingdom/pingdom"
+	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
 func resourcePingdomCheck() *schema.Resource {
