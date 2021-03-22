@@ -1,17 +1,19 @@
-name: test
-on: push
+name: Test suite
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
   test:
+    name: Run tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go: ["1.14", "1.15"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Set up Go ${{ matrix.go }}
+
+      - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ matrix.go }}
+          go-version: "1.15"
+
       - name: Test
         run: make test build

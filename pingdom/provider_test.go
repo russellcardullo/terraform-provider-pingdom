@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/russellcardullo/go-pingdom/pingdom"
+	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
