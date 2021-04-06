@@ -1,16 +1,18 @@
 package pingdom
 
 import (
+	"context"
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
 func dataSourcePingdomContact() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourcePingdomContactRead,
+		ReadContext: dataSourcePingdomContactRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -83,13 +85,13 @@ func dataSourcePingdomContact() *schema.Resource {
 	}
 }
 
-func dataSourcePingdomContactRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourcePingdomContactRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*pingdom.Client)
 	name := d.Get("name").(string)
 	contacts, err := client.Contacts.List()
-	log.Printf("==== contacts : %v", contacts)
+	log.Printf("[DEBUG] contacts : %v", contacts)
 	if err != nil {
-		return fmt.Errorf("Error retrieving contact: %s", err)
+		return diag.Errorf("Error retrieving contact: %s", err)
 	}
 	var found *pingdom.Contact
 	for _, contact := range contacts {
@@ -100,11 +102,11 @@ func dataSourcePingdomContactRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	if found == nil {
-		return fmt.Errorf("User '%s' not found", name)
+		return diag.Errorf("User '%s' not found", name)
 	}
 
 	if err = d.Set("name", found.Name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
+		return diag.Errorf("Error setting name: %s", err)
 	}
 
 	teams := []map[string]interface{}{}
@@ -115,11 +117,11 @@ func dataSourcePingdomContactRead(d *schema.ResourceData, meta interface{}) erro
 		})
 	}
 	if err = d.Set("teams", teams); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err = updateResourceFromContactResponse(d, found); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(fmt.Sprintf("%d", found.ID))

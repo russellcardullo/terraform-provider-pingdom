@@ -1,22 +1,24 @@
 package pingdom
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
 func resourcePingdomContact() *schema.Resource {
 	return &schema.Resource{
-		Create: resourcePingdomContactCreate,
-		Read:   resourcePingdomContactRead,
-		Update: resourcePingdomContactUpdate,
-		Delete: resourcePingdomContactDelete,
+		CreateContext: resourcePingdomContactCreate,
+		ReadContext:   resourcePingdomContactRead,
+		UpdateContext: resourcePingdomContactUpdate,
+		DeleteContext: resourcePingdomContactDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -181,76 +183,76 @@ func updateResourceFromContactResponse(d *schema.ResourceData, c *pingdom.Contac
 	return nil
 }
 
-func resourcePingdomContactCreate(d *schema.ResourceData, meta interface{}) error {
+func resourcePingdomContactCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*pingdom.Client)
 
 	contact, err := contactForResource(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	log.Printf("[DEBUG] Contact create configuration: %#v", d.Get("name"))
 	result, err := client.Contacts.Create(contact)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(fmt.Sprintf("%d", result.ID))
 	return nil
 }
 
-func resourcePingdomContactRead(d *schema.ResourceData, meta interface{}) error {
+func resourcePingdomContactRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*pingdom.Client)
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return diag.Errorf("Error retrieving id for resource: %s", err)
 	}
 	contact, err := client.Contacts.Read(id)
 	if err != nil {
-		return fmt.Errorf("Error retrieving contact: %s", err)
+		return diag.Errorf("Error retrieving contact: %s", err)
 	}
 
 	if err := d.Set("name", contact.Name); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := updateResourceFromContactResponse(d, contact); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	return nil
 }
 
-func resourcePingdomContactUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourcePingdomContactUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*pingdom.Client)
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return diag.Errorf("Error retrieving id for resource: %s", err)
 	}
 	contact, err := contactForResource(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	log.Printf("[DEBUG] Contact update configuration: %#v", d.Get("name"))
 
 	if _, err = client.Contacts.Update(id, contact); err != nil {
-		return fmt.Errorf("Error updating contact: %s", err)
+		return diag.Errorf("Error updating contact: %s", err)
 	}
 
 	return nil
 }
 
-func resourcePingdomContactDelete(d *schema.ResourceData, meta interface{}) error {
+func resourcePingdomContactDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*pingdom.Client)
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return diag.Errorf("Error retrieving id for resource: %s", err)
 	}
 	if _, err := client.Contacts.Delete(id); err != nil {
-		return fmt.Errorf("Error deleting contact: %s", err)
+		return diag.Errorf("Error deleting contact: %s", err)
 	}
 	return nil
 }

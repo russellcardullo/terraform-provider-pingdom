@@ -1,16 +1,18 @@
 package pingdom
 
 import (
+	"context"
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
 func dataSourcePingdomTeam() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourcePingdomTeamRead,
+		ReadContext: dataSourcePingdomTeamRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -28,13 +30,13 @@ func dataSourcePingdomTeam() *schema.Resource {
 	}
 }
 
-func dataSourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourcePingdomTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*pingdom.Client)
 	name := d.Get("name").(string)
 	teams, err := client.Teams.List()
-	log.Printf("==== teams : %v", teams)
+	log.Printf("[DEBUG] teams : %v", teams)
 	if err != nil {
-		return fmt.Errorf("Error retrieving team: %s", err)
+		return diag.Errorf("Error retrieving team: %s", err)
 	}
 	var found *pingdom.TeamResponse
 	for _, team := range teams {
@@ -45,10 +47,10 @@ func dataSourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	if found == nil {
-		return fmt.Errorf("User '%s' not found", name)
+		return diag.Errorf("User '%s' not found", name)
 	}
 	if err = d.Set("name", found.Name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
+		return diag.Errorf("Error setting name: %s", err)
 	}
 
 	var memberIds []int
@@ -57,7 +59,7 @@ func dataSourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err = d.Set("member_ids", memberIds); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(fmt.Sprintf("%d", found.ID))

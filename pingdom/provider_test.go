@@ -1,26 +1,27 @@
 package pingdom
 
 import (
+	"context"
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
-var testAccProviders map[string]terraform.ResourceProvider
+var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
 
 func init() {
-	testAccProvider = Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
+	testAccProvider = Provider()
+	testAccProviders = map[string]*schema.Provider{
 		"pingdom": testAccProvider,
 	}
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
@@ -38,15 +39,21 @@ func TestProviderConfigure(t *testing.T) {
 		"api_token": expectedToken,
 	}
 
-	rp := Provider().(*schema.Provider)
-	err := rp.Configure(terraform.NewResourceConfigRaw(raw))
+	rp := Provider()
+	err := rp.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
 	if err != nil {
-		t.Fatalf("err: %s", err)
+		t.Fatal(err)
 	}
 
 	config := rp.Meta().(*pingdom.Client)
 
 	if config.APIToken != expectedToken {
 		t.Fatalf("bad: %#v", config)
+	}
+}
+
+func testAccPreCheck(t *testing.T) {
+	if v := os.Getenv("PINGDOM_API_TOKEN"); v == "" {
+		t.Fatal("PINGDOM_API_TOKEN environment variable must be set for acceptance tests")
 	}
 }
