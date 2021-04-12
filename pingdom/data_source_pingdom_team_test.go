@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataSourcePingdomTeam_basic(t *testing.T) {
@@ -20,8 +19,8 @@ func TestAccDataSourcePingdomTeam_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourcePingdomTeamConfig(name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPingdomTeamDataSourceID(datasourceName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckPingdomResourceID(datasourceName),
 					resource.TestCheckResourceAttrPair(datasourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(datasourceName, "member_ids.#", resourceName, "member_ids.#"),
 					resource.TestCheckResourceAttrPair(datasourceName, "member_ids.0", resourceName, "member_ids.0"),
@@ -29,20 +28,6 @@ func TestAccDataSourcePingdomTeam_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckPingdomTeamDataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Can't find Team data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Team data source ID not set")
-		}
-		return nil
-	}
 }
 
 func testAccDataSourcePingdomTeamConfig(name string) string {

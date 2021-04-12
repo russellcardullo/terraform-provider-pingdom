@@ -181,7 +181,7 @@ The following common attributes for all check types can be set:
 
   * **resolution** - (Required) The time in minutes between each check.  Allowed values: (1,5,15,30,60).
 
-  * **type** - (Required) The check type.  Allowed values: (http, ping).
+  * **type** - (Required) The check type.  Allowed values: (http, ping, tcp, dns).
 
   * **paused** - Whether the check is active or not (defaults to `false`, if not provided). Allowed values (bool): `true`, `false`
 
@@ -227,6 +227,10 @@ For the HTTP checks, you can set these attributes:
 
   * **probefilters** - Region from which the check should originate. One of NA, EU, APAC, or LATAM. Should be in the format "region:NA"
 
+  * **verify_certificate** - Treat target site as down if an invalid/unverifiable certificate is found. Allowed values (bool): `true`, `false`
+
+  * **ssl_down_days_before** - Treat the target site as down if a certificate expires within the given number of days. This parameter will be ignored if `verify_certificate` is set to `false`. Default value is 0.
+
 #### TCP specific attributes ####
 
 For the TCP checks, you can set these attributes:
@@ -237,10 +241,17 @@ For the TCP checks, you can set these attributes:
 
   * **stringtoexpect** - (optional) This string must be returned by the remote host for the check to pass
 
+#### DNS specific attributes ####
+
+For the DNS checks, you can set these attributes:
+
+  * **expectedip** - The expected IP address of the `host`.
+
+  * **nameserver** - The DNS server used to resolve the host to IP address.
+
 The following attributes are exported:
 
   * **id** The ID of the Pingdom check
-
 
 ### Pingdom Team ###
 

@@ -2,9 +2,11 @@ package pingdom
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -83,5 +85,19 @@ func testAccPreCheck(t *testing.T) {
 	}
 	if v := os.Getenv("SOLARWINDS_PASSWD"); v == "" {
 		t.Fatal("SOLARWINDS_PASSWD environment variable must be set for acceptance tests")
+	}
+}
+
+func testAccCheckPingdomResourceID(name string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Can't find: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("ID not set: %s", name)
+		}
+		return nil
 	}
 }

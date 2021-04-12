@@ -29,122 +29,107 @@ func resourcePingdomCheck() *schema.Resource {
 				Required: true,
 				ForceNew: false,
 			},
-
 			"host": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: false,
 			},
-
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"paused": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
-
 			"responsetime_threshold": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
-
 			"resolution": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
-
 			"sendnotificationwhendown": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
-
 			"notifyagainevery": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
-
 			"notifywhenbackup": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
-
 			"integrationids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
-
 			"encryption": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
+				Computed: true,
 			},
-
 			"url": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-				Default:  "/",
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         false,
+				Default:          "/",
+				DiffSuppressFunc: diffSuppressIfNotHTTPCheck,
 			},
-
 			"port": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
 				Computed: true,
 			},
-
 			"username": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-
 			"password": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-
 			"shouldcontain": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-
 			"shouldnotcontain": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-
 			"postdata": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-
 			"requestheaders": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: false,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"tags": {
 				Type:     schema.TypeString,
@@ -154,49 +139,55 @@ func resourcePingdomCheck() *schema.Resource {
 					return sortString(val.(string), ",")
 				},
 			},
-
 			"probefilters": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-
 			"userids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
-
 			"teamids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
-
 			"stringtosend": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-
 			"stringtoexpect": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-
 			"expectedip": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
-
 			"nameserver": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
+			},
+			"verify_certificate": {
+				Type:             schema.TypeBool,
+				Optional:         true,
+				ForceNew:         false,
+				Default:          true,
+				DiffSuppressFunc: diffSuppressIfNotHTTPCheck,
+			},
+			"ssl_down_days_before": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				Computed: true,
 			},
 		},
 	}
@@ -229,6 +220,12 @@ type commonCheckParams struct {
 	StringToExpect           string
 	ExpectedIP               string
 	NameServer               string
+	VerifyCertificate        bool
+	SSLDownDaysBefore        int
+}
+
+func diffSuppressIfNotHTTPCheck(k string, old string, new string, d *schema.ResourceData) bool {
+	return d.Get("type").(string) != "http"
 }
 
 func sortString(input string, seperator string) string {
@@ -338,7 +335,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		}
 	}
 	if v, ok := d.GetOk("tags"); ok {
-		// Sort alphabetically before contionuing
+		// Sort alphabetically before continuing
 		checkParams.Tags = sortString(v.(string), ",")
 	}
 
@@ -360,6 +357,14 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 
 	if v, ok := d.GetOk("nameserver"); ok {
 		checkParams.NameServer = v.(string)
+	}
+
+	if v, ok := d.GetOk("verify_certificate"); ok {
+		checkParams.VerifyCertificate = v.(bool)
+	}
+
+	if v, ok := d.GetOk("ssl_down_days_before"); ok {
+		checkParams.SSLDownDaysBefore = v.(int)
 	}
 
 	checkType := d.Get("type")
@@ -388,6 +393,8 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			ProbeFilters:             checkParams.ProbeFilters,
 			UserIds:                  checkParams.UserIds,
 			TeamIds:                  checkParams.TeamIds,
+			VerifyCertificate:        &checkParams.VerifyCertificate,
+			SSLDownDaysBefore:        &checkParams.SSLDownDaysBefore,
 		}, nil
 	case "ping":
 		return &pingdom.PingCheck{
@@ -609,6 +616,12 @@ func resourcePingdomCheckRead(ctx context.Context, d *schema.ResourceData, meta 
 		if err := d.Set("postdata", ck.Type.HTTP.PostData); err != nil {
 			return diag.FromErr(err)
 		}
+		if err := d.Set("verify_certificate", ck.Type.HTTP.VerifyCertificate); err != nil {
+			return diag.FromErr(err)
+		}
+		if err := d.Set("ssl_down_days_before", ck.Type.HTTP.SSLDownDaysBefore); err != nil {
+			return diag.FromErr(err)
+		}
 
 		if v, ok := ck.Type.HTTP.RequestHeaders["User-Agent"]; ok {
 			if strings.HasPrefix(v, "Pingdom.com_bot_version_") {
@@ -662,8 +675,6 @@ func resourcePingdomCheckUpdate(ctx context.Context, d *schema.ResourceData, met
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	log.Printf("[DEBUG] Check update configuration: %#v, %#v", d.Get("name"), d.Get("hostname"))
 
 	_, err = client.Checks.Update(id, check)
 	if err != nil {

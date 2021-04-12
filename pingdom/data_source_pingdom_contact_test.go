@@ -6,11 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataSourcePingdomContact_basic(t *testing.T) {
-	resourceName := "pingdom_contact.test"
+	contactResourceName := "pingdom_contact.test"
+	teamResourceName := "pingdom_team.test"
 	datasourceName := "data.pingdom_contact.test"
 	name := acctest.RandomWithPrefix("tf-acc-test")
 
@@ -20,31 +20,19 @@ func TestAccDataSourcePingdomContact_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourcePingdomContactConfig(name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPingdomContactDataSourceID(datasourceName),
-					resource.TestCheckResourceAttrPair(datasourceName, "name", resourceName, "name"),
-					resource.TestCheckResourceAttrPair(datasourceName, "paused", resourceName, "paused"),
-					resource.TestCheckResourceAttrPair(datasourceName, "sms_notification.#", resourceName, "sms_notification.#"),
-					resource.TestCheckResourceAttrPair(datasourceName, "email_notification.#", resourceName, "email_notification.#"),
-					resource.TestCheckResourceAttr(datasourceName, "teams.#", "0"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckPingdomResourceID(datasourceName),
+					resource.TestCheckResourceAttr(datasourceName, "name", name),
+					resource.TestCheckResourceAttrPair(datasourceName, "paused", contactResourceName, "paused"),
+					resource.TestCheckResourceAttrPair(datasourceName, "sms_notification.#", contactResourceName, "sms_notification.#"),
+					resource.TestCheckResourceAttrPair(datasourceName, "email_notification.#", contactResourceName, "email_notification.#"),
+					resource.TestCheckResourceAttr(datasourceName, "teams.#", "1"),
+					resource.TestCheckResourceAttrPair(datasourceName, "teams.0.id", teamResourceName, "id"),
+					resource.TestCheckResourceAttrPair(datasourceName, "teams.0.name", teamResourceName, "name"),
 				),
 			},
 		},
 	})
-}
-
-func testAccCheckPingdomContactDataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Can't find Contact data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Contact data source ID not set")
-		}
-		return nil
-	}
 }
 
 func testAccDataSourcePingdomContactConfig(name string) string {
@@ -61,8 +49,13 @@ resource "pingdom_contact" "test" {
 	}
 }
 
+resource "pingdom_team" "test" {
+	name = "%s"
+	member_ids = [pingdom_contact.test.id]
+}
+
 data "pingdom_contact" "test" {
   name = pingdom_contact.test.name
 }
-`, name)
+`, name, name)
 }
