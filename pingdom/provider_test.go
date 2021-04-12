@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
 var testAccProviders map[string]*schema.Provider
@@ -28,6 +27,8 @@ func TestProvider(t *testing.T) {
 
 func TestProviderConfigure(t *testing.T) {
 	var expectedToken string
+	var expectedUser string
+	var expectedPassword string
 
 	if v := os.Getenv("PINGDOM_API_TOKEN"); v != "" {
 		expectedToken = v
@@ -35,25 +36,52 @@ func TestProviderConfigure(t *testing.T) {
 		expectedToken = "foo"
 	}
 
+	if v := os.Getenv("SOLARWINDS_USER"); v != "" {
+		expectedUser = v
+	} else {
+		expectedUser = "foo"
+	}
+
+	if v := os.Getenv("SOLARWINDS_PASSWD"); v != "" {
+		expectedPassword = v
+	} else {
+		expectedPassword = "foo"
+	}
+
 	raw := map[string]interface{}{
-		"api_token": expectedToken,
+		"api_token":         expectedToken,
+		"solarwinds_user":   expectedUser,
+		"solarwinds_passwd": expectedPassword,
+	}
+	var isAccTestEnabled bool
+	if v := os.Getenv("TF_ACC"); v != "" {
+		isAccTestEnabled = true
 	}
 
-	rp := Provider()
-	err := rp.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatal(err)
+	if isAccTestEnabled {
+		rp := Provider()
+		err := rp.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		config := rp.Meta().(*Clients).Pingdom
+
+		if config.APIToken != expectedToken {
+			t.Fatalf("bad: %#v", config)
+		}
 	}
 
-	config := rp.Meta().(*pingdom.Client)
-
-	if config.APIToken != expectedToken {
-		t.Fatalf("bad: %#v", config)
-	}
 }
 
 func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("PINGDOM_API_TOKEN"); v == "" {
 		t.Fatal("PINGDOM_API_TOKEN environment variable must be set for acceptance tests")
+	}
+	if v := os.Getenv("SOLARWINDS_USER"); v == "" {
+		t.Fatal("SOLARWINDS_USER environment variable must be set for acceptance tests")
+	}
+	if v := os.Getenv("SOLARWINDS_PASSWD"); v == "" {
+		t.Fatal("SOLARWINDS_PASSWD environment variable must be set for acceptance tests")
 	}
 }

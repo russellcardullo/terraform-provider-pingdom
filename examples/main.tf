@@ -22,6 +22,8 @@ resource "pingdom_team" "test_one" {
 
 provider "pingdom" {
   api_token  = "${var.pingdom_api_token}"
+  solarwinds_user  = "${var.solarwinds_user}"
+  solarwinds_password  = "${var.solarwinds_password}"
 }
 
 resource "pingdom_team" "test" {
@@ -61,6 +63,13 @@ resource "pingdom_contact" "second_contact" {
     address  = "test@test.com"
     severity = "LOW"
   }
+}
+
+resource "pingdom_integration" "integration" {
+		provider_name = "webhook"
+		active = false
+		name="test1"
+		url="https://www.example.com"
 }
 
 data "pingdom_contact" "data_contact" {

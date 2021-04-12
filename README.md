@@ -24,9 +24,13 @@ terraform {
 }
 
 variable "pingdom_api_token" {}
+variable "solarwinds_user" {}
+variable "solarwinds_passwd" {}
 
 provider "pingdom" {
     api_token = "${var.pingdom_api_token}"
+    solarwinds_user  = "${var.solarwinds_user}"
+    solarwinds_password  = "${var.solarwinds_password}"
 }
 ```
 
@@ -70,6 +74,8 @@ Apply with:
 ```sh
  terraform apply \
     -var 'pingdom_api_token=YOUR_API_TOKEN'
+    -var 'solarwinds_user=YOUR_SOLARWINDS_USER'
+    -var 'solarwinds_user=YOUR_SOLARWINDS_PASSWD'
 ```
 
 **Using attributes from other resources**
@@ -79,6 +85,10 @@ variable "heroku_email" {}
 variable "heroku_api_key" {}
 
 variable "pingdom_api_token" {}
+variable "solarwinds_user" {}
+variable "solarwinds_passwd" {}
+
+
 
 provider "heroku" {
     email = var.heroku_email
@@ -86,7 +96,9 @@ provider "heroku" {
 }
 
 provider "pingdom" {
-    api_token = var.pingdom_api_token
+    api_token = "${var.pingdom_api_token}"
+    solarwinds_user  = "${var.solarwinds_user}"
+    solarwinds_password  = "${var.solarwinds_password}"
 }
 
 resource "heroku_app" "example" {
@@ -258,6 +270,18 @@ The following attributes are exported:
       * **address**: Email address to notify
 
       * **severity**: Severity of this notification. One of HIGH|LOW
+
+### Pingdom Integration ###
+
+  * **provider_name** - (Required) The name of the integration provider,One of webhook|librato. 'librato' not presently operational
+
+  * **active** -  (Required) The status of the integration
+
+  * **name**:  (Required) The integration name
+
+  * **url**:  (Optional)  The integration url, only required while provider is webhook
+
+      
 
 ## Develop The Provider ##
 

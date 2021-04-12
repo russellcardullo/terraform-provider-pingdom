@@ -31,7 +31,7 @@ func dataSourcePingdomTeam() *schema.Resource {
 }
 
 func dataSourcePingdomTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*pingdom.Client)
+	client := meta.(*Clients).Pingdom
 	name := d.Get("name").(string)
 	teams, err := client.Teams.List()
 	log.Printf("[DEBUG] teams : %v", teams)

@@ -86,7 +86,8 @@ func dataSourcePingdomContact() *schema.Resource {
 }
 
 func dataSourcePingdomContactRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*pingdom.Client)
+	client := meta.(*Clients).Pingdom
+
 	name := d.Get("name").(string)
 	contacts, err := client.Contacts.List()
 	log.Printf("[DEBUG] contacts : %v", contacts)

@@ -57,7 +57,7 @@ func teamForResource(d *schema.ResourceData) (*pingdom.Team, error) {
 }
 
 func resourcePingdomTeamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*pingdom.Client)
+	client := meta.(*Clients).Pingdom
 
 	team, err := teamForResource(d)
 	if err != nil {
@@ -75,7 +75,7 @@ func resourcePingdomTeamCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourcePingdomTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*pingdom.Client)
+	client := meta.(*Clients).Pingdom
 
 	teams, err := client.Teams.List()
 	if err != nil {
@@ -120,7 +120,7 @@ func resourcePingdomTeamRead(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourcePingdomTeamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*pingdom.Client)
+	client := meta.(*Clients).Pingdom
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
@@ -141,7 +141,7 @@ func resourcePingdomTeamUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourcePingdomTeamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*pingdom.Client)
+	client := meta.(*Clients).Pingdom
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
