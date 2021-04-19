@@ -453,7 +453,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 }
 
 func resourcePingdomCheckCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*pingdom.Client)
+	client := meta.(*Clients).Pingdom
 
 	check, err := checkForResource(d)
 	if err != nil {
@@ -664,7 +664,7 @@ func resourcePingdomCheckRead(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourcePingdomCheckUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*pingdom.Client)
+	client := meta.(*Clients).Pingdom
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {

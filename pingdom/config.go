@@ -2,6 +2,7 @@ package pingdom
 
 import (
 	"errors"
+	"github.com/nordcloud/go-pingdom/solarwinds"
 	"log"
 	"os"
 
@@ -19,10 +20,9 @@ type Config struct {
 type Clients struct {
 	Pingdom    *pingdom.Client
 	PingdomExt *pingdomext.Client
+	Solarwinds *solarwinds.Client
 }
 
-// Client returns a new client for accessing pingdom.
-//
 func (c *Config) Client() (*Clients, error) {
 	pingdomClient, err := c.pingdomClient()
 	if err != nil {
@@ -36,6 +36,18 @@ func (c *Config) Client() (*Clients, error) {
 			return nil, errors.New("user and password must be present together")
 		}
 	}
+	solarwindsClient, err := solarwinds.NewClient(solarwinds.ClientConfig{
+		Username: c.SolarwindsUser,
+		Password: c.SolarwindsPassword,
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = solarwindsClient.Init()
+	if err != nil {
+		return nil, err
+	}
+
 	pingdomClientExt, err := pingdomext.NewClientWithConfig(pingdomext.ClientConfig{
 		Username: c.SolarwindsUser,
 		Password: c.SolarwindsPassword,
@@ -48,14 +60,20 @@ func (c *Config) Client() (*Clients, error) {
 	return &Clients{
 		Pingdom:    pingdomClient,
 		PingdomExt: pingdomClientExt,
+		Solarwinds: solarwindsClient,
 	}, nil
 }
 
+// Client returns a new client for accessing pingdom.
+//
 func (c *Config) pingdomClient() (*pingdom.Client, error) {
 	if v := os.Getenv("PINGDOM_API_TOKEN"); v != "" {
 		c.APIToken = v
 	}
+
 	client, _ := pingdom.NewClientWithConfig(pingdom.ClientConfig{APIToken: c.APIToken})
+
 	log.Printf("[INFO] Pingdom Client configured.")
+
 	return client, nil
 }

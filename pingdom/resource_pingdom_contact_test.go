@@ -85,7 +85,7 @@ func TestAccResourcePingdomContact_basic(t *testing.T) {
 }
 
 func testAccCheckPingdomContactDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*pingdom.Client)
+	client := testAccProvider.Meta().(*Clients).Pingdom
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "pingdom_contact" {

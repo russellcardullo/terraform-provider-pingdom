@@ -167,6 +167,74 @@ resource "pingdom_contact" "second_contact" {
 }
 ```
 
+**Maintenance**
+
+The maintenance resource is used to define a one time or repetitive maintenance window and bond the maintenance window with one or more uptime and tms checks.
+
+```hcl
+resource "pingdom_check" "test" {
+  name = "test-check"
+  host = "www.example.com"
+  type = "http"
+}
+
+resource "pingdom_maintenance" "test" {
+  description    = "test-maintenance"
+  from           = 2717878693
+  to             = 2718878693
+  effectiveto    = 2718978693
+  recurrencetype = "week"
+  repeatevery    = 4
+  uptimeids      = [pingdom_check.test.id]
+}
+```
+
+**User**
+
+An user resource is either an user invitation or an active user on the Solarwinds user portal.
+These users can be configured to access a range of applications, including Pingdom. An user becomes active once he
+manually accepts the invitation sent to his email as specified at the time the invitation is created.
+
+```hcl
+
+resource "pingdom_user" "user" {
+  email = "foo@nordcloud.com"
+  role = "MEMBER"
+  products {
+    name = "APPOPTICS"
+    role = "MEMBER"
+  }
+  products {
+    name = "PINGDOM"
+    role = "MEMBER"
+  }
+}
+```
+
+**Occurrence**
+
+An occurrence resource usually represents a group of maintenance occurrences, as determined by the triple
+(maintenanceid, effective_from, effective_to). This triple is effectively a query against all existing
+maintenance occurrences. Please note that 'effective_from' and 'effective_to' are different from the attributes
+pair 'from' and 'to' of maintenance/occurrence. The latter are used to specify the start/end within a maintenance
+cycle, while the former are purely query conditions used to retrieve occurrence objects.
+
+It is not possible to import occurrences as they are queries, which does not exist on Pingdom.
+
+'from' and 'to' attributes can be updated, which results in all occurrences matched by the query being
+updated. In other words, all occurrences matched by a single resource will share the same values for `from` and `to`.
+
+```hcl
+
+resource "pingdom_occurrence" "test" {
+    maintenance_id = pingdom_maintenance.test.id
+    effective_from = pingdom_maintenance.test.from
+    effective_to = pingdom_maintenance.test.effectiveto
+    from = pingdom_maintenance.test.from
+    to = "2021-04-10T22:00:00+08:00"
+}
+```
+
 ## Resources ##
 
 ### Pingdom Check ###
@@ -179,9 +247,9 @@ The following common attributes for all check types can be set:
 
   * **host** - (Required) The hostname to check.  Should be in the format `example.com`.
 
-  * **resolution** - (Required) The time in minutes between each check.  Allowed values: (1,5,15,30,60).
-
   * **type** - (Required) The check type.  Allowed values: (http, ping, tcp, dns).
+
+  * **resolution** - The time in minutes between each check. Allowed values: (1,5,15,30,60). Default is `5`
 
   * **paused** - Whether the check is active or not (defaults to `false`, if not provided). Allowed values (bool): `true`, `false`
 
@@ -281,7 +349,52 @@ The following attributes are exported:
       * **address**: Email address to notify
 
       * **severity**: Severity of this notification. One of HIGH|LOW
+    
+### Pingdom Maintenance ###
 
+  * **description** - (Required) The name of the team
+
+  * **from** - (Required) Initial maintenance window start. RFC3339 format time like `2066-01-02T22:00:00+08:00`
+
+  * **to** - (Required) Initial maintenance window end. RFC3339 format time like `2066-01-02T22:00:00+08:00`
+
+  * **effectiveto** - Recurrence end. RFC3339 format time like `2066-01-02T22:00:00+08:00` Default: equal to `to`.
+
+  * **recurrencetype** - Type of recurrence. Allowed values: `none` `day` `week` `month`. Default is `none`
+  
+  * **repeatevery** - Repeat every n-th day/week/month. Default is `0`
+
+  * **tmsids** - Identifiers of transaction checks to assign to the maintenance window - Comma separated Integers
+
+  * **uptimeids** - Identifiers of uptime checks to assign to the maintenance window - Comma separated Integers
+
+### Pingdom Maintenance Occurrence ###
+
+* **maintenance_id** - (Required) The id of the maintenance which the occurrence belongs to, 
+  please use references to maintenance resources.
+
+* **effective_from** - (Required) The start time of the occurrence query, RFC3339 format time like `2066-01-02T22:00:00+08:00`. 
+  If not specified, the default value is the current time, which means only future occurrences will be returned. This is
+  usually desired because it only makes sense to manipulate future occurrences.
+  NOTE: this is for query only, not related to the actual start time of the maintenance window.
+
+* **effective_to** - (Required) The end time of the occurrence query, RFC3339 format time like `2066-01-02T22:00:00+08:00`. 
+  NOTE: this is for query only, not related to the actual end time of the maintenance window.
+
+* **from** - The start time of an occurrence, RFC3339 format time like `2066-01-02T22:00:00+08:00`.
+
+* **to** - The end time of an occurrence, RFC3339 format time like `2066-01-02T22:00:00+08:00`.
+
+* **size** - The total number of occurrences match the current query. This just serves as read-only information.
+
+### Pingdom User ###
+
+* **email**: (Required) Email of the contact, an invitation will be sent to this address
+* **role**: The role in the Solarwinds adminpanel, possible values: "MEMBER", "ADMIN"
+* **products**: Permission to each application, the list must be comprehensive. The user will have access to application listed only
+    * **name**: The name of the application, possible values: "APPOPTICS", "PINGDOM", "LOGGLY", "PAPERTRAIL"
+    * **role**: The permission, possible values: "ADMIN", "OWNER", "MEMBER", "NO_ACCESS"
+    
 ### Pingdom Integration ###
 
   * **provider_name** - (Required) The name of the integration provider,One of webhook|librato. 'librato' not presently operational
