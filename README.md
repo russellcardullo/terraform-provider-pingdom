@@ -321,6 +321,27 @@ The following attributes are exported:
 
   * **id** The ID of the Pingdom check
 
+### Pingdom TMS Check ###
+ * **name** - (Required) The name of the TMS check
+ * **steps** - (Required) At least one steps block is needed to describe the actions of the transaction
+    * **args** - The arguments for the function of the step
+    * **fn** - The function to perform for the step
+ * **active** - Whether the TMS check is enabled
+ * **contact_ids** - The id of the contacts to be notified
+ * **custom_message** - The message to send in alerts
+ * **integration_ids** - The id of integrations
+ * **interval** - The interval in which the check is performed, can only be one of [5 10 20 60 720 1440]. Default value is 10
+ * **metadata** - The metadata is for recording transactions only
+    * **authentication** - Authentication information
+    * **disable_websecurity** - 
+    * **height** -
+    * **width** -
+ * **region** - The region within which the check is performed, default is 'us-east'  
+ * **send_notification_when_down** - the number of times for the check to fail before the site is considered down, default is 1.
+ * **security_level** - how important are the alerts when the check fails. Allowed values: low, high. Default is 'high'
+ * **tags** - List of tags for a check. The tag name may contain the characters 'A-Z', 'a-z', '0-9', '_' and '-'. The maximum length of a tag is 64 characters.
+ * **team_ids** - Teams to alert
+
 ### Pingdom Team ###
 
   * **name** - (Required) The name of the team
@@ -393,7 +414,7 @@ The following attributes are exported:
 * **role**: The role in the Solarwinds adminpanel, possible values: "MEMBER", "ADMIN"
 * **products**: Permission to each application, the list must be comprehensive. The user will have access to application listed only
     * **name**: The name of the application, possible values: "APPOPTICS", "PINGDOM", "LOGGLY", "PAPERTRAIL"
-    * **role**: The permission, possible values: "ADMIN", "OWNER", "MEMBER", "NO_ACCESS"
+    * **role**: The permission, allowed values may vary for each service. For Pingdom, possible values: "ADMIN", "OWNER", "VIEWER", "EDITOR", "NO_ACCESS"
     
 ### Pingdom Integration ###
 

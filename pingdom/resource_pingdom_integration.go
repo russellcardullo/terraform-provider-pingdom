@@ -47,7 +47,6 @@ func resourcePingdomIntegration() *schema.Resource {
 }
 
 func integrationForResource(d *schema.ResourceData, client *pingdomext.Client) (pingdomext.Integration, error) {
-
 	var active bool
 	var providerName string
 	var name string
@@ -82,7 +81,6 @@ func integrationForResource(d *schema.ResourceData, client *pingdomext.Client) (
 	}
 
 	return nil, fmt.Errorf("Unsupported integration provider %s", providerName)
-
 }
 
 func resourcePingdomIntegrationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -198,7 +196,6 @@ func resourcePingdomIntegrationDelete(ctx context.Context, d *schema.ResourceDat
 }
 
 func getIntegrationProvider(providerName string, client *pingdomext.Client) (*pingdomext.IntegrationProvider, error) {
-
 	providers, err := client.Integrations.ListProviders()
 	if err != nil {
 		return nil, err

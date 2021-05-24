@@ -21,55 +21,57 @@ resource "pingdom_team" "test_one" {
 }
 
 provider "pingdom" {
-  api_token  = "${var.pingdom_api_token}"
-  solarwinds_user  = "${var.solarwinds_user}"
-  solarwinds_password  = "${var.solarwinds_password}"
+  api_token = "${var.pingdom_api_token}"
+  solarwinds_user = "${var.solarwinds_user}"
+  solarwinds_password = "${var.solarwinds_password}"
 }
 
 resource "pingdom_team" "test" {
   name = "Team 2 (updated by Terraform) with contacts"
 
-  member_ids = [pingdom_contact.first_contact.id, pingdom_contact.second_contact.id]
+  member_ids = [
+    pingdom_contact.first_contact.id,
+    pingdom_contact.second_contact.id]
 }
 
 resource "pingdom_contact" "first_contact" {
   name = "johndoe"
 
   sms_notification {
-    number   = "5555555555"
+    number = "5555555555"
     severity = "HIGH"
   }
   sms_notification {
-    number   = "2222222222"
+    number = "2222222222"
     severity = "LOW"
   }
 }
 
 resource "pingdom_contact" "second_contact" {
-  name   = "janedoe"
+  name = "janedoe"
   paused = true
 
   sms_notification {
-    number   = "5555555555"
+    number = "5555555555"
     severity = "HIGH"
   }
   sms_notification {
-    number       = "3333333333"
+    number = "3333333333"
     country_code = "91"
-    severity     = "LOW"
-    provider     = "esendex"
+    severity = "LOW"
+    provider = "esendex"
   }
   email_notification {
-    address  = "test@test.com"
+    address = "test@test.com"
     severity = "LOW"
   }
 }
 
 resource "pingdom_integration" "integration" {
-		provider_name = "webhook"
-		active = false
-		name="test1"
-		url="https://www.example.com"
+  provider_name = "webhook"
+  active = false
+  name = "test1"
+  url = "https://www.example.com"
 }
 
 data "pingdom_contact" "data_contact" {

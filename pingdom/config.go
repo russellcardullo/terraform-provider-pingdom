@@ -15,6 +15,7 @@ type Config struct {
 	APIToken           string `mapstructure:"api_token"`
 	SolarwindsUser     string `mapstructure:"solarwinds_user"`
 	SolarwindsPassword string `mapstructure:"solarwinds_password"`
+	SolarwindsOrgID    string `mapstructure:"solarwinds_org_id"`
 }
 
 type Clients struct {
@@ -36,6 +37,9 @@ func (c *Config) Client() (*Clients, error) {
 			return nil, errors.New("user and password must be present together")
 		}
 	}
+	if orgID := os.Getenv("SOLARWINDS_ORG_ID"); orgID != "" {
+		c.SolarwindsOrgID = orgID
+	}
 	solarwindsClient, err := solarwinds.NewClient(solarwinds.ClientConfig{
 		Username: c.SolarwindsUser,
 		Password: c.SolarwindsPassword,
@@ -51,6 +55,7 @@ func (c *Config) Client() (*Clients, error) {
 	pingdomClientExt, err := pingdomext.NewClientWithConfig(pingdomext.ClientConfig{
 		Username: c.SolarwindsUser,
 		Password: c.SolarwindsPassword,
+		OrgID:    c.SolarwindsOrgID,
 	})
 
 	if err != nil {

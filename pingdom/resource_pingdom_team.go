@@ -48,7 +48,6 @@ func teamForResource(d *schema.ResourceData) (*pingdom.Team, error) {
 		var intSlice []int
 		for i := range interfaceSlice {
 			intSlice = append(intSlice, interfaceSlice[i].(int))
-
 		}
 		team.MemberIDs = intSlice
 	}
