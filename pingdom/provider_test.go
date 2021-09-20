@@ -1,6 +1,7 @@
 package pingdom
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -9,19 +10,19 @@ import (
 	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
-var testAccProviders map[string]terraform.ResourceProvider
+var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
 
 func init() {
-	testAccProvider = Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
+	testAccProvider = Provider()
+	testAccProviders = map[string]*schema.Provider{
 		"pingdom": testAccProvider,
 	}
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
-		t.Fatalf("err: %s", err)
+	if err := Provider().InternalValidate(); err != nil {
+		t.Fatalf("err: %#v", err)
 	}
 }
 
@@ -38,10 +39,11 @@ func TestProviderConfigure(t *testing.T) {
 		"api_token": expectedToken,
 	}
 
-	rp := Provider().(*schema.Provider)
-	err := rp.Configure(terraform.NewResourceConfigRaw(raw))
+	rp := Provider()
+	ctx := context.TODO()
+	err := rp.Configure(ctx, terraform.NewResourceConfigRaw(raw))
 	if err != nil {
-		t.Fatalf("err: %s", err)
+		t.Fatalf("err: %#v", err)
 	}
 
 	config := rp.Meta().(*pingdom.Client)
