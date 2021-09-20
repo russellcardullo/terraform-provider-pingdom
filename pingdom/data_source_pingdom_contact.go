@@ -89,7 +89,7 @@ func dataSourcePingdomContactRead(d *schema.ResourceData, meta interface{}) erro
 	contacts, err := client.Contacts.List()
 	log.Printf("==== contacts : %v", contacts)
 	if err != nil {
-		return fmt.Errorf("Error retrieving contact: %s", err)
+		return fmt.Errorf("error retrieving contact: %w", err)
 	}
 	var found *pingdom.Contact
 	for _, contact := range contacts {
@@ -100,11 +100,11 @@ func dataSourcePingdomContactRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	if found == nil {
-		return fmt.Errorf("User '%s' not found", name)
+		return fmt.Errorf("user '%s' not found", name)
 	}
 
 	if err = d.Set("name", found.Name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
+		return fmt.Errorf("error setting name: %w", err)
 	}
 
 	teams := []map[string]interface{}{}

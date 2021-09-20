@@ -78,7 +78,7 @@ func resourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 
 	teams, err := client.Teams.List()
 	if err != nil {
-		return fmt.Errorf("Error retrieving list of teams: %s", err)
+		return fmt.Errorf("error retrieving list of teams: %w", err)
 	}
 	exists := false
 	for _, team := range teams {
@@ -93,11 +93,11 @@ func resourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("error retrieving id for resource: %w", err)
 	}
 	team, err := client.Teams.Read(id)
 	if err != nil {
-		return fmt.Errorf("Error retrieving team: %s", err)
+		return fmt.Errorf("error retrieving team: %w", err)
 	}
 
 	if err := d.Set("name", team.Name); err != nil {
@@ -123,7 +123,7 @@ func resourcePingdomTeamUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("error retrieving id for resource: %w", err)
 	}
 
 	team, err := teamForResource(d)
@@ -134,7 +134,7 @@ func resourcePingdomTeamUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Team update configuration: %#v", d.Get("name"))
 
 	if _, err = client.Teams.Update(id, team); err != nil {
-		return fmt.Errorf("Error updating team: %s", err)
+		return fmt.Errorf("error updating team: %w", err)
 	}
 	return nil
 }
@@ -144,10 +144,10 @@ func resourcePingdomTeamDelete(d *schema.ResourceData, meta interface{}) error {
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("error retrieving id for resource: %w", err)
 	}
 	if _, err = client.Teams.Delete(id); err != nil {
-		return fmt.Errorf("Error deleting team: %s", err)
+		return fmt.Errorf("error deleting team: %w", err)
 	}
 
 	return nil

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
@@ -35,9 +36,10 @@ func resourcePingdomCheck() *schema.Resource {
 			},
 
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"http", "tcp", "ping"}, false),
 			},
 
 			"paused": {
@@ -50,26 +52,31 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
-				Computed: true,
+				Default:  30000,
+				// Computed: true,
 			},
 
 			"resolution": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: false,
+				Type:         schema.TypeInt,
+				Required:     true,
+				ForceNew:     false,
+				Default:      5,
+				ValidateFunc: validation.IntInSlice([]int{1, 5, 15, 30, 60}),
 			},
 
 			"sendnotificationwhendown": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
-				Computed: true,
+				Default:  2,
+				// Computed: true,
 			},
 
 			"notifyagainevery": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
+				Default:  0,
 			},
 
 			"notifywhenbackup": {
@@ -100,10 +107,11 @@ func resourcePingdomCheck() *schema.Resource {
 			},
 
 			"port": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: false,
-				Computed: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     false,
+				Computed:     true,
+				ValidateFunc: validation.IsPortNumber,
 			},
 
 			"username": {
@@ -181,15 +189,16 @@ func resourcePingdomCheck() *schema.Resource {
 				Optional: true,
 				ForceNew: false,
 			},
-			"verifycertificate": {
+			"verify_certificate": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: false,
 			},
-			"ssldowndaysbefore": {
+			"ssl_down_days_before": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: false,
+				Default:  0,
 			},
 		},
 	}
@@ -347,11 +356,11 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.StringToExpect = v.(string)
 	}
 
-	if v, ok := d.GetOk("verifycertificate"); ok {
+	if v, ok := d.GetOk("verify_certificate"); ok {
 		checkParams.VerifyCertificate = v.(bool)
 	}
 
-	if v, ok := d.GetOk("ssldowndaysbefore"); ok {
+	if v, ok := d.GetOk("ssl_down_days_before"); ok {
 		checkParams.SSLDownDaysBefore = v.(int)
 	}
 
@@ -448,11 +457,11 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("error retrieving id for resource: %w", err)
 	}
 	cl, err := client.Checks.List()
 	if err != nil {
-		return fmt.Errorf("Error retrieving list of checks: %s", err)
+		return fmt.Errorf("error retrieving list of checks: %w", err)
 	}
 	exists := false
 	for _, ckid := range cl {
@@ -467,7 +476,7 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	ck, err := client.Checks.Read(id)
 	if err != nil {
-		return fmt.Errorf("Error retrieving check: %s", err)
+		return fmt.Errorf("error retrieving check: %w", err)
 	}
 
 	if err := d.Set("host", ck.Hostname); err != nil {
@@ -587,10 +596,10 @@ func resourcePingdomCheckRead(d *schema.ResourceData, meta interface{}) error {
 		if err := d.Set("postdata", ck.Type.HTTP.PostData); err != nil {
 			return err
 		}
-		if err := d.Set("verifycertificate", ck.Type.HTTP.VerifyCertificate); err != nil {
+		if err := d.Set("verify_certificate", ck.Type.HTTP.VerifyCertificate); err != nil {
 			return err
 		}
-		if err := d.Set("ssldowndaysbefore", ck.Type.HTTP.SSLDownDaysBefore); err != nil {
+		if err := d.Set("ssl_down_days_before", ck.Type.HTTP.SSLDownDaysBefore); err != nil {
 			return err
 		}
 
@@ -629,7 +638,7 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("error retrieving id for resource: %w", err)
 	}
 
 	check, err := checkForResource(d)
@@ -641,7 +650,7 @@ func resourcePingdomCheckUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	_, err = client.Checks.Update(id, check)
 	if err != nil {
-		return fmt.Errorf("Error updating check: %s", err)
+		return fmt.Errorf("error updating check: %w", err)
 	}
 
 	return resourcePingdomCheckRead(d, meta)
@@ -652,14 +661,14 @@ func resourcePingdomCheckDelete(d *schema.ResourceData, meta interface{}) error 
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("error retrieving id for resource: %s", err)
 	}
 
 	log.Printf("[INFO] Deleting Check: %v", id)
 
 	_, err = client.Checks.Delete(id)
 	if err != nil {
-		return fmt.Errorf("Error deleting check: %s", err)
+		return fmt.Errorf("error deleting check: %w", err)
 	}
 
 	return nil

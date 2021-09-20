@@ -34,7 +34,7 @@ func dataSourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 	teams, err := client.Teams.List()
 	log.Printf("==== teams : %v", teams)
 	if err != nil {
-		return fmt.Errorf("Error retrieving team: %s", err)
+		return fmt.Errorf("error retrieving team: %w", err)
 	}
 	var found *pingdom.TeamResponse
 	for _, team := range teams {
@@ -48,7 +48,7 @@ func dataSourcePingdomTeamRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("User '%s' not found", name)
 	}
 	if err = d.Set("name", found.Name); err != nil {
-		return fmt.Errorf("Error setting name: %s", err)
+		return fmt.Errorf("error setting name: %w", err)
 	}
 
 	var memberIds []int

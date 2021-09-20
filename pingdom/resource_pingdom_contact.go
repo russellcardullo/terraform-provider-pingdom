@@ -204,11 +204,11 @@ func resourcePingdomContactRead(d *schema.ResourceData, meta interface{}) error 
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("error retrieving id for resource: %w", err)
 	}
 	contact, err := client.Contacts.Read(id)
 	if err != nil {
-		return fmt.Errorf("Error retrieving contact: %s", err)
+		return fmt.Errorf("error retrieving contact: %w", err)
 	}
 
 	if err := d.Set("name", contact.Name); err != nil {
@@ -226,7 +226,7 @@ func resourcePingdomContactUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("error retrieving id for resource: %w", err)
 	}
 	contact, err := contactForResource(d)
 	if err != nil {
@@ -236,7 +236,7 @@ func resourcePingdomContactUpdate(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Contact update configuration: %#v", d.Get("name"))
 
 	if _, err = client.Contacts.Update(id, contact); err != nil {
-		return fmt.Errorf("Error updating contact: %s", err)
+		return fmt.Errorf("error updating contact: %w", err)
 	}
 
 	return nil
@@ -247,10 +247,10 @@ func resourcePingdomContactDelete(d *schema.ResourceData, meta interface{}) erro
 
 	id, err := strconv.Atoi(d.Id())
 	if err != nil {
-		return fmt.Errorf("Error retrieving id for resource: %s", err)
+		return fmt.Errorf("error retrieving id for resource: %w", err)
 	}
 	if _, err := client.Contacts.Delete(id); err != nil {
-		return fmt.Errorf("Error deleting contact: %s", err)
+		return fmt.Errorf("error deleting contact: %w", err)
 	}
 	return nil
 }
