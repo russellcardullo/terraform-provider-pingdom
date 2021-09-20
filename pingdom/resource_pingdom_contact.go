@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/russellcardullo/go-pingdom/pingdom"
 )
 
@@ -47,9 +48,10 @@ func resourcePingdomContact() *schema.Resource {
 							Required: true,
 						},
 						"provider": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "nexmo",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "nexmo",
+							ValidateFunc: validation.StringInSlice([]string{"nexmo", "bulksms", "esendex", "cellsynt"}, false),
 						},
 					},
 				},
@@ -95,13 +97,8 @@ func getNotificationMethods(d *schema.ResourceData) (pingdom.NotificationTargets
 		if sms.Severity == "LOW" {
 			hasLowSeverity = true
 		}
-		switch sms.Provider {
-		case "nexmo", "bulksms", "esendex", "cellsynt":
-			base.SMS = append(base.SMS, sms)
-			continue
-		}
 
-		return base, fmt.Errorf("SMS provider must be one of: nexmo, bulksms, esendex, or cellsynt")
+		base.SMS = append(base.SMS, sms)
 	}
 
 	for _, raw := range d.Get("email_notification").(*schema.Set).List() {
@@ -120,7 +117,7 @@ func getNotificationMethods(d *schema.ResourceData) (pingdom.NotificationTargets
 	}
 
 	if !hasHighSeverity || !hasLowSeverity {
-		return base, fmt.Errorf("You must provide both a high and low severity notification method")
+		return base, fmt.Errorf("you must provide both a high and low severity notification method")
 	}
 
 	return base, nil
