@@ -58,7 +58,7 @@ func resourcePingdomCheck() *schema.Resource {
 
 			"resolution": {
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
 				ForceNew:     false,
 				Default:      5,
 				ValidateFunc: validation.IntInSlice([]int{1, 5, 15, 30, 60}),
@@ -266,7 +266,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.SendNotificationWhenDown = v.(int)
 	}
 
-	if v, ok := d.GetOk("notifyagainevery"); ok {
+	if v, ok := d.GetOkExists("notifyagainevery"); ok {
 		checkParams.NotifyAgainEvery = v.(int)
 	}
 
@@ -360,7 +360,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.VerifyCertificate = v.(bool)
 	}
 
-	if v, ok := d.GetOk("ssl_down_days_before"); ok {
+	if v, ok := d.GetOkExists("ssl_down_days_before"); ok {
 		checkParams.SSLDownDaysBefore = v.(int)
 	}
 
