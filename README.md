@@ -215,6 +215,10 @@ For the HTTP checks, you can set these attributes:
 
   * **probefilters** - Region from which the check should originate. One of NA, EU, APAC, or LATAM. Should be in the format "region:NA"
 
+  * **verifycertificate** - Enable monitoring of SSL/TLS certificate.
+
+  * **ssldowndaysbefore** - Days prior to certificate expiring to consider down.
+
 #### TCP specific attributes ####
 
 For the TCP checks, you can set these attributes:
