@@ -13,7 +13,7 @@ import (
 type Config struct {
 	APIToken           string `mapstructure:"api_token"`
 	SolarwindsUser     string `mapstructure:"solarwinds_user"`
-	SolarwindsPassword string `mapstructure:"solarwinds_password"`
+	SolarwindsPassword string `mapstructure:"solarwinds_passwd"`
 	SolarwindsOrgID    string `mapstructure:"solarwinds_org_id"`
 }
 
