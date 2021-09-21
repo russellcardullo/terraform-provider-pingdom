@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
@@ -27,114 +28,102 @@ func resourcePingdomCheck() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"host": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"http", "tcp", "ping"}, false),
 			},
 			"paused": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
-				Computed: true,
+				Default:  false,
 			},
 			"responsetime_threshold": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"resolution": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: false,
-				Computed: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     false,
+				Default:      5,
+				ValidateFunc: validation.IntInSlice([]int{1, 5, 15, 30, 60}),
 			},
 			"sendnotificationwhendown": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
-				Computed: true,
+				Default:  2,
 			},
 			"notifyagainevery": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"notifywhenbackup": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
-				Computed: true,
+				Default:  true,
 			},
 			"integrationids": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 			"encryption": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 			"url": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ForceNew:         false,
 				Default:          "/",
 				DiffSuppressFunc: diffSuppressIfNotHTTPCheck,
 			},
 			"port": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: false,
-				Computed: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     false,
+				Computed:     true,
+				ValidateFunc: validation.IsPortNumber,
 			},
 			"username": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"password": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
+				Type:      schema.TypeString,
+				Optional:  true,
+				ForceNew:  false,
+				Sensitive: true,
 			},
 			"shouldcontain": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"shouldnotcontain": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"postdata": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"requestheaders": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"tags": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 				StateFunc: func(val interface{}) string {
 					return sortString(val.(string), ",")
 				},
@@ -142,51 +131,42 @@ func resourcePingdomCheck() *schema.Resource {
 			"probefilters": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"userids": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 			"teamids": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 			"stringtosend": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"stringtoexpect": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"expectedip": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"nameserver": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: false,
 			},
 			"verify_certificate": {
 				Type:             schema.TypeBool,
 				Optional:         true,
-				ForceNew:         false,
 				Default:          true,
 				DiffSuppressFunc: diffSuppressIfNotHTTPCheck,
 			},
 			"ssl_down_days_before": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: false,
 				Computed: true,
 			},
 		},

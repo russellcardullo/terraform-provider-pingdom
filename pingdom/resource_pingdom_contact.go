@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
@@ -49,9 +50,10 @@ func resourcePingdomContact() *schema.Resource {
 							Required: true,
 						},
 						"provider": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "nexmo",
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "nexmo",
+							ValidateFunc: validation.StringInSlice([]string{"nexmo", "bulksms", "esendex", "cellsynt"}, false),
 						},
 					},
 				},

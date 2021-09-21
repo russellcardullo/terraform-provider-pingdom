@@ -2,11 +2,13 @@ package pingdom
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/nordcloud/go-pingdom/pingdom"
 	"strconv"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
 func resourcePingdomMaintenance() *schema.Resource {
@@ -37,9 +39,10 @@ func resourcePingdomMaintenance() *schema.Resource {
 				Computed: true,
 			},
 			"recurrencetype": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "none",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "none",
+				ValidateFunc: validation.StringInSlice([]string{"none", "day", "week", "month"}, false),
 			},
 			"repeatevery": {
 				Type:     schema.TypeInt,

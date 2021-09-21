@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
@@ -62,10 +63,11 @@ func resourcePingdomTmsCheck() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
-			"interval": { //  [5 10 20 60 720 1440]
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  10,
+			"interval": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      10,
+				ValidateFunc: validation.IntInSlice([]int{5, 10, 20, 60, 720, 1440}),
 			},
 			"metadata": {
 				Type:     schema.TypeList,
@@ -95,18 +97,21 @@ func resourcePingdomTmsCheck() *schema.Resource {
 				},
 			},
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "us-east",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "us-east",
+				ValidateFunc: validation.StringInSlice([]string{"us-east", "us-west", "eu", "au"}, false),
 			},
 			"send_notification_when_down": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Default:  1,
 			},
 			"security_level": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "high",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "high",
+				ValidateFunc: validation.StringInSlice([]string{"high", "low"}, false),
 			},
 			"tags": {
 				Type:     schema.TypeString,
