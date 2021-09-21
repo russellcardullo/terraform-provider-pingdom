@@ -23,12 +23,10 @@ func resourcePingdomTeam() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: false,
 			},
 			"member_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: false,
 				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 		},
