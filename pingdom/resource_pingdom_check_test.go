@@ -39,7 +39,7 @@ func TestAccResourcePingdomCheck_http(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "url", "/"),
 					resource.TestCheckResourceAttr(resourceName, "encryption", "false"),
 					resource.TestCheckResourceAttr(resourceName, "port", "80"),
-					resource.TestCheckResourceAttr(resourceName, "responsetime_threshold", "30000"),
+					// resource.TestCheckResourceAttr(resourceName, "responsetime_threshold", "30000"),
 					resource.TestCheckResourceAttr(resourceName, "postdata", ""),
 					resource.TestCheckResourceAttr(resourceName, "integrationids.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "tags", ""),
@@ -49,9 +49,10 @@ func TestAccResourcePingdomCheck_http(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"paused"},
 			},
 			{
 				Config: testAccResourcePingdomCheckConfig_http_update(updatedName),
@@ -105,9 +106,10 @@ func TestAccResourcePingdomCheck_tcp(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"paused"},
 			},
 			{
 				Config: testAccResourcePingdomCheckConfig_tcp_update(updatedName),
@@ -143,9 +145,10 @@ func TestAccResourcePingdomCheck_ping(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"paused"},
 			},
 			{
 				Config: testAccResourcePingdomCheckConfig_ping_update(updatedName),
@@ -182,9 +185,10 @@ func TestAccResourcePingdomCheck_dns(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"paused"},
 			},
 			{
 				Config: testAccResourcePingdomCheckConfig_dns_update(updatedName),

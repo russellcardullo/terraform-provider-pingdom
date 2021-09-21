@@ -14,6 +14,13 @@ import (
 	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
+const (
+	checkTypeHttp = "http"
+	checkTypeTcp  = "tcp"
+	checkTypePing = "ping"
+	checkTypeDns  = "dns"
+)
+
 func resourcePingdomCheck() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePingdomCheckCreate,
@@ -37,7 +44,7 @@ func resourcePingdomCheck() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"http", "tcp", "ping"}, false),
+				ValidateFunc: validation.StringInSlice([]string{checkTypeHttp, checkTypeTcp, checkTypePing, checkTypeDns}, false),
 			},
 			"paused": {
 				Type:     schema.TypeBool,
@@ -69,7 +76,7 @@ func resourcePingdomCheck() *schema.Resource {
 			"notifywhenbackup": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  false,
 			},
 			"integrationids": {
 				Type:     schema.TypeSet,
@@ -165,9 +172,10 @@ func resourcePingdomCheck() *schema.Resource {
 				DiffSuppressFunc: diffSuppressIfNotHTTPCheck,
 			},
 			"ssl_down_days_before": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				Default:          0,
+				DiffSuppressFunc: diffSuppressIfNotHTTPCheck,
 			},
 		},
 	}
@@ -205,7 +213,7 @@ type commonCheckParams struct {
 }
 
 func diffSuppressIfNotHTTPCheck(k string, old string, new string, d *schema.ResourceData) bool {
-	return d.Get("type").(string) != "http"
+	return d.Get("type").(string) != checkTypeHttp
 }
 
 func sortString(input string, seperator string) string {
@@ -349,7 +357,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 
 	checkType := d.Get("type")
 	switch checkType {
-	case "http":
+	case checkTypeHttp:
 		return &pingdom.HttpCheck{
 			Name:                     checkParams.Name,
 			Hostname:                 checkParams.Hostname,
@@ -376,7 +384,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			VerifyCertificate:        &checkParams.VerifyCertificate,
 			SSLDownDaysBefore:        &checkParams.SSLDownDaysBefore,
 		}, nil
-	case "ping":
+	case checkTypePing:
 		return &pingdom.PingCheck{
 			Name:                     checkParams.Name,
 			Hostname:                 checkParams.Hostname,
@@ -392,7 +400,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			UserIds:                  checkParams.UserIds,
 			TeamIds:                  checkParams.TeamIds,
 		}, nil
-	case "tcp":
+	case checkTypeTcp:
 		return &pingdom.TCPCheck{
 			Name:                     checkParams.Name,
 			Hostname:                 checkParams.Hostname,
@@ -410,7 +418,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			StringToSend:             checkParams.StringToSend,
 			StringToExpect:           checkParams.StringToExpect,
 		}, nil
-	case "dns":
+	case checkTypeDns:
 		return &pingdom.DNSCheck{
 			Name:                     checkParams.Name,
 			Hostname:                 checkParams.Hostname,
@@ -566,7 +574,7 @@ func resourcePingdomCheckRead(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if ck.Type.HTTP != nil {
-		if err := d.Set("type", "http"); err != nil {
+		if err := d.Set("type", checkTypeHttp); err != nil {
 			return diag.FromErr(err)
 		}
 		if err := d.Set("responsetime_threshold", ck.ResponseTimeThreshold); err != nil {
@@ -612,7 +620,7 @@ func resourcePingdomCheckRead(ctx context.Context, d *schema.ResourceData, meta 
 			return diag.FromErr(err)
 		}
 	} else if ck.Type.TCP != nil {
-		if err := d.Set("type", "tcp"); err != nil {
+		if err := d.Set("type", checkTypeTcp); err != nil {
 			return diag.FromErr(err)
 		}
 		if err := d.Set("port", ck.Type.TCP.Port); err != nil {
@@ -625,7 +633,7 @@ func resourcePingdomCheckRead(ctx context.Context, d *schema.ResourceData, meta 
 			return diag.FromErr(err)
 		}
 	} else if ck.Type.DNS != nil {
-		if err := d.Set("type", "dns"); err != nil {
+		if err := d.Set("type", checkTypeDns); err != nil {
 			return diag.FromErr(err)
 		}
 		if err := d.Set("expectedip", ck.Type.DNS.ExpectedIP); err != nil {
@@ -635,7 +643,7 @@ func resourcePingdomCheckRead(ctx context.Context, d *schema.ResourceData, meta 
 			return diag.FromErr(err)
 		}
 	} else {
-		if err := d.Set("type", "ping"); err != nil {
+		if err := d.Set("type", checkTypePing); err != nil {
 			return diag.FromErr(err)
 		}
 	}

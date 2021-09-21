@@ -68,12 +68,12 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("PINGDOM_API_TOKEN"); v == "" {
 		t.Fatal("PINGDOM_API_TOKEN environment variable must be set for acceptance tests")
 	}
-	if v := os.Getenv("SOLARWINDS_USER"); v == "" {
-		t.Fatal("SOLARWINDS_USER environment variable must be set for acceptance tests")
-	}
-	if v := os.Getenv("SOLARWINDS_PASSWD"); v == "" {
-		t.Fatal("SOLARWINDS_PASSWD environment variable must be set for acceptance tests")
-	}
+	// if v := os.Getenv("SOLARWINDS_USER"); v == "" {
+	// 	t.Fatal("SOLARWINDS_USER environment variable must be set for acceptance tests")
+	// }
+	// if v := os.Getenv("SOLARWINDS_PASSWD"); v == "" {
+	// 	t.Fatal("SOLARWINDS_PASSWD environment variable must be set for acceptance tests")
+	// }
 }
 
 func testAccCheckPingdomResourceID(name string) resource.TestCheckFunc {

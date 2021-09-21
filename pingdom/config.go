@@ -2,7 +2,6 @@ package pingdom
 
 import (
 	"errors"
-	"github.com/nordcloud/go-pingdom/solarwinds"
 	"log"
 	"os"
 
@@ -21,7 +20,7 @@ type Config struct {
 type Clients struct {
 	Pingdom    *pingdom.Client
 	PingdomExt *pingdomext.Client
-	Solarwinds *solarwinds.Client
+	// Solarwinds *solarwinds.Client
 }
 
 func (c *Config) Client() (*Clients, error) {
@@ -40,17 +39,17 @@ func (c *Config) Client() (*Clients, error) {
 	if orgID := os.Getenv("SOLARWINDS_ORG_ID"); orgID != "" {
 		c.SolarwindsOrgID = orgID
 	}
-	solarwindsClient, err := solarwinds.NewClient(solarwinds.ClientConfig{
-		Username: c.SolarwindsUser,
-		Password: c.SolarwindsPassword,
-	})
-	if err != nil {
-		return nil, err
-	}
-	err = solarwindsClient.Init()
-	if err != nil {
-		return nil, err
-	}
+	// solarwindsClient, err := solarwinds.NewClient(solarwinds.ClientConfig{
+	// 	Username: c.SolarwindsUser,
+	// 	Password: c.SolarwindsPassword,
+	// })
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// err = solarwindsClient.Init()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	pingdomClientExt, err := pingdomext.NewClientWithConfig(pingdomext.ClientConfig{
 		Username: c.SolarwindsUser,
@@ -65,7 +64,7 @@ func (c *Config) Client() (*Clients, error) {
 	return &Clients{
 		Pingdom:    pingdomClient,
 		PingdomExt: pingdomClientExt,
-		Solarwinds: solarwindsClient,
+		// Solarwinds: solarwindsClient,
 	}, nil
 }
 

@@ -33,9 +33,9 @@ func Provider() *schema.Provider {
 			"pingdom_contact":     resourcePingdomContact(),
 			"pingdom_integration": resourcePingdomIntegration(),
 			"pingdom_maintenance": resourcePingdomMaintenance(),
-			"pingdom_user":        resourceSolarwindsUser(),
-			"pingdom_occurrence":  resourcePingdomOccurrences(),
-			"pingdom_tms_check":   resourcePingdomTmsCheck(),
+			// "pingdom_user":        resourceSolarwindsUser(),
+			"pingdom_occurrence": resourcePingdomOccurrences(),
+			"pingdom_tms_check":  resourcePingdomTmsCheck(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"pingdom_contact":      dataSourcePingdomContact(),
