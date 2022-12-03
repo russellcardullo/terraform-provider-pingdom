@@ -5,9 +5,9 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/DrFaust92/go-pingdom/pingdom"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
 func resourcePingdomTeam() *schema.Resource {

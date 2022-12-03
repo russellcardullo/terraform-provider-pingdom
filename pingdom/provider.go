@@ -11,20 +11,24 @@ func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"api_token": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("PINGDOM_API_TOKEN", nil),
 			},
 			"solarwinds_user": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SOLARWINDS_USER", nil),
 			},
 			"solarwinds_passwd": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SOLARWINDS_PASSWD", nil),
 			},
 			"solarwinds_org_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("SOLARWINDS_ORG_ID", nil),
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{

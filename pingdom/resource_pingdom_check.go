@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/DrFaust92/go-pingdom/pingdom"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/nordcloud/go-pingdom/pingdom"
 )
 
 const (
@@ -45,6 +45,10 @@ func resourcePingdomCheck() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{checkTypeHttp, checkTypeTcp, checkTypePing, checkTypeDns}, false),
+			},
+			"custom_message": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"paused": {
 				Type:     schema.TypeBool,
@@ -210,6 +214,7 @@ type commonCheckParams struct {
 	NameServer               string
 	VerifyCertificate        bool
 	SSLDownDaysBefore        int
+	CustomMessage            string
 }
 
 func diffSuppressIfNotHTTPCheck(k string, old string, new string, d *schema.ResourceData) bool {
@@ -229,6 +234,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 	if v, ok := d.GetOk("name"); ok {
 		checkParams.Name = v.(string)
 	}
+
 	if v, ok := d.GetOk("host"); ok {
 		checkParams.Hostname = v.(string)
 	}
@@ -355,6 +361,10 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 		checkParams.SSLDownDaysBefore = v.(int)
 	}
 
+	if v, ok := d.GetOk("custom_message"); ok {
+		checkParams.CustomMessage = v.(string)
+	}
+
 	checkType := d.Get("type")
 	switch checkType {
 	case checkTypeHttp:
@@ -383,6 +393,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			TeamIds:                  checkParams.TeamIds,
 			VerifyCertificate:        &checkParams.VerifyCertificate,
 			SSLDownDaysBefore:        &checkParams.SSLDownDaysBefore,
+			CustomMessage:            checkParams.CustomMessage,
 		}, nil
 	case checkTypePing:
 		return &pingdom.PingCheck{
@@ -417,6 +428,7 @@ func checkForResource(d *schema.ResourceData) (pingdom.Check, error) {
 			Port:                     checkParams.Port,
 			StringToSend:             checkParams.StringToSend,
 			StringToExpect:           checkParams.StringToExpect,
+			CustomMessage:            checkParams.CustomMessage,
 		}, nil
 	case checkTypeDns:
 		return &pingdom.DNSCheck{

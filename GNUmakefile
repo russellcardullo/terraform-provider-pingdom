@@ -3,6 +3,7 @@ GOARCH := $(shell go env GOARCH)
 TAG := $(shell git describe --abbrev=0 --tags)
 TF_PLUGIN_PATH := $(HOME)/.terraform.d/plugins/$(GOOS)_$(GOARCH)
 PLUGIN_NAME := terraform-provider-pingdom
+GO_VER              ?= go
 
 default: build
 
@@ -33,4 +34,7 @@ mod:
 	@go mod tidy
 	@go mod vendor
 
-.PHONY: build install lint test clean build-linux mod
+testacc:
+	TF_ACC=1  $(GO_VER) test -timeout 600s -run='$(TESTS)' github.com/DrFaust92/terraform-provider-pingdom/pingdom
+
+.PHONY: build install lint test clean build-linux mod testacc
