@@ -77,6 +77,7 @@ func TestAccResourcePingdomCheck_http(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags", "a,b"),
 					resource.TestCheckResourceAttr(resourceName, "probefilters", "region:APAC"),
 					resource.TestCheckResourceAttr(resourceName, "paused", "true"),
+					resource.TestCheckResourceAttr(resourceName, "custom_message", "test"),
 					resource.TestCheckResourceAttrPair(resourceName, "userids.0", contactResourceName, "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "teamids.0", teamResourceName, "id"),
 				),
@@ -351,6 +352,7 @@ resource "pingdom_check" "http" {
 	paused                   = true
 	userids                  = [pingdom_contact.test.id]
 	teamids                  = [pingdom_team.test.id]
+	custom_message           = "test"
 	requestheaders = {
 		X-Test-Data = "test"
 	}
